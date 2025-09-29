@@ -4,11 +4,12 @@ import type { DatabaseRowPacket } from '@/types/api';
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const db = await getConnection();
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
 
     const [rows] = await db.execute(`
       SELECT
@@ -66,11 +67,12 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const db = await getConnection();
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const updates = await request.json();
 
     // Build dynamic update query
@@ -140,11 +142,12 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const db = await getConnection();
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
 
     const [result] = await db.execute(
       'DELETE FROM professional_services WHERE id = ?',

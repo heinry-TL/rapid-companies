@@ -3,10 +3,11 @@ import { getConnection } from '@/lib/mysql';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id;
+    const resolvedParams = await params;
+    const orderId = resolvedParams.id;
     const db = await getConnection();
 
     // Get order details
@@ -88,10 +89,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id;
+    const resolvedParams = await params;
+    const orderId = resolvedParams.id;
     const body = await request.json();
     const { payment_status, customer_name, customer_phone } = body;
 
