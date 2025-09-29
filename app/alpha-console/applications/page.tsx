@@ -29,9 +29,9 @@ export default function ApplicationsPage() {
 
   useEffect(() => {
     fetchApplications();
-  }, [statusFilter, paymentFilter]);
+  }, [fetchApplications]);
 
-  const fetchApplications = async () => {
+  const fetchApplications = React.useCallback(async () => {
     try {
       let url = '/api/admin/applications';
       const params = new URLSearchParams();
@@ -46,12 +46,12 @@ export default function ApplicationsPage() {
       } else {
         setError('Failed to fetch applications');
       }
-    } catch (error) {
+    } catch {
       setError('Network error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, paymentFilter]);
 
   const updateInternalStatus = async (id: number, newStatus: string) => {
     try {
@@ -67,7 +67,7 @@ export default function ApplicationsPage() {
       } else {
         setError('Failed to update application status');
       }
-    } catch (error) {
+    } catch {
       setError('Network error');
     }
   };

@@ -23,7 +23,19 @@ export default function JurisdictionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addForm, setAddForm] = useState<any>({
+  interface AddFormData {
+    name: string;
+    country_code: string;
+    flag_url: string;
+    description: string;
+    formation_price: string;
+    currency: string;
+    processing_time: string;
+    features: string;
+    status: string;
+  }
+
+  const [addForm, setAddForm] = useState<AddFormData>({
     name: "",
     country_code: "",
     flag_url: "",
@@ -52,7 +64,7 @@ export default function JurisdictionsPage() {
       } else {
         setError("Failed to fetch jurisdictions");
       }
-    } catch (e) {
+    } catch {
       setError("Network error");
     } finally {
       setLoading(false);
@@ -68,17 +80,17 @@ export default function JurisdictionsPage() {
       } else {
         alert("Failed to delete jurisdiction");
       }
-    } catch (e) {
+    } catch {
       alert("Network error");
     }
   };
 
-  const handleAddChange = (e: any) => {
+  const handleAddChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setAddForm((prev: any) => ({ ...prev, [name]: value }));
+    setAddForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddSubmit = async (e: any) => {
+  const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdding(true);
     setAddError("");
@@ -109,7 +121,7 @@ export default function JurisdictionsPage() {
         const data = await res.json();
         setAddError(data.error || "Failed to add jurisdiction");
       }
-    } catch (e) {
+    } catch {
       setAddError("Network error");
     } finally {
       setAdding(false);

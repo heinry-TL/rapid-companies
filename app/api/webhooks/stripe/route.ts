@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import { db } from '@/lib/database';
+import type { StripeWebhookEvent } from '@/types/api';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -11,12 +12,12 @@ export async function POST(req: NextRequest) {
     const headersList = headers();
     const signature = headersList.get('stripe-signature')!;
 
-    let event: any;
+    let event: StripeWebhookEvent;
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err instanceof Error ? err.message : 'Unknown error');
       return NextResponse.json(
         { error: 'Webhook signature verification failed' },
         { status: 400 }
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Webhook handler error:', error);
     return NextResponse.json(
       { error: 'Webhook handler failed' },
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function handleSuccessfulPayment(paymentIntent: any) {
+async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
   try {
     // Extract order details from metadata
     const metadata = paymentIntent.metadata;
@@ -84,8 +85,8 @@ async function handleSuccessfulPayment(paymentIntent: any) {
     }
 
     // Parse order items from metadata
-    let applications = [];
-    let standaloneServices = [];
+    let applications: unknown[] = [];
+    let standaloneServices: unknown[] = [];
 
     try {
       if (metadata.applications) {
@@ -121,7 +122,7 @@ async function handleSuccessfulPayment(paymentIntent: any) {
   }
 }
 
-async function handleFailedPayment(paymentIntent: any) {
+async function handleFailedPayment(paymentIntent: Record<string, unknown>) {
   try {
     const metadata = paymentIntent.metadata;
     const orderId = metadata.order_id;

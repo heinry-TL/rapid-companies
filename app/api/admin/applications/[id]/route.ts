@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket, ApplicationData, ApplicationUpdateRequest } from '@/types/api';
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -60,7 +61,7 @@ export async function GET(
       WHERE a.id = ?
     `, [applicationId]);
 
-    const result = rows as any[];
+    const result = rows as DatabaseRowPacket[];
     if (result.length === 0) {
       return NextResponse.json(
         { error: 'Application not found' },
@@ -68,7 +69,7 @@ export async function GET(
       );
     }
 
-    const application = result[0];
+    const application = result[0] as Record<string, unknown>;
 
     // Add derived fields
     application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();
@@ -86,8 +87,8 @@ export async function GET(
           application.directors = JSON.parse(application.directors);
         }
         // If it's already an array/object, keep it as is
-      } catch (e) {
-        console.error('Error parsing directors:', e);
+      } catch {
+        console.error('Error parsing directors');
         application.directors = [];
       }
     } else {
@@ -100,8 +101,8 @@ export async function GET(
           application.shareholders = JSON.parse(application.shareholders);
         }
         // If it's already an array/object, keep it as is
-      } catch (e) {
-        console.error('Error parsing shareholders:', e);
+      } catch {
+        console.error('Error parsing shareholders');
         application.shareholders = [];
       }
     } else {
@@ -114,8 +115,8 @@ export async function GET(
           application.additional_services = JSON.parse(application.additional_services);
         }
         // If it's already an array/object, keep it as is
-      } catch (e) {
-        console.error('Error parsing additional_services:', e);
+      } catch {
+        console.error('Error parsing additional_services');
         application.additional_services = [];
       }
     } else {
@@ -148,18 +149,18 @@ export async function PATCH(
       );
     }
 
-    const updates = await request.json();
+    const updates = await request.json() as ApplicationUpdateRequest;
     const allowedFields = [
       'internal_status', 'admin_notes', 'assigned_to', 'payment_status'
     ];
 
     const updateFields: string[] = [];
-    const updateValues: any[] = [];
+    const updateValues: (string | number)[] = [];
 
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key)) {
         updateFields.push(`${key} = ?`);
-        updateValues.push(updates[key]);
+        updateValues.push(updates[key as keyof ApplicationUpdateRequest]);
       }
     });
 
@@ -199,7 +200,7 @@ export async function PATCH(
       WHERE a.id = ?
     `, [applicationId]);
 
-    const result = rows as any[];
+    const result = rows as DatabaseRowPacket[];
     if (result.length === 0) {
       return NextResponse.json(
         { error: 'Application not found after update' },
@@ -207,7 +208,7 @@ export async function PATCH(
       );
     }
 
-    const application = result[0];
+    const application = result[0] as Record<string, unknown>;
 
     // Add derived fields
     application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();

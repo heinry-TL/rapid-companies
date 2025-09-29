@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
+import type { PaymentIntentRequest } from '@/types/api';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json() as PaymentIntentRequest;
     const {
       amount,
       currency = 'gbp',
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
       payment_intent_id: paymentIntent.id,
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error creating payment intent:', error);
     return NextResponse.json(
       { error: 'Failed to create payment intent' },

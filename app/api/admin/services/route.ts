@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket } from '@/types/api';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const db = await getConnection();
 
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       services: rows,
-      total: (rows as any[]).length
+      total: (rows as DatabaseRowPacket[]).length
     });
   } catch (error) {
     console.error('Services API error:', error);
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Generate ID if not provided
     const serviceId = id || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    const [result]: any = await db.execute(
+    const [result] = await db.execute(
       `INSERT INTO additional_services
        (id, name, description, base_price, currency, note, category, active)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,

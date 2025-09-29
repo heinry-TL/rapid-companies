@@ -1,10 +1,21 @@
 import Link from 'next/link';
 import { getConnection } from '@/lib/mysql';
 
+interface ApplicationRow {
+  id: number;
+  company_proposed_name: string;
+  jurisdiction_name: string;
+  full_name: string;
+  contact_email: string;
+  internal_status: string;
+  payment_status?: string;
+  created_at: string;
+}
+
 async function getRecentApplications() {
   try {
     const db = await getConnection();
-    const [rows]: any = await db.execute(`
+    const [rows] = await db.execute(`
       SELECT
         a.id,
         a.company_proposed_name,
@@ -18,7 +29,7 @@ async function getRecentApplications() {
       LIMIT 10
     `);
 
-    return rows || [];
+    return (rows as ApplicationRow[]) || [];
   } catch (error) {
     console.error('Error fetching recent applications:', error);
     return [];
@@ -77,7 +88,7 @@ export default async function RecentApplications() {
         ) : (
           <div className="flow-root">
             <ul className="-my-5 divide-y divide-gray-200">
-              {applications.map((application: any) => (
+              {applications.map((application: ApplicationRow) => (
                 <li key={application.id} className="py-4">
                   <div className="flex items-center space-x-4">
                     <div className="flex-1 min-w-0">

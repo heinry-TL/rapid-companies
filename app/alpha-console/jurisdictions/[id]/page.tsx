@@ -24,7 +24,7 @@ export default function EditJurisdictionPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
-    const [form, setForm] = useState<any>({});
+    const [form, setForm] = useState<Partial<Jurisdiction & { features: string }>>({});
 
     useEffect(() => {
         if (id) fetchJurisdiction();
@@ -42,19 +42,19 @@ export default function EditJurisdictionPage() {
             } else {
                 setError("Failed to fetch jurisdiction");
             }
-        } catch (e) {
+        } catch {
             setError("Network error");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setForm((prev: any) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = async (e: any) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
         setError("");
@@ -73,7 +73,7 @@ export default function EditJurisdictionPage() {
                 const data = await res.json();
                 setError(data.error || "Failed to update jurisdiction");
             }
-        } catch (e) {
+        } catch {
             setError("Network error");
         } finally {
             setSaving(false);

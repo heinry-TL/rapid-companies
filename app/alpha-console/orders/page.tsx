@@ -66,8 +66,8 @@ export default function OrdersPage() {
       const data = await response.json();
       setOrders(data.orders);
       setPagination(data.pagination);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch orders');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch orders');
     } finally {
       setLoading(false);
     }

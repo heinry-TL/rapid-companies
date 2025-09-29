@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket } from '@/types/api';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const db = await getConnection();
 
@@ -21,14 +22,14 @@ export async function GET(request: NextRequest) {
     `);
 
     // Parse JSON features for each service with error handling
-    const services = (rows as any[]).map(service => {
+    const services = (rows as DatabaseRowPacket[]).map(service => {
       let features: string[] = [];
 
       if (service.features) {
         try {
           // Try to parse as JSON first
           features = JSON.parse(service.features);
-        } catch (error) {
+        } catch {
           // If JSON parsing fails, try to extract comma-separated values
           const featuresStr = String(service.features);
           if (featuresStr.includes(',')) {

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket, JurisdictionUpdateRequest } from '@/types/api';
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -34,7 +35,7 @@ export async function GET(
       WHERE id = ?
     `, [jurisdictionId]);
 
-    const result = rows as any[];
+    const result = rows as DatabaseRowPacket[];
     if (result.length === 0) {
       return NextResponse.json(
         { error: 'Jurisdiction not found' },
@@ -51,7 +52,7 @@ export async function GET(
       } else if (Array.isArray(row.features)) {
         features = row.features;
       }
-    } catch (error) {
+    } catch {
       if (typeof row.features === 'string') {
         features = row.features.split(',').map(f => f.trim()).filter(f => f.length > 0);
       }
@@ -87,22 +88,22 @@ export async function PATCH(
       );
     }
 
-    const updates = await request.json();
+    const updates = await request.json() as JurisdictionUpdateRequest;
     const allowedFields = [
       'name', 'country_code', 'flag_url', 'description',
       'formation_price', 'currency', 'processing_time', 'features', 'status'
     ];
 
     const updateFields: string[] = [];
-    const updateValues: any[] = [];
+    const updateValues: (string | number)[] = [];
 
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key)) {
         updateFields.push(`${key} = ?`);
-        if (key === 'features' && Array.isArray(updates[key])) {
-          updateValues.push(JSON.stringify(updates[key]));
+        if (key === 'features' && Array.isArray(updates[key as keyof JurisdictionUpdateRequest])) {
+          updateValues.push(JSON.stringify(updates[key as keyof JurisdictionUpdateRequest]));
         } else {
-          updateValues.push(updates[key]);
+          updateValues.push(updates[key as keyof JurisdictionUpdateRequest] as string | number);
         }
       }
     });
@@ -141,7 +142,7 @@ export async function PATCH(
       WHERE id = ?
     `, [jurisdictionId]);
 
-    const result = rows as any[];
+    const result = rows as DatabaseRowPacket[];
     if (result.length === 0) {
       return NextResponse.json(
         { error: 'Jurisdiction not found after update' },
@@ -158,7 +159,7 @@ export async function PATCH(
       } else if (Array.isArray(row.features)) {
         features = row.features;
       }
-    } catch (error) {
+    } catch {
       if (typeof row.features === 'string') {
         features = row.features.split(',').map(f => f.trim()).filter(f => f.length > 0);
       }
@@ -183,7 +184,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -203,7 +204,7 @@ export async function DELETE(
       [jurisdictionId]
     );
 
-    const appCount = (applications as any[])[0]?.count || 0;
+    const appCount = (applications as DatabaseRowPacket[])[0]?.count || 0;
     if (appCount > 0) {
       return NextResponse.json(
         { error: 'Cannot delete jurisdiction with existing applications. Set status to inactive instead.' },

@@ -1,10 +1,22 @@
 import Link from 'next/link';
 import { getConnection } from '@/lib/mysql';
 
+interface OrderRow {
+  id: number;
+  company_proposed_name: string;
+  jurisdiction_name: string;
+  jurisdiction_price: number;
+  jurisdiction_currency: string;
+  full_name: string;
+  company_name?: string;
+  formation_fee?: number;
+  created_at: string;
+}
+
 async function getRecentOrders() {
   try {
     const db = await getConnection();
-    const [rows]: any = await db.execute(`
+    const [rows] = await db.execute(`
       SELECT
         a.id,
         a.company_proposed_name,
@@ -18,7 +30,7 @@ async function getRecentOrders() {
       LIMIT 5
     `);
 
-    return rows || [];
+    return (rows as OrderRow[]) || [];
   } catch (error) {
     console.error('Error fetching recent orders:', error);
     return [];
@@ -76,7 +88,7 @@ export default async function RecentOrders() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {orders.map((order: any) => (
+                {orders.map((order: OrderRow) => (
                   <tr key={order.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>

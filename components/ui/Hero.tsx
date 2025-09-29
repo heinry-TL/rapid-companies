@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import Link from "next/link";
 
 // Define the Hero component
 export default function Hero() {
@@ -11,9 +12,6 @@ export default function Hero() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // State to track if video is available and loaded
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [videoError, setVideoError] = useState(false);
 
   // Use useEffect to animate the elements with GSAP
   useEffect(() => {
@@ -52,11 +50,6 @@ export default function Hero() {
           loop
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
-          onLoadedData={() => setVideoLoaded(true)}
-          onError={() => {
-            setVideoError(true);
-            setVideoLoaded(false);
-          }}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
@@ -82,12 +75,12 @@ export default function Hero() {
               tailored to your international business requirements.
             </p>
             <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/jurisdictions"
                 className="px-8 py-4 bg-blue-600 text-white font-semibold text-lg rounded-lg hover:bg-blue-700 transition-colors text-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
                 Get Started
-              </a>
+              </Link>
               <a
                 href="#contact"
                 className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold text-lg rounded-lg hover:bg-white hover:text-gray-900 transition-colors text-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"

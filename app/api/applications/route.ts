@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket } from '@/types/api';
 
 export async function POST(request: NextRequest) {
   try {
-    const applicationData = await request.json();
+    const applicationData = await request.json() as Record<string, unknown>;
     const conn = await getConnection();
 
     // Insert or update application
@@ -112,7 +113,7 @@ export async function GET(request: NextRequest) {
       [applicationId]
     );
 
-    const results = rows as any[];
+    const results = rows as DatabaseRowPacket[];
     if (results.length === 0) {
       return NextResponse.json(
         { error: 'Application not found' },

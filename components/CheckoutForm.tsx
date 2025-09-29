@@ -7,7 +7,6 @@ import {
   useElements,
   AddressElement,
 } from '@stripe/react-stripe-js';
-import { useRouter } from 'next/navigation';
 
 interface CheckoutFormProps {
   amount: number;
@@ -26,7 +25,6 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
-  const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket } from '@/types/api';
 
 export async function GET(
   request: NextRequest,
@@ -26,7 +27,7 @@ export async function GET(
       WHERE id = ?
     `, [id]);
 
-    const result = rows as any[];
+    const result = rows as DatabaseRowPacket[];
     if (result.length === 0) {
       return NextResponse.json(
         { error: 'Service not found' },
@@ -63,7 +64,7 @@ export async function PATCH(
     ];
 
     const updateFields: string[] = [];
-    const updateValues: any[] = [];
+    const updateValues: (string | number | boolean)[] = [];
 
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key)) {
@@ -82,7 +83,7 @@ export async function PATCH(
     updateFields.push('updated_at = NOW()');
     updateValues.push(id);
 
-    const [updateResult]: any = await db.execute(
+    const [updateResult] = await db.execute(
       `UPDATE additional_services SET ${updateFields.join(', ')} WHERE id = ?`,
       updateValues
     );
@@ -111,7 +112,7 @@ export async function PATCH(
       WHERE id = ?
     `, [id]);
 
-    const updatedRows = rows as any[];
+    const updatedRows = rows as DatabaseRowPacket[];
     if (updatedRows.length === 0) {
       return NextResponse.json(
         { error: 'Service not found after update' },
@@ -149,7 +150,7 @@ export async function DELETE(
     // This would depend on how services are linked to applications in your schema
     // For now, we'll allow deletion but you might want to add checks
 
-    const [deleteResult]: any = await db.execute('DELETE FROM additional_services WHERE id = ?', [id]);
+    const [deleteResult] = await db.execute('DELETE FROM additional_services WHERE id = ?', [id]);
 
     if (deleteResult.affectedRows === 0) {
       return NextResponse.json(

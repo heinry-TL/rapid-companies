@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket } from '@/types/api';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const db = await getConnection();
 
@@ -22,13 +23,13 @@ export async function GET(request: NextRequest) {
     `);
 
     // Parse JSON features for each service with error handling
-    const services = (rows as any[]).map(service => {
+    const services = (rows as DatabaseRowPacket[]).map(service => {
       let features: string[] = [];
 
       if (service.features) {
         try {
           features = JSON.parse(service.features);
-        } catch (error) {
+        } catch {
           // If JSON parsing fails, try to extract comma-separated values
           const featuresStr = String(service.features);
           if (featuresStr.includes(',')) {
@@ -85,14 +86,14 @@ export async function POST(request: NextRequest) {
       [id]
     );
 
-    if ((existing as any[]).length > 0) {
+    if ((existing as DatabaseRowPacket[]).length > 0) {
       return NextResponse.json(
         { error: 'Service ID already exists' },
         { status: 400 }
       );
     }
 
-    const [result]: any = await db.execute(
+    const [result] = await db.execute(
       `INSERT INTO professional_services
        (id, name, description, short_description, features, category, display_order, active)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,

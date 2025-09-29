@@ -2,16 +2,18 @@
 
 import { countries, getAddressFields, getCountryByName } from '@/lib/countries';
 
+interface AddressData {
+  line1: string;
+  line2: string;
+  city: string;
+  county: string;
+  postcode: string;
+  country: string;
+}
+
 interface AddressFormProps {
-  address: {
-    line1: string;
-    line2: string;
-    city: string;
-    county: string;
-    postcode: string;
-    country: string;
-  };
-  onChange: (address: any) => void;
+  address: AddressData;
+  onChange: (address: AddressData) => void;
   prefix: string;
   showCopyButton?: boolean;
   onCopyClick?: () => void;

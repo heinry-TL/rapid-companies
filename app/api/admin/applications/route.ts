@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
       WHERE 1=1
     `;
 
-    const queryParams: any[] = [];
+    const queryParams: (string | number)[] = [];
 
     // Note: Since internal_status column doesn't exist yet, we'll skip status filtering for now
     // if (status && status !== 'all') {
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     const [rows] = await db.execute(query);
 
     // Process the results to add derived fields
-    const applications = (rows as any[]).map(row => ({
+    const applications = (rows as DatabaseRowPacket[]).map(row => ({
       ...row,
       full_name: `${row.contact_first_name || ''} ${row.contact_last_name || ''}`.trim(),
       company_type: 'LLC',
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
     // Get total count for pagination
     const countQuery = `SELECT COUNT(*) as total FROM applications a WHERE 1=1`;
     const [countResult] = await db.execute(countQuery);
-    const total = (countResult as any[])[0]?.total || 0;
+    const total = (countResult as DatabaseRowPacket[])[0]?.total || 0;
 
     return NextResponse.json({
       applications,
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Applications API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch applications', details: error.message },
+      { error: 'Failed to fetch applications', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { usePortfolio, CompanyApplication, createEmptyDirector, createEmptyShareholder } from '@/lib/portfolio-context';
+import { useState } from 'react';
+import { usePortfolio, CompanyApplication, Director, Shareholder, createEmptyDirector, createEmptyShareholder } from '@/lib/portfolio-context';
 import { formatCurrency } from '@/lib/currency';
 import AddressForm from './AddressForm';
 
@@ -88,7 +88,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
     }
   };
 
-  const updateDirector = (directorId: string, data: any) => {
+  const updateDirector = (directorId: string, data: Partial<Director>) => {
     dispatch({
       type: 'UPDATE_DIRECTOR',
       payload: { applicationId: application.id, directorId, data },
@@ -112,7 +112,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
     }
   };
 
-  const updateShareholder = (shareholderId: string, data: any) => {
+  const updateShareholder = (shareholderId: string, data: Partial<Shareholder>) => {
     dispatch({
       type: 'UPDATE_SHAREHOLDER',
       payload: { applicationId: application.id, shareholderId, data },

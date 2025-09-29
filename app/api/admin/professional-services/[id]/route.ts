@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
+import type { DatabaseRowPacket } from '@/types/api';
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -25,7 +26,7 @@ export async function GET(
       WHERE id = ?
     `, [id]);
 
-    const result = rows as any[];
+    const result = rows as DatabaseRowPacket[];
     if (result.length === 0) {
       return NextResponse.json(
         { error: 'Professional service not found' },
@@ -115,7 +116,7 @@ export async function PATCH(
     updateFields.push('updated_at = NOW()');
     values.push(id);
 
-    const [result]: any = await db.execute(
+    const [result] = await db.execute(
       `UPDATE professional_services SET ${updateFields.join(', ')} WHERE id = ?`,
       values
     );
@@ -145,7 +146,7 @@ export async function DELETE(
     const db = await getConnection();
     const { id } = params;
 
-    const [result]: any = await db.execute(
+    const [result] = await db.execute(
       'DELETE FROM professional_services WHERE id = ?',
       [id]
     );

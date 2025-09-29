@@ -4,6 +4,37 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
+interface Director {
+    firstName: string;
+    lastName: string;
+    nationality?: string;
+    passportNumber?: string;
+    address?: {
+        line1: string;
+        city: string;
+        postcode: string;
+    };
+}
+
+interface Shareholder {
+    firstName: string;
+    lastName: string;
+    sharePercentage: number;
+    nationality?: string;
+    passportNumber?: string;
+    address?: {
+        line1: string;
+        city: string;
+        postcode: string;
+    };
+}
+
+interface AdditionalService {
+    name: string;
+    price: number;
+    currency: string;
+}
+
 interface Application {
     id: string;
     jurisdiction_id: number;
@@ -40,9 +71,9 @@ interface Application {
     admin_notes?: string;
     step_completed: number;
     is_complete: boolean;
-    directors: any[];
-    shareholders: any[];
-    additional_services: any[];
+    directors: Director[];
+    shareholders: Shareholder[];
+    additional_services: AdditionalService[];
     created_at: string;
     updated_at: string;
     jurisdiction_name_full?: string;
@@ -50,14 +81,16 @@ interface Application {
 }
 
 export default function ApplicationDetailPage() {
-    const router = useRouter();
     const params = useParams();
     const id = params?.id;
     const [application, setApplication] = useState<Application | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
-    const [form, setForm] = useState<any>({});
+    const [form, setForm] = useState<{
+        internal_status: string;
+        admin_notes: string;
+    }>({});
 
     useEffect(() => {
         if (id) fetchApplication();
@@ -78,19 +111,19 @@ export default function ApplicationDetailPage() {
             } else {
                 setError("Failed to fetch application");
             }
-        } catch (e) {
+        } catch {
             setError("Network error");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setForm((prev: any) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = async (e: any) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
         setError("");
@@ -109,7 +142,7 @@ export default function ApplicationDetailPage() {
                 const data = await res.json();
                 setError(data.error || "Failed to update application");
             }
-        } catch (e) {
+        } catch {
             setError("Network error");
         } finally {
             setSaving(false);
@@ -282,7 +315,7 @@ export default function ApplicationDetailPage() {
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Directors</h2>
                 {application.directors && application.directors.length > 0 ? (
                     <div className="space-y-4">
-                        {application.directors.map((director: any, index: number) => (
+                        {application.directors.map((director: Director, index: number) => (
                             <div key={index} className="border-l-4 border-blue-500 pl-4">
                                 <h3 className="font-medium text-gray-900">{director.firstName} {director.lastName}</h3>
                                 <p className="text-sm text-gray-600">Director</p>
@@ -308,7 +341,7 @@ export default function ApplicationDetailPage() {
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Shareholders</h2>
                 {application.shareholders && application.shareholders.length > 0 ? (
                     <div className="space-y-4">
-                        {application.shareholders.map((shareholder: any, index: number) => (
+                        {application.shareholders.map((shareholder: Shareholder, index: number) => (
                             <div key={index} className="border-l-4 border-green-500 pl-4">
                                 <h3 className="font-medium text-gray-900">{shareholder.firstName} {shareholder.lastName}</h3>
                                 <p className="text-sm text-gray-600">Share Percentage: {shareholder.sharePercentage}%</p>
@@ -334,7 +367,7 @@ export default function ApplicationDetailPage() {
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Additional Services</h2>
                 {application.additional_services && application.additional_services.length > 0 ? (
                     <div className="space-y-2">
-                        {application.additional_services.map((service: any, index: number) => (
+                        {application.additional_services.map((service: AdditionalService, index: number) => (
                             <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                                 <span className="text-gray-900">{service.name}</span>
                                 <span className="text-gray-600">{service.currency} {service.price}</span>
