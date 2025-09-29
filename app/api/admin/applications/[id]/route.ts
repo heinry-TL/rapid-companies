@@ -74,7 +74,7 @@ export async function GET(
     // Add derived fields
     application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();
     application.company_type = 'LLC';
-    application.status = application.is_complete ? 'completed' : (application.step_completed >= 5 ? 'processing' : 'pending');
+    application.status = application.is_complete ? 'completed' : ((application.step_completed as number) >= 5 ? 'processing' : 'pending');
     application.payment_status = 'pending';
     application.internal_status = 'new';
     application.admin_notes = '';
@@ -158,9 +158,9 @@ export async function PATCH(
     const updateValues: (string | number)[] = [];
 
     Object.keys(updates).forEach(key => {
-      if (allowedFields.includes(key)) {
+      if (allowedFields.includes(key) && updates[key as keyof ApplicationUpdateRequest] !== undefined) {
         updateFields.push(`${key} = ?`);
-        updateValues.push(updates[key as keyof ApplicationUpdateRequest]);
+        updateValues.push(updates[key as keyof ApplicationUpdateRequest] as string | number);
       }
     });
 
@@ -213,7 +213,7 @@ export async function PATCH(
     // Add derived fields
     application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();
     application.company_type = 'LLC';
-    application.status = application.is_complete ? 'completed' : (application.step_completed >= 5 ? 'processing' : 'pending');
+    application.status = application.is_complete ? 'completed' : ((application.step_completed as number) >= 5 ? 'processing' : 'pending');
     application.payment_status = 'pending';
     application.internal_status = 'new';
     application.admin_notes = '';

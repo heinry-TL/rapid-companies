@@ -27,10 +27,6 @@ export default function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
 
-  useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
-
   const fetchApplications = React.useCallback(async () => {
     try {
       let url = '/api/admin/applications';
@@ -52,6 +48,10 @@ export default function ApplicationsPage() {
       setLoading(false);
     }
   }, [statusFilter, paymentFilter]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   const updateInternalStatus = async (id: number, newStatus: string) => {
     try {

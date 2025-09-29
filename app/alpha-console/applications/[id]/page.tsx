@@ -90,7 +90,10 @@ export default function ApplicationDetailPage() {
     const [form, setForm] = useState<{
         internal_status: string;
         admin_notes: string;
-    }>({});
+    }>({
+        internal_status: '',
+        admin_notes: ''
+    });
 
     useEffect(() => {
         if (id) fetchApplication();

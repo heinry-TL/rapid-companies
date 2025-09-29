@@ -64,7 +64,7 @@ export default function EditJurisdictionPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...form,
-                    features: form.features.split(",").map((f: string) => f.trim()).filter((f: string) => f.length > 0),
+                    features: form.features ? form.features.split(",").map((f: string) => f.trim()).filter((f: string) => f.length > 0) : [],
                 }),
             });
             if (res.ok) {

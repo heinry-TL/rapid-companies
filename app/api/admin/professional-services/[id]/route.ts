@@ -123,7 +123,7 @@ export async function PATCH(
       values
     );
 
-    if (result.affectedRows === 0) {
+    if ((result as any).affectedRows === 0) {
       return NextResponse.json(
         { error: 'Professional service not found' },
         { status: 404 }
@@ -154,7 +154,7 @@ export async function DELETE(
       [id]
     );
 
-    if (result.affectedRows === 0) {
+    if ((result as any).affectedRows === 0) {
       return NextResponse.json(
         { error: 'Professional service not found' },
         { status: 404 }

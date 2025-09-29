@@ -88,7 +88,7 @@ export async function PATCH(
       updateValues
     );
 
-    if (updateResult.affectedRows === 0) {
+    if ((updateResult as any).affectedRows === 0) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
@@ -152,7 +152,7 @@ export async function DELETE(
 
     const [deleteResult] = await db.execute('DELETE FROM additional_services WHERE id = ?', [id]);
 
-    if (deleteResult.affectedRows === 0) {
+    if ((deleteResult as any).affectedRows === 0) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
