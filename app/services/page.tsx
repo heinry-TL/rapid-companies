@@ -174,7 +174,7 @@ export default function ServicesPage() {
                 Offshore Company Formation
               </h2>
               <p className="text-gray-300 mb-6 text-lg">
-                Establish your offshore presence in the world's premier business jurisdictions. We offer incorporation services in over 15+ jurisdictions, each carefully selected for their business-friendly regulations and tax advantages.
+                Establish your offshore presence in the world&apos;s premier business jurisdictions. We offer incorporation services in over 15+ jurisdictions, each carefully selected for their business-friendly regulations and tax advantages.
               </p>
               <div className="space-y-4 mb-8">
                 <div className="flex items-start">
@@ -183,7 +183,7 @@ export default function ServicesPage() {
                   </svg>
                   <div>
                     <h3 className="text-white font-semibold">British Virgin Islands (BVI)</h3>
-                    <p className="text-gray-400">World's leading offshore jurisdiction with maximum privacy and flexibility</p>
+                    <p className="text-gray-400">World&apos;s leading offshore jurisdiction with maximum privacy and flexibility</p>
                   </div>
                 </div>
                 <div className="flex items-start">
@@ -288,7 +288,7 @@ export default function ServicesPage() {
                 Offshore Banking Services
               </h2>
               <p className="text-gray-300 mb-6 text-lg">
-                Secure your financial future with multi-currency offshore bank accounts in the world's most stable banking jurisdictions. Our banking specialists facilitate account opening with top-tier international banks.
+                Secure your financial future with multi-currency offshore bank accounts in the world&apos;s most stable banking jurisdictions. Our banking specialists facilitate account opening with top-tier international banks.
               </p>
               <div className="space-y-4 mb-8">
                 <div className="flex items-center">

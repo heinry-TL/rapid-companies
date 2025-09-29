@@ -84,7 +84,7 @@ export default function PaymentSuccessPage() {
                 <div>
                   <h3 className="text-white font-semibold">Confirmation Email</h3>
                   <p className="text-gray-400 text-sm">
-                    You'll receive a detailed confirmation email with your order details and next steps.
+                    You&apos;ll receive a detailed confirmation email with your order details and next steps.
                   </p>
                 </div>
               </div>
@@ -108,7 +108,7 @@ export default function PaymentSuccessPage() {
                 <div>
                   <h3 className="text-white font-semibold">Filing & Registration</h3>
                   <p className="text-gray-400 text-sm">
-                    We'll file your documents with the appropriate authorities in your chosen jurisdiction.
+                    We&apos;ll file your documents with the appropriate authorities in your chosen jurisdiction.
                   </p>
                 </div>
               </div>

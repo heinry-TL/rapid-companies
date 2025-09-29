@@ -35,7 +35,7 @@ const testimonials = [
     name: "Robert Kiyosaki",
     role: "Real Estate Investor",
     quote:
-      "I've worked with several offshore service providers, Rapid Offshore stands out for their professionalism and efficiency. Highly recommended!",
+      "I&apos;ve worked with several offshore service providers, Rapid Offshore stands out for their professionalism and efficiency. Highly recommended!",
     avatar: "/images/testimonial-3.jpg",
     rating: 4,
   },
