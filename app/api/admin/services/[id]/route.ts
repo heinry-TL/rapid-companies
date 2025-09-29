@@ -5,9 +5,10 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let db;
   try {
     const { id } = await params;
-    const db = await getConnection();
+    db = await getConnection();
 
     const [rows] = await db.execute(`
       SELECT
@@ -40,6 +41,10 @@ export async function GET(
       { error: 'Failed to fetch service' },
       { status: 500 }
     );
+  } finally {
+    if (db) {
+      db.release();
+    }
   }
 }
 
@@ -47,9 +52,10 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let db;
   try {
     const { id } = await params;
-    const db = await getConnection();
+    db = await getConnection();
 
     const updates = await request.json();
     const allowedFields = [
@@ -123,6 +129,10 @@ export async function PATCH(
       { error: 'Failed to update service' },
       { status: 500 }
     );
+  } finally {
+    if (db) {
+      db.release();
+    }
   }
 }
 
@@ -130,17 +140,18 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let db;
   try {
     const { id } = await params;
-    const db = await getConnection();
+    db = await getConnection();
 
     // Check if service is used in any applications
     // This would depend on how services are linked to applications in your schema
     // For now, we'll allow deletion but you might want to add checks
 
-    const [result]: any = await db.execute('DELETE FROM additional_services WHERE id = ?', [id]);
+    const [deleteResult]: any = await db.execute('DELETE FROM additional_services WHERE id = ?', [id]);
 
-    if (result.affectedRows === 0) {
+    if (deleteResult.affectedRows === 0) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
@@ -157,5 +168,9 @@ export async function DELETE(
       { error: 'Failed to delete service' },
       { status: 500 }
     );
+  } finally {
+    if (db) {
+      db.release();
+    }
   }
 }
