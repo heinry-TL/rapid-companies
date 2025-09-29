@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getConnection } from '@/lib/mysql';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params;
         const db = await getConnection();
-        const [rows] = await db.execute('SELECT * FROM banking_jurisdictions WHERE id = ?', [params.id]);
+        const [rows] = await db.execute('SELECT * FROM banking_jurisdictions WHERE id = ?', [id]);
         if ((rows as any[]).length === 0) {
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
         }
@@ -14,8 +15,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params;
         const db = await getConnection();
         const updates = await request.json();
         const allowedFields = ['name', 'description', 'icon_url', 'is_active', 'sort_order'];
@@ -30,7 +32,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         if (updateFields.length === 0) {
             return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
         }
-        updateValues.push(params.id);
+        updateValues.push(id);
         await db.execute(
             `UPDATE banking_jurisdictions SET ${updateFields.join(', ')} WHERE id = ?`,
             updateValues
@@ -41,10 +43,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params;
         const db = await getConnection();
-        await db.execute('DELETE FROM banking_jurisdictions WHERE id = ?', [params.id]);
+        await db.execute('DELETE FROM banking_jurisdictions WHERE id = ?', [id]);
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete banking jurisdiction' }, { status: 500 });

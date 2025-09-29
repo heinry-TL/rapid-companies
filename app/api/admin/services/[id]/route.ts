@@ -3,11 +3,11 @@ import { getConnection } from '@/lib/mysql';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const db = await getConnection();
-    const { id } = params;
 
     const [rows] = await db.execute(`
       SELECT
@@ -45,11 +45,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const db = await getConnection();
-    const { id } = params;
 
     const updates = await request.json();
     const allowedFields = [
@@ -76,12 +76,12 @@ export async function PATCH(
     updateFields.push('updated_at = NOW()');
     updateValues.push(id);
 
-    const [result]: any = await db.execute(
+    const [updateResult]: any = await db.execute(
       `UPDATE additional_services SET ${updateFields.join(', ')} WHERE id = ?`,
       updateValues
     );
 
-    if (result.affectedRows === 0) {
+    if (updateResult.affectedRows === 0) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
@@ -105,8 +105,8 @@ export async function PATCH(
       WHERE id = ?
     `, [id]);
 
-    const result = rows as any[];
-    if (result.length === 0) {
+    const updatedRows = rows as any[];
+    if (updatedRows.length === 0) {
       return NextResponse.json(
         { error: 'Service not found after update' },
         { status: 404 }
@@ -115,7 +115,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      service: result[0]
+      service: updatedRows[0]
     });
   } catch (error) {
     console.error('Service update error:', error);
@@ -128,11 +128,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const db = await getConnection();
-    const { id } = params;
 
     // Check if service is used in any applications
     // This would depend on how services are linked to applications in your schema

@@ -1,4 +1,4 @@
-import { getConnection } from '@/lib/mysql';
+import { db } from '@/lib/database';
 
 interface StatCard {
   title: string;
@@ -9,81 +9,7 @@ interface StatCard {
 }
 
 async function getStats() {
-  try {
-    const db = await getConnection();
-
-    // Get total applications count
-    const [applicationsResult]: any = await db.execute(
-      'SELECT COUNT(*) as total FROM applications'
-    );
-    const totalApplications = applicationsResult[0]?.total || 0;
-
-    // Get applications this month
-    const [monthlyApplicationsResult]: any = await db.execute(
-      'SELECT COUNT(*) as total FROM applications WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())'
-    );
-    const monthlyApplications = monthlyApplicationsResult[0]?.total || 0;
-
-    // Get order statistics from new orders table (handle case where table doesn't exist)
-    let orderStats = { total_orders: 0, paid_orders: 0, total_revenue: 0 };
-    let monthlyOrderStats = { total_orders: 0, paid_orders: 0, revenue: 0 };
-
-    try {
-      const [orderStatsResult]: any = await db.execute(`
-        SELECT
-          COUNT(*) as total_orders,
-          COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid_orders,
-          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as total_revenue
-        FROM orders
-      `);
-      orderStats = orderStatsResult[0] || orderStats;
-
-      // Get orders this month
-      const [monthlyOrdersResult]: any = await db.execute(`
-        SELECT
-          COUNT(*) as total_orders,
-          COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid_orders,
-          COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END), 0) as revenue
-        FROM orders
-        WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())
-      `);
-      monthlyOrderStats = monthlyOrdersResult[0] || monthlyOrderStats;
-    } catch (ordersTableError) {
-      console.log('Orders table not found, using default values. Run the SQL script to create the orders table.');
-      // Keep default values
-    }
-
-    // Get total jurisdictions
-    const [jurisdictionsResult]: any = await db.execute(
-      'SELECT COUNT(*) as total FROM jurisdictions'
-    );
-    const totalJurisdictions = jurisdictionsResult[0]?.total || 0;
-
-    await db.end();
-
-    return {
-      totalApplications,
-      monthlyApplications,
-      totalOrders: orderStats.total_orders,
-      paidOrders: orderStats.paid_orders,
-      totalRevenue: orderStats.total_revenue,
-      monthlyOrders: monthlyOrderStats.total_orders,
-      monthlyRevenue: monthlyOrderStats.revenue,
-      totalJurisdictions,
-    };
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-    return {
-      totalApplications: 0,
-      monthlyApplications: 0,
-      totalOrders: 0,
-      paidOrders: 0,
-      totalRevenue: 0,
-      monthlyOrders: 0,
-      monthlyRevenue: 0,
-      totalJurisdictions: 0,
-    };
-  }
+  return await db.getStats();
 }
 
 export default async function DashboardStats() {

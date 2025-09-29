@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
-import { getConnection } from '@/lib/mysql';
+import { db } from '@/lib/database';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -63,8 +63,6 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleSuccessfulPayment(paymentIntent: any) {
-  const db = await getConnection();
-
   try {
     // Extract order details from metadata
     const metadata = paymentIntent.metadata;
@@ -100,101 +98,30 @@ async function handleSuccessfulPayment(paymentIntent: any) {
       console.error('Error parsing order metadata:', parseError);
     }
 
-    // Create the main order record
-    await db.execute(
-      `INSERT INTO orders (
-        order_id,
-        stripe_payment_intent_id,
-        customer_email,
-        total_amount,
-        currency,
-        payment_status,
-        applications_count,
-        services_count,
-        order_items,
-        stripe_metadata,
-        paid_at
-      ) VALUES (?, ?, ?, ?, ?, 'paid', ?, ?, ?, ?, NOW())
-      ON DUPLICATE KEY UPDATE
-        payment_status = 'paid',
-        paid_at = NOW(),
-        updated_at = NOW()`,
-      [
-        orderId,
-        paymentIntent.id,
-        customerEmail,
-        paymentIntent.amount / 100, // Convert from cents
-        paymentIntent.currency.toUpperCase(),
-        applications.length,
-        standaloneServices.length,
-        JSON.stringify({ applications, standalone_services: standaloneServices }),
-        JSON.stringify(metadata)
-      ]
-    );
+    // Create order data
+    const orderData = {
+      order_id: orderId,
+      stripe_payment_intent_id: paymentIntent.id,
+      customer_email: customerEmail,
+      total_amount: paymentIntent.amount / 100, // Convert from cents
+      currency: paymentIntent.currency.toUpperCase(),
+      payment_status: 'paid',
+      stripe_metadata: metadata,
+      paid_at: new Date().toISOString()
+    };
 
-    // Insert individual order items for applications
-    for (const app of applications) {
-      await db.execute(
-        `INSERT INTO order_items (
-          order_id,
-          item_type,
-          item_name,
-          jurisdiction_name,
-          unit_price,
-          quantity,
-          total_price,
-          currency,
-          item_metadata
-        ) VALUES (?, 'application', ?, ?, ?, 1, ?, ?, ?)`,
-        [
-          orderId,
-          `${app.jurisdiction} Company Formation`,
-          app.jurisdiction,
-          app.price,
-          app.price,
-          app.currency || 'GBP',
-          JSON.stringify(app)
-        ]
-      );
-    }
-
-    // Insert individual order items for standalone services
-    for (const service of standaloneServices) {
-      await db.execute(
-        `INSERT INTO order_items (
-          order_id,
-          item_type,
-          item_name,
-          unit_price,
-          quantity,
-          total_price,
-          currency,
-          item_metadata
-        ) VALUES (?, 'service', ?, ?, 1, ?, ?, ?)`,
-        [
-          orderId,
-          service.name,
-          service.price,
-          service.price,
-          service.currency || 'GBP',
-          JSON.stringify(service)
-        ]
-      );
-    }
+    // Create the order with items using the database abstraction
+    await db.createOrderWithItems(orderData, applications, standaloneServices);
 
     console.log(`Order ${orderId} successfully saved to database`);
 
   } catch (error) {
     console.error('Error handling successful payment:', error);
     // You might want to add this to a retry queue
-  } finally {
-    await db.end();
   }
 }
 
 async function handleFailedPayment(paymentIntent: any) {
-  const db = await getConnection();
-
   try {
     const metadata = paymentIntent.metadata;
     const orderId = metadata.order_id;
@@ -210,33 +137,29 @@ async function handleFailedPayment(paymentIntent: any) {
       return;
     }
 
-    // Update order status to failed
-    await db.execute(
-      `INSERT INTO orders (
-        order_id,
-        stripe_payment_intent_id,
-        total_amount,
-        currency,
-        payment_status,
-        stripe_metadata
-      ) VALUES (?, ?, ?, ?, 'failed', ?)
-      ON DUPLICATE KEY UPDATE
-        payment_status = 'failed',
-        updated_at = NOW()`,
-      [
-        orderId,
-        paymentIntent.id,
-        paymentIntent.amount / 100,
-        paymentIntent.currency.toUpperCase(),
-        JSON.stringify(metadata)
-      ]
-    );
+    // Create order data for failed payment
+    const orderData = {
+      order_id: orderId,
+      stripe_payment_intent_id: paymentIntent.id,
+      total_amount: paymentIntent.amount / 100,
+      currency: paymentIntent.currency.toUpperCase(),
+      payment_status: 'failed',
+      stripe_metadata: metadata
+    };
+
+    // Update or create the order with failed status
+    await db.updateOrder(orderId, {
+      payment_status: 'failed',
+      stripe_payment_intent_id: paymentIntent.id,
+      stripe_metadata: metadata
+    }).catch(async () => {
+      // If update fails, try to create the order
+      await db.createOrder(orderData);
+    });
 
     console.log(`Order ${orderId} marked as failed in database`);
 
   } catch (error) {
     console.error('Error handling failed payment:', error);
-  } finally {
-    await db.end();
   }
 }
