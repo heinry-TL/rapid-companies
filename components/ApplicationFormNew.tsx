@@ -679,7 +679,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
             <div className="bg-green-900/30 border border-green-500 rounded-lg p-4">
               <p className="text-green-300 text-sm">
                 <span className="font-semibold">✓ Ready to proceed:</span> Your application is complete and ready for submission.
-                Click "Complete Application" to add to your portfolio.
+                Click &quot;Complete Application&quot; to add to your portfolio.
               </p>
             </div>
           </div>
