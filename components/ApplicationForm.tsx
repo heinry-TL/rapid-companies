@@ -200,7 +200,7 @@ export default function ApplicationForm({ application }: ApplicationFormProps) {
                         ...application.contactDetails,
                         address: {
                           ...application.contactDetails.address,
-                          line1: e.target.value,
+                          street: e.target.value,
                         },
                       },
                     })}
@@ -454,11 +454,11 @@ export default function ApplicationForm({ application }: ApplicationFormProps) {
                   </label>
                   <input
                     type="text"
-                    value={application.registeredAddress.state}
+                    value={application.registeredAddress.county}
                     onChange={(e) => updateApplication({
                       registeredAddress: {
                         ...application.registeredAddress,
-                        state: e.target.value,
+                        county: e.target.value,
                         useContactAddress: false,
                       },
                     })}
@@ -473,11 +473,11 @@ export default function ApplicationForm({ application }: ApplicationFormProps) {
                   </label>
                   <input
                     type="text"
-                    value={application.registeredAddress.postalCode}
+                    value={application.registeredAddress.postcode}
                     onChange={(e) => updateApplication({
                       registeredAddress: {
                         ...application.registeredAddress,
-                        postalCode: e.target.value,
+                        postcode: e.target.value,
                         useContactAddress: false,
                       },
                     })}
