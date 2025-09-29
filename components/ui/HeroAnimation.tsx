@@ -11,7 +11,6 @@ function AnimatedSphere() {
   // Create a reference to the mesh
   const meshRef = useRef<THREE.Mesh>(null);
   // Create a reference to the material
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const materialRef = useRef<any>(null);
 
   // Use the useFrame hook to animate the sphere

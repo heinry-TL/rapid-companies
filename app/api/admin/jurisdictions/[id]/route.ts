@@ -4,11 +4,12 @@ import type { DatabaseRowPacket, JurisdictionUpdateRequest } from '@/types/api';
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const db = await getConnection();
-    const jurisdictionId = parseInt(params.id);
+    const resolvedParams = await params;
+    const jurisdictionId = parseInt(resolvedParams.id);
 
     if (isNaN(jurisdictionId)) {
       return NextResponse.json(
@@ -75,11 +76,12 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const db = await getConnection();
-    const jurisdictionId = parseInt(params.id);
+    const resolvedParams = await params;
+    const jurisdictionId = parseInt(resolvedParams.id);
 
     if (isNaN(jurisdictionId)) {
       return NextResponse.json(
@@ -185,11 +187,12 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const db = await getConnection();
-    const jurisdictionId = parseInt(params.id);
+    const resolvedParams = await params;
+    const jurisdictionId = parseInt(resolvedParams.id);
 
     if (isNaN(jurisdictionId)) {
       return NextResponse.json(
