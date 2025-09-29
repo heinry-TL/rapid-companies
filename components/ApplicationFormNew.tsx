@@ -120,9 +120,15 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
   };
 
   const copyContactToRegistered = () => {
+    const contactAddress = application.contactDetails.address;
     updateApplication({
       registeredAddress: {
-        ...application.contactDetails.address,
+        line1: contactAddress.street,
+        line2: '',
+        city: contactAddress.city,
+        county: contactAddress.state,
+        postcode: contactAddress.postalCode,
+        country: contactAddress.country,
         useContactAddress: true,
       },
     });
@@ -148,7 +154,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
           alert('Please enter your phone number.');
           return false;
         }
-        if (!application.contactDetails.address.line1) {
+        if (!application.contactDetails.address.street) {
           alert('Please enter your address.');
           return false;
         }
@@ -308,11 +314,24 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
             </div>
 
             <AddressForm
-              address={application.contactDetails.address}
+              address={{
+                line1: application.contactDetails.address.street,
+                line2: '',
+                city: application.contactDetails.address.city,
+                county: application.contactDetails.address.state,
+                postcode: application.contactDetails.address.postalCode,
+                country: application.contactDetails.address.country,
+              }}
               onChange={(address) => updateApplication({
                 contactDetails: {
                   ...application.contactDetails,
-                  address,
+                  address: {
+                    street: address.line1,
+                    city: address.city,
+                    state: address.county,
+                    postalCode: address.postcode,
+                    country: address.country,
+                  },
                 },
               })}
               prefix="Contact"
