@@ -137,7 +137,7 @@ export default function Pricing() {
           {pricingPlans.map((plan, index) => (
             <div
               key={plan.id}
-              ref={(el) => (cardRefs.current[index] = el)}
+              ref={(el) => {cardRefs.current[index] = el}}
               className={`rounded-xl p-8 transition-all duration-300 relative ${
                 plan.popular
                   ? "bg-gradient-to-b from-blue-900 to-gray-800 border-2 border-blue-500 transform hover:-translate-y-2"

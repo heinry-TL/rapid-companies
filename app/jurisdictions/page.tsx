@@ -126,7 +126,7 @@ export default function JurisdictionsPage() {
           {jurisdictions.map((jurisdiction, index) => (
             <div
               key={jurisdiction.id}
-              ref={(el) => (cardRefs.current[index] = el)}
+              ref={(el) => { cardRefs.current[index] = el; }}
               className="bg-gray-800 rounded-xl border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 overflow-hidden"
             >
               <div className="relative h-48 bg-gradient-to-br from-gray-700 to-gray-800">

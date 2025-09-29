@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
     const {
       amount,
       currency = 'gbp',
-      metadata = {},
-      customer_email,
-      description
+      metadata = {}
     } = body;
+    const customer_email = (body as any).customer_email;
+    const description = (body as any).description;
 
     // Validate required fields
     if (!amount || amount <= 0) {

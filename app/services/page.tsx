@@ -163,7 +163,7 @@ export default function ServicesPage() {
 
       {/* Company Formation Section */}
       <section
-        ref={el => sectionRefs.current[0] = el}
+        ref={el => { sectionRefs.current[0] = el; }}
         id="company-formation"
         className="py-20 bg-gray-900"
       >
@@ -256,7 +256,7 @@ export default function ServicesPage() {
 
       {/* Banking Services Section */}
       <section
-        ref={el => sectionRefs.current[1] = el}
+        ref={el => { sectionRefs.current[1] = el; }}
         id="banking"
         className="py-20 bg-gray-800"
       >
@@ -332,7 +332,7 @@ export default function ServicesPage() {
 
       {/* Additional Services Grid */}
       <section
-        ref={el => sectionRefs.current[2] = el}
+        ref={el => {sectionRefs.current[2] = el;}}
         className="py-20 bg-gray-900"
       >
         <div className="container mx-auto px-4">

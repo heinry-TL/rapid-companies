@@ -77,9 +77,15 @@ export default function ApplicationForm({ application }: ApplicationFormProps) {
   };
 
   const copyContactToRegistered = () => {
+    const contactAddress = application.contactDetails.address;
     updateApplication({
       registeredAddress: {
-        ...application.contactDetails.address,
+        line1: contactAddress.street,
+        line2: '',
+        city: contactAddress.city,
+        county: contactAddress.state,
+        postcode: contactAddress.postalCode,
+        country: contactAddress.country,
         useContactAddress: true,
       },
     });
@@ -194,7 +200,7 @@ export default function ApplicationForm({ application }: ApplicationFormProps) {
                         ...application.contactDetails,
                         address: {
                           ...application.contactDetails.address,
-                          street: e.target.value,
+                          line1: e.target.value,
                         },
                       },
                     })}
@@ -410,11 +416,11 @@ export default function ApplicationForm({ application }: ApplicationFormProps) {
                   </label>
                   <input
                     type="text"
-                    value={application.registeredAddress.street}
+                    value={application.registeredAddress.line1}
                     onChange={(e) => updateApplication({
                       registeredAddress: {
                         ...application.registeredAddress,
-                        street: e.target.value,
+                        line1: e.target.value,
                         useContactAddress: false,
                       },
                     })}

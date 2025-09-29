@@ -9,7 +9,7 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.text();
-    const headersList = headers();
+    const headersList = await headers();
     const signature = headersList.get('stripe-signature')!;
 
     let event: StripeWebhookEvent;
@@ -67,14 +67,14 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
   try {
     // Extract order details from metadata
     const metadata = paymentIntent.metadata;
-    const orderId = metadata.order_id;
+    const orderId = (metadata as any).order_id;
     const customerEmail = paymentIntent.receipt_email ||
-                         paymentIntent.charges?.data?.[0]?.billing_details?.email;
+                         (paymentIntent.charges as any)?.data?.[0]?.billing_details?.email;
 
     console.log('Processing successful payment:', {
       paymentIntentId: paymentIntent.id,
-      amount: paymentIntent.amount / 100,
-      currency: paymentIntent.currency,
+      amount: ((paymentIntent.amount as number) as number) / 100,
+      currency: (paymentIntent.currency as string),
       orderId,
       customerEmail,
     });
@@ -89,11 +89,11 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
     let standaloneServices: unknown[] = [];
 
     try {
-      if (metadata.applications) {
-        applications = JSON.parse(metadata.applications);
+      if ((metadata as any).applications) {
+        applications = JSON.parse((metadata as any).applications);
       }
-      if (metadata.standalone_services) {
-        standaloneServices = JSON.parse(metadata.standalone_services);
+      if ((metadata as any).standalone_services) {
+        standaloneServices = JSON.parse((metadata as any).standalone_services);
       }
     } catch (parseError) {
       console.error('Error parsing order metadata:', parseError);
@@ -104,8 +104,8 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
       order_id: orderId,
       stripe_payment_intent_id: paymentIntent.id,
       customer_email: customerEmail,
-      total_amount: paymentIntent.amount / 100, // Convert from cents
-      currency: paymentIntent.currency.toUpperCase(),
+      total_amount: (paymentIntent.amount as number) / 100, // Convert from cents
+      currency: (paymentIntent.currency as string).toUpperCase(),
       payment_status: 'paid',
       stripe_metadata: metadata,
       paid_at: new Date().toISOString()
@@ -125,7 +125,7 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
 async function handleFailedPayment(paymentIntent: Record<string, unknown>) {
   try {
     const metadata = paymentIntent.metadata;
-    const orderId = metadata.order_id;
+    const orderId = (metadata as any).order_id;
 
     console.log('Processing failed payment:', {
       paymentIntentId: paymentIntent.id,
@@ -142,8 +142,8 @@ async function handleFailedPayment(paymentIntent: Record<string, unknown>) {
     const orderData = {
       order_id: orderId,
       stripe_payment_intent_id: paymentIntent.id,
-      total_amount: paymentIntent.amount / 100,
-      currency: paymentIntent.currency.toUpperCase(),
+      total_amount: (paymentIntent.amount as number) / 100,
+      currency: (paymentIntent.currency as string).toUpperCase(),
       payment_status: 'failed',
       stripe_metadata: metadata
     };
