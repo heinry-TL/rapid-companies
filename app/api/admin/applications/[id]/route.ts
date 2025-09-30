@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
-import type { DatabaseRowPacket, ApplicationData, ApplicationUpdateRequest } from '@/types/api';
+import { supabaseAdmin } from '@/lib/supabase';
+import type { ApplicationData, ApplicationUpdateRequest } from '@/types/api';
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const db = await getConnection();
     const { id } = await params;
     const applicationId = id; // Keep as string since IDs are strings in the database
 
@@ -18,110 +17,87 @@ export async function GET(
       );
     }
 
-    const [rows] = await db.execute(`
-      SELECT
-        a.id,
-        a.jurisdiction_id,
-        a.jurisdiction_name,
-        a.jurisdiction_price,
-        a.jurisdiction_currency,
-        a.contact_first_name,
-        a.contact_last_name,
-        a.contact_email as email,
-        a.contact_phone as phone,
-        a.contact_address_line1,
-        a.contact_address_line2,
-        a.contact_city,
-        a.contact_county,
-        a.contact_postcode,
-        a.contact_country,
-        a.company_proposed_name as company_name,
-        a.company_alternative_name,
-        a.company_business_activity,
-        a.company_authorized_capital,
-        a.company_number_of_shares,
-        a.registered_address_line1,
-        a.registered_address_line2,
-        a.registered_city,
-        a.registered_county,
-        a.registered_postcode,
-        a.registered_country,
-        a.use_contact_address,
-        a.step_completed,
-        a.is_complete,
-        a.directors,
-        a.shareholders,
-        a.additional_services,
-        a.created_at,
-        a.updated_at,
-        j.name as jurisdiction_name_full,
-        j.description as jurisdiction_description
-      FROM applications a
-      LEFT JOIN jurisdictions j ON a.jurisdiction_id = j.id
-      WHERE a.id = ?
-    `, [applicationId]);
+    const { data: applicationData, error: applicationError } = await supabaseAdmin
+      .from('applications')
+      .select(`
+        id,
+        jurisdiction_id,
+        jurisdiction_name,
+        jurisdiction_price,
+        jurisdiction_currency,
+        contact_first_name,
+        contact_last_name,
+        contact_email,
+        contact_phone,
+        contact_address_line1,
+        contact_address_line2,
+        contact_city,
+        contact_county,
+        contact_postcode,
+        contact_country,
+        company_proposed_name,
+        company_alternative_name,
+        company_business_activity,
+        company_authorized_capital,
+        company_number_of_shares,
+        registered_address_line1,
+        registered_address_line2,
+        registered_city,
+        registered_county,
+        registered_postcode,
+        registered_country,
+        use_contact_address,
+        step_completed,
+        is_complete,
+        directors,
+        shareholders,
+        additional_services,
+        created_at,
+        updated_at,
+        jurisdictions!inner(
+          name,
+          description
+        )
+      `)
+      .eq('id', applicationId)
+      .single();
 
-    const result = rows as DatabaseRowPacket[];
-    if (result.length === 0) {
+    if (applicationError) {
+      if (applicationError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Application not found' },
+          { status: 404 }
+        );
+      }
+      console.error('Supabase application error:', applicationError);
       return NextResponse.json(
-        { error: 'Application not found' },
-        { status: 404 }
+        { error: 'Failed to fetch application' },
+        { status: 500 }
       );
     }
 
-    const application = result[0] as Record<string, unknown>;
+    const application = {
+      ...applicationData,
+      // Rename fields to match expected structure
+      email: applicationData.contact_email,
+      phone: applicationData.contact_phone,
+      company_name: applicationData.company_proposed_name,
+      jurisdiction_name_full: applicationData.jurisdictions?.name,
+      jurisdiction_description: applicationData.jurisdictions?.description,
+    };
 
     // Add derived fields
     application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();
     application.company_type = 'LLC';
-    application.status = application.is_complete ? 'completed' : ((application.step_completed as number) >= 5 ? 'processing' : 'pending');
+    application.status = application.is_complete ? 'completed' : ((application.step_completed || 0) >= 5 ? 'processing' : 'pending');
     application.payment_status = 'pending';
     application.internal_status = 'new';
     application.admin_notes = '';
 
-
-    // Parse JSON fields
-    if (application.directors) {
-      try {
-        if (typeof application.directors === 'string') {
-          application.directors = JSON.parse(application.directors);
-        }
-        // If it's already an array/object, keep it as is
-      } catch {
-        console.error('Error parsing directors');
-        application.directors = [];
-      }
-    } else {
-      application.directors = [];
-    }
-
-    if (application.shareholders) {
-      try {
-        if (typeof application.shareholders === 'string') {
-          application.shareholders = JSON.parse(application.shareholders);
-        }
-        // If it's already an array/object, keep it as is
-      } catch {
-        console.error('Error parsing shareholders');
-        application.shareholders = [];
-      }
-    } else {
-      application.shareholders = [];
-    }
-
-    if (application.additional_services) {
-      try {
-        if (typeof application.additional_services === 'string') {
-          application.additional_services = JSON.parse(application.additional_services);
-        }
-        // If it's already an array/object, keep it as is
-      } catch {
-        console.error('Error parsing additional_services');
-        application.additional_services = [];
-      }
-    } else {
-      application.additional_services = [];
-    }
+    // JSON fields are already parsed in Supabase, ensure they're arrays
+    application.directors = application.directors || [];
+    application.shareholders = application.shareholders || [];
+    application.additional_services = application.additional_services || [];
 
     return NextResponse.json({ application });
   } catch (error) {
@@ -138,7 +114,6 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const db = await getConnection();
     const { id } = await params;
     const applicationId = id; // Keep as string since IDs are strings in the database
 
@@ -154,66 +129,78 @@ export async function PATCH(
       'internal_status', 'admin_notes', 'assigned_to', 'payment_status'
     ];
 
-    const updateFields: string[] = [];
-    const updateValues: (string | number)[] = [];
-
+    // Filter updates to only allowed fields
+    const filteredUpdates: Record<string, any> = {};
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key) && updates[key as keyof ApplicationUpdateRequest] !== undefined) {
-        updateFields.push(`${key} = ?`);
-        updateValues.push(updates[key as keyof ApplicationUpdateRequest] as string | number);
+        filteredUpdates[key] = updates[key as keyof ApplicationUpdateRequest];
       }
     });
 
-    if (updateFields.length === 0) {
+    if (Object.keys(filteredUpdates).length === 0) {
       return NextResponse.json(
         { error: 'No valid fields to update' },
         { status: 400 }
       );
     }
 
-    updateFields.push('updated_at = NOW()');
-    updateValues.push(applicationId);
+    filteredUpdates.updated_at = new Date().toISOString();
 
-    await db.execute(
-      `UPDATE applications SET ${updateFields.join(', ')} WHERE id = ?`,
-      updateValues
-    );
+    const { error: updateError } = await supabaseAdmin
+      .from('applications')
+      .update(filteredUpdates)
+      .eq('id', applicationId);
+
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to update application' },
+        { status: 500 }
+      );
+    }
 
     // Fetch updated application
-    const [rows] = await db.execute(`
-      SELECT
-        a.id,
-        a.jurisdiction_id,
-        a.jurisdiction_name,
-        a.jurisdiction_price,
-        a.jurisdiction_currency,
-        a.contact_first_name,
-        a.contact_last_name,
-        a.contact_email as email,
-        a.contact_phone as phone,
-        a.company_proposed_name as company_name,
-        a.step_completed,
-        a.is_complete,
-        a.created_at,
-        a.updated_at
-      FROM applications a
-      WHERE a.id = ?
-    `, [applicationId]);
+    const { data: applicationData, error: fetchError } = await supabaseAdmin
+      .from('applications')
+      .select(`
+        id,
+        jurisdiction_id,
+        jurisdiction_name,
+        jurisdiction_price,
+        jurisdiction_currency,
+        contact_first_name,
+        contact_last_name,
+        contact_email,
+        contact_phone,
+        company_proposed_name,
+        step_completed,
+        is_complete,
+        created_at,
+        updated_at
+      `)
+      .eq('id', applicationId)
+      .single();
 
-    const result = rows as DatabaseRowPacket[];
-    if (result.length === 0) {
+    if (fetchError) {
+      console.error('Supabase fetch error:', fetchError);
       return NextResponse.json(
         { error: 'Application not found after update' },
         { status: 404 }
       );
     }
 
-    const application = result[0] as Record<string, unknown>;
+    const application = {
+      ...applicationData,
+      // Rename fields to match expected structure
+      email: applicationData.contact_email,
+      phone: applicationData.contact_phone,
+      company_name: applicationData.company_proposed_name,
+    };
 
     // Add derived fields
     application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();
     application.company_type = 'LLC';
-    application.status = application.is_complete ? 'completed' : ((application.step_completed as number) >= 5 ? 'processing' : 'pending');
+    application.status = application.is_complete ? 'completed' : ((application.step_completed || 0) >= 5 ? 'processing' : 'pending');
     application.payment_status = 'pending';
     application.internal_status = 'new';
     application.admin_notes = '';

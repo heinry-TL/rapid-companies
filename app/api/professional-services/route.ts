@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
-import type { DatabaseRowPacket } from '@/types/api';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(_request: NextRequest) {
   try {
-    const db = await getConnection();
-
-    const [rows] = await db.execute(`
-      SELECT
+    const { data: rows, error } = await supabaseAdmin
+      .from('professional_services')
+      .select(`
         id,
         name,
         description,
@@ -16,19 +14,23 @@ export async function GET(_request: NextRequest) {
         category,
         icon_svg,
         display_order
-      FROM professional_services
-      WHERE active = TRUE
-      ORDER BY display_order ASC, name ASC
-    `);
+      `)
+      .eq('active', true)
+      .order('display_order', { ascending: true })
+      .order('name', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
 
     // Parse JSON features for each service with error handling
-    const services = (rows as DatabaseRowPacket[]).map(service => {
+    const services = (rows || []).map(service => {
       let features: string[] = [];
 
       if (service.features) {
         try {
-          // Try to parse as JSON first
-          features = JSON.parse(service.features);
+          // Features should already be parsed as JSON from Supabase
+          features = Array.isArray(service.features) ? service.features : JSON.parse(service.features);
         } catch {
           // If JSON parsing fails, try to extract comma-separated values
           const featuresStr = String(service.features);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { getConnection } from './mysql';
+import { supabaseAdmin } from './supabase';
 
 export interface AdminUser {
   id: number;
@@ -51,17 +51,18 @@ export function verifyToken(token: string): any {
 
 export async function authenticateAdmin(username: string, password: string): Promise<AdminUser | null> {
   try {
-    const db = await getConnection();
-    const [rows]: any = await db.execute(
-      'SELECT * FROM admin_users WHERE (username = ? OR email = ?) AND is_active = TRUE',
-      [username, username]
-    );
+    const { data, error } = await supabaseAdmin
+      .from('admin_users')
+      .select('*')
+      .or(`username.eq.${username},email.eq.${username}`)
+      .eq('is_active', true)
+      .single();
 
-    if (rows.length === 0) {
+    if (error || !data) {
       return null;
     }
 
-    const user = rows[0] as AdminUser;
+    const user = data as AdminUser;
     const isValid = await verifyPassword(password, user.password_hash);
 
     if (!isValid) {
@@ -69,10 +70,10 @@ export async function authenticateAdmin(username: string, password: string): Pro
     }
 
     // Update last login
-    await db.execute(
-      'UPDATE admin_users SET last_login = NOW() WHERE id = ?',
-      [user.id]
-    );
+    await supabaseAdmin
+      .from('admin_users')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', user.id);
 
     return user;
   } catch (error) {
@@ -83,17 +84,18 @@ export async function authenticateAdmin(username: string, password: string): Pro
 
 export async function getAdminUser(userId: number): Promise<AdminUser | null> {
   try {
-    const db = await getConnection();
-    const [rows]: any = await db.execute(
-      'SELECT id, username, email, full_name, role, is_active, last_login, created_at, updated_at FROM admin_users WHERE id = ? AND is_active = TRUE',
-      [userId]
-    );
+    const { data, error } = await supabaseAdmin
+      .from('admin_users')
+      .select('id, username, email, full_name, role, is_active, last_login, created_at, updated_at')
+      .eq('id', userId)
+      .eq('is_active', true)
+      .single();
 
-    if (rows.length === 0) {
+    if (error || !data) {
       return null;
     }
 
-    return rows[0] as AdminUser;
+    return data as AdminUser;
   } catch (error) {
     console.error('Get admin user error:', error);
     return null;

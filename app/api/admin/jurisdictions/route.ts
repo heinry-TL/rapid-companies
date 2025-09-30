@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
-import type { DatabaseRowPacket, JurisdictionUpdateRequest } from '@/types/api';
+import { supabaseAdmin } from '@/lib/supabase';
+import type { JurisdictionUpdateRequest } from '@/types/api';
 
 export async function GET(_request: NextRequest) {
   try {
-    const db = await getConnection();
-
-    const [rows] = await db.execute(`
-      SELECT
+    const { data: rows, error } = await supabaseAdmin
+      .from('jurisdictions')
+      .select(`
         id,
         name,
         country_code,
@@ -20,18 +19,21 @@ export async function GET(_request: NextRequest) {
         status,
         created_at,
         updated_at
-      FROM jurisdictions
-      ORDER BY name ASC
-    `);
+      `)
+      .order('name', { ascending: true });
 
-    const jurisdictions = (rows as DatabaseRowPacket[]).map(row => {
+    if (error) {
+      throw error;
+    }
+
+    const jurisdictions = (rows || []).map(row => {
       let features: string[] = [];
 
       try {
-        if (typeof row.features === 'string') {
-          features = JSON.parse(row.features);
-        } else if (Array.isArray(row.features)) {
+        if (Array.isArray(row.features)) {
           features = row.features;
+        } else if (typeof row.features === 'string') {
+          features = JSON.parse(row.features);
         }
       } catch {
         // If JSON parsing fails, treat as comma-separated string
@@ -61,7 +63,6 @@ export async function GET(_request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const db = await getConnection();
     const {
       name,
       country_code,
@@ -81,19 +82,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const featuresJson = JSON.stringify(Array.isArray(features) ? features : []);
+    const featuresArray = Array.isArray(features) ? features : [];
 
-    const [result] = await db.execute(
-      `INSERT INTO jurisdictions
-       (name, country_code, flag_url, description, formation_price, currency, processing_time, features, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, country_code, flag_url, description, formation_price, currency, processing_time, featuresJson, status]
-    );
-
-    return NextResponse.json({
-      success: true,
-      jurisdiction: {
-        id: (result as { insertId: number }).insertId,
+    const { data, error } = await supabaseAdmin
+      .from('jurisdictions')
+      .insert([{
         name,
         country_code,
         flag_url,
@@ -101,7 +94,28 @@ export async function POST(request: NextRequest) {
         formation_price,
         currency,
         processing_time,
-        features,
+        features: featuresArray,
+        status
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({
+      success: true,
+      jurisdiction: {
+        id: data.id,
+        name,
+        country_code,
+        flag_url,
+        description,
+        formation_price,
+        currency,
+        processing_time,
+        features: featuresArray,
         status
       }
     });

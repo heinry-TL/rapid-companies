@@ -47,6 +47,11 @@ export class DatabaseService {
 
   constructor(dbType: DatabaseType = process.env.DATABASE_TYPE as DatabaseType || 'mysql') {
     this.dbType = dbType;
+    console.log('🔍 DatabaseService constructor - Environment:', {
+      DATABASE_TYPE: process.env.DATABASE_TYPE,
+      dbType: this.dbType,
+      NODE_ENV: process.env.NODE_ENV
+    });
   }
 
   async getStats(): Promise<DatabaseStats> {

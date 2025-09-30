@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
-import type { DatabaseRowPacket } from '@/types/api';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let db;
   try {
     const { id } = await params;
-    db = await getConnection();
 
-    const [rows] = await db.execute(`
-      SELECT
+    const { data: service, error } = await supabaseAdmin
+      .from('additional_services')
+      .select(`
         id,
         name,
         description,
@@ -23,29 +21,31 @@ export async function GET(
         active,
         created_at,
         updated_at
-      FROM additional_services
-      WHERE id = ?
-    `, [id]);
+      `)
+      .eq('id', id)
+      .single();
 
-    const result = rows as DatabaseRowPacket[];
-    if (result.length === 0) {
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Service not found' },
+          { status: 404 }
+        );
+      }
+      console.error('Supabase error:', error);
       return NextResponse.json(
-        { error: 'Service not found' },
-        { status: 404 }
+        { error: 'Failed to fetch service' },
+        { status: 500 }
       );
     }
 
-    return NextResponse.json({ service: result[0] });
+    return NextResponse.json({ service });
   } catch (error) {
     console.error('Service fetch error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch service' },
       { status: 500 }
     );
-  } finally {
-    if (db) {
-      db.release();
-    }
   }
 }
 
@@ -53,76 +53,55 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let db;
   try {
     const { id } = await params;
-    db = await getConnection();
 
     const updates = await request.json();
     const allowedFields = [
       'name', 'description', 'base_price', 'currency', 'note', 'category', 'active'
     ];
 
-    const updateFields: string[] = [];
-    const updateValues: (string | number | boolean)[] = [];
-
+    // Filter updates to only allowed fields
+    const filteredUpdates: Record<string, any> = {};
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key)) {
-        updateFields.push(`${key} = ?`);
-        updateValues.push(updates[key]);
+        filteredUpdates[key] = updates[key];
       }
     });
 
-    if (updateFields.length === 0) {
+    if (Object.keys(filteredUpdates).length === 0) {
       return NextResponse.json(
         { error: 'No valid fields to update' },
         { status: 400 }
       );
     }
 
-    updateFields.push('updated_at = NOW()');
-    updateValues.push(id);
+    filteredUpdates.updated_at = new Date().toISOString();
 
-    const [updateResult] = await db.execute(
-      `UPDATE additional_services SET ${updateFields.join(', ')} WHERE id = ?`,
-      updateValues
-    );
+    const { data, error: updateError } = await supabaseAdmin
+      .from('additional_services')
+      .update(filteredUpdates)
+      .eq('id', id)
+      .select();
 
-    if ((updateResult as any).affectedRows === 0) {
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to update service' },
+        { status: 500 }
+      );
+    }
+
+    if (!data || data.length === 0) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
       );
     }
 
-    // Fetch updated service
-    const [rows] = await db.execute(`
-      SELECT
-        id,
-        name,
-        description,
-        base_price,
-        currency,
-        note,
-        category,
-        active,
-        created_at,
-        updated_at
-      FROM additional_services
-      WHERE id = ?
-    `, [id]);
-
-    const updatedRows = rows as DatabaseRowPacket[];
-    if (updatedRows.length === 0) {
-      return NextResponse.json(
-        { error: 'Service not found after update' },
-        { status: 404 }
-      );
-    }
-
     return NextResponse.json({
       success: true,
-      service: updatedRows[0]
+      service: data[0]
     });
   } catch (error) {
     console.error('Service update error:', error);
@@ -130,10 +109,6 @@ export async function PATCH(
       { error: 'Failed to update service' },
       { status: 500 }
     );
-  } finally {
-    if (db) {
-      db.release();
-    }
   }
 }
 
@@ -141,18 +116,28 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let db;
   try {
     const { id } = await params;
-    db = await getConnection();
 
     // Check if service is used in any applications
     // This would depend on how services are linked to applications in your schema
     // For now, we'll allow deletion but you might want to add checks
 
-    const [deleteResult] = await db.execute('DELETE FROM additional_services WHERE id = ?', [id]);
+    const { data, error } = await supabaseAdmin
+      .from('additional_services')
+      .delete()
+      .eq('id', id)
+      .select();
 
-    if ((deleteResult as any).affectedRows === 0) {
+    if (error) {
+      console.error('Supabase delete error:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete service' },
+        { status: 500 }
+      );
+    }
+
+    if (!data || data.length === 0) {
       return NextResponse.json(
         { error: 'Service not found' },
         { status: 404 }
@@ -169,9 +154,5 @@ export async function DELETE(
       { error: 'Failed to delete service' },
       { status: 500 }
     );
-  } finally {
-    if (db) {
-      db.release();
-    }
   }
 }

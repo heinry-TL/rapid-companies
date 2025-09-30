@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
-import type { DatabaseRowPacket } from '@/types/api';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(_request: NextRequest) {
   try {
-    const db = await getConnection();
-
-    const [rows] = await db.execute(`
-      SELECT
+    const { data: rows, error } = await supabaseAdmin
+      .from('additional_services')
+      .select(`
         id,
         name,
         description,
@@ -18,13 +16,16 @@ export async function GET(_request: NextRequest) {
         active,
         created_at,
         updated_at
-      FROM additional_services
-      ORDER BY name ASC
-    `);
+      `)
+      .order('name', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
 
     return NextResponse.json({
-      services: rows,
-      total: (rows as DatabaseRowPacket[]).length
+      services: rows || [],
+      total: (rows || []).length
     });
   } catch (error) {
     console.error('Services API error:', error);
@@ -37,7 +38,6 @@ export async function GET(_request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const db = await getConnection();
     const {
       id,
       name,
@@ -59,12 +59,24 @@ export async function POST(request: NextRequest) {
     // Generate ID if not provided
     const serviceId = id || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    const [result] = await db.execute(
-      `INSERT INTO additional_services
-       (id, name, description, base_price, currency, note, category, active)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [serviceId, name, description || '', base_price, currency, note || '', category, active]
-    );
+    const { data, error } = await supabaseAdmin
+      .from('additional_services')
+      .insert([{
+        id: serviceId,
+        name,
+        description: description || '',
+        base_price,
+        currency,
+        note: note || '',
+        category,
+        active
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
 
     return NextResponse.json({
       success: true,

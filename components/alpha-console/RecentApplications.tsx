@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getConnection } from '@/lib/mysql';
+import { supabaseAdmin } from '@/lib/supabase';
 
 interface ApplicationRow {
   id: number;
@@ -14,22 +14,30 @@ interface ApplicationRow {
 
 async function getRecentApplications() {
   try {
-    const db = await getConnection();
-    const [rows] = await db.execute(`
-      SELECT
-        a.id,
-        a.company_proposed_name,
-        a.jurisdiction_name,
-        CONCAT(a.contact_first_name, ' ', a.contact_last_name) as full_name,
-        a.contact_email,
-        a.internal_status,
-        a.created_at
-      FROM applications a
-      ORDER BY a.created_at DESC
-      LIMIT 10
-    `);
+    const { data, error } = await supabaseAdmin
+      .from('applications')
+      .select(`
+        id,
+        company_proposed_name,
+        jurisdiction_name,
+        contact_first_name,
+        contact_last_name,
+        contact_email,
+        internal_status,
+        created_at
+      `)
+      .order('created_at', { ascending: false })
+      .limit(10);
 
-    return (rows as ApplicationRow[]) || [];
+    if (error) {
+      console.error('Supabase error:', error);
+      return [];
+    }
+
+    return (data || []).map(row => ({
+      ...row,
+      full_name: `${row.contact_first_name} ${row.contact_last_name}`.trim()
+    })) as ApplicationRow[];
   } catch (error) {
     console.error('Error fetching recent applications:', error);
     return [];

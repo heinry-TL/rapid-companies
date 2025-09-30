@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
@@ -8,34 +8,40 @@ export async function GET(
   try {
     const resolvedParams = await params;
     const orderId = resolvedParams.id;
-    const db = await getConnection();
 
     // Get order details
-    const [orders]: any = await db.execute(
-      `SELECT
-        o.id,
-        o.order_id,
-        o.stripe_payment_intent_id,
-        o.customer_email,
-        o.customer_name,
-        o.customer_phone,
-        o.total_amount,
-        o.currency,
-        o.payment_status,
-        o.payment_method,
-        o.applications_count,
-        o.services_count,
-        o.order_items,
-        o.stripe_metadata,
-        o.created_at,
-        o.paid_at,
-        o.updated_at
-      FROM orders o
-      WHERE o.order_id = ? OR o.id = ?`,
-      [orderId, orderId]
-    );
+    const { data: orders, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .select(`
+        id,
+        order_id,
+        stripe_payment_intent_id,
+        customer_email,
+        customer_name,
+        customer_phone,
+        total_amount,
+        currency,
+        payment_status,
+        payment_method,
+        applications_count,
+        services_count,
+        order_items,
+        stripe_metadata,
+        created_at,
+        paid_at,
+        updated_at
+      `)
+      .or(`order_id.eq.${orderId},id.eq.${orderId}`);
 
-    if (orders.length === 0) {
+    if (orderError) {
+      console.error('Supabase order error:', orderError);
+      return NextResponse.json(
+        { error: 'Failed to fetch order' },
+        { status: 500 }
+      );
+    }
+
+    if (!orders || orders.length === 0) {
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
@@ -45,36 +51,38 @@ export async function GET(
     const order = orders[0];
 
     // Get order items
-    const [orderItems]: any = await db.execute(
-      `SELECT
-        oi.id,
-        oi.item_type,
-        oi.item_name,
-        oi.jurisdiction_name,
-        oi.unit_price,
-        oi.quantity,
-        oi.total_price,
-        oi.currency,
-        oi.item_metadata,
-        oi.created_at
-      FROM order_items oi
-      WHERE oi.order_id = ?
-      ORDER BY oi.id`,
-      [order.order_id]
-    );
+    const { data: orderItems, error: itemsError } = await supabaseAdmin
+      .from('order_items')
+      .select(`
+        id,
+        item_type,
+        item_name,
+        jurisdiction_name,
+        unit_price,
+        quantity,
+        total_price,
+        currency,
+        item_metadata,
+        created_at
+      `)
+      .eq('order_id', order.order_id)
+      .order('id', { ascending: true });
 
-    // Parse JSON fields
+    if (itemsError) {
+      console.error('Supabase order items error:', itemsError);
+      return NextResponse.json(
+        { error: 'Failed to fetch order items' },
+        { status: 500 }
+      );
+    }
+
+    // JSON fields are already parsed in Supabase
     const parsedOrder = {
       ...order,
-      order_items: order.order_items ? JSON.parse(order.order_items) : null,
-      stripe_metadata: order.stripe_metadata ? JSON.parse(order.stripe_metadata) : null,
-      items: orderItems.map((item: any) => ({
-        ...item,
-        item_metadata: item.item_metadata ? JSON.parse(item.item_metadata) : null,
-      })),
+      order_items: order.order_items || null,
+      stripe_metadata: order.stripe_metadata || null,
+      items: orderItems || [],
     };
-
-    await db.end();
 
     return NextResponse.json({ order: parsedOrder });
 
@@ -97,51 +105,50 @@ export async function PATCH(
     const body = await request.json();
     const { payment_status, customer_name, customer_phone } = body;
 
-    const db = await getConnection();
-
-    // Build update query
-    const updateFields = [];
-    const updateValues = [];
+    // Build update object
+    const updates: Record<string, any> = {};
 
     if (payment_status) {
-      updateFields.push('payment_status = ?');
-      updateValues.push(payment_status);
+      updates.payment_status = payment_status;
     }
 
     if (customer_name) {
-      updateFields.push('customer_name = ?');
-      updateValues.push(customer_name);
+      updates.customer_name = customer_name;
     }
 
     if (customer_phone) {
-      updateFields.push('customer_phone = ?');
-      updateValues.push(customer_phone);
+      updates.customer_phone = customer_phone;
     }
 
-    if (updateFields.length === 0) {
+    if (Object.keys(updates).length === 0) {
       return NextResponse.json(
         { error: 'No valid fields to update' },
         { status: 400 }
       );
     }
 
-    updateFields.push('updated_at = NOW()');
-    updateValues.push(orderId);
+    updates.updated_at = new Date().toISOString();
 
-    const [result]: any = await db.execute(
-      `UPDATE orders SET ${updateFields.join(', ')} WHERE order_id = ? OR id = ?`,
-      [...updateValues, orderId]
-    );
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .update(updates)
+      .or(`order_id.eq.${orderId},id.eq.${orderId}`)
+      .select();
 
-    if (result.affectedRows === 0) {
-      await db.end();
+    if (error) {
+      console.error('Supabase update error:', error);
+      return NextResponse.json(
+        { error: 'Failed to update order' },
+        { status: 500 }
+      );
+    }
+
+    if (!data || data.length === 0) {
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
       );
     }
-
-    await db.end();
 
     return NextResponse.json({ message: 'Order updated successfully' });
 

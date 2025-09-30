@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getJurisdictionById } from '@/lib/mysql';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
@@ -16,16 +16,31 @@ export async function GET(
       );
     }
 
-    const jurisdiction = await getJurisdictionById(id);
+    const { data: jurisdiction, error } = await supabaseAdmin
+      .from('jurisdictions')
+      .select('*')
+      .eq('id', id)
+      .eq('status', 'active')
+      .single();
 
-    if (!jurisdiction) {
-      return NextResponse.json(
-        { error: 'Jurisdiction not found' },
-        { status: 404 }
-      );
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Jurisdiction not found' },
+          { status: 404 }
+        );
+      }
+      throw error;
     }
 
-    return NextResponse.json(jurisdiction);
+    // Parse features field
+    const processedJurisdiction = {
+      ...jurisdiction,
+      features: Array.isArray(jurisdiction.features) ? jurisdiction.features :
+                (jurisdiction.features ? JSON.parse(jurisdiction.features) : [])
+    };
+
+    return NextResponse.json(processedJurisdiction);
   } catch (error) {
     console.error('Error fetching jurisdiction:', error);
     return NextResponse.json(

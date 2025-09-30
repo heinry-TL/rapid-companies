@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
-import type { DatabaseRowPacket } from '@/types/api';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(_request: NextRequest) {
   try {
-    const db = await getConnection();
-
-    const [rows] = await db.execute(`
-      SELECT
+    const { data, error } = await supabaseAdmin
+      .from('professional_services')
+      .select(`
         id,
         name,
         description,
@@ -18,33 +16,23 @@ export async function GET(_request: NextRequest) {
         active,
         created_at,
         updated_at
-      FROM professional_services
-      ORDER BY display_order ASC, name ASC
-    `);
+      `)
+      .order('display_order', { ascending: true })
+      .order('name', { ascending: true });
 
-    // Parse JSON features for each service with error handling
-    const services = (rows as DatabaseRowPacket[]).map(service => {
-      let features: string[] = [];
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch professional services' },
+        { status: 500 }
+      );
+    }
 
-      if (service.features) {
-        try {
-          features = JSON.parse(service.features);
-        } catch {
-          // If JSON parsing fails, try to extract comma-separated values
-          const featuresStr = String(service.features);
-          if (featuresStr.includes(',')) {
-            features = featuresStr.split(',').map(f => f.trim().replace(/["\[\]]/g, ''));
-          } else {
-            features = [featuresStr.replace(/["\[\]]/g, '')];
-          }
-        }
-      }
-
-      return {
-        ...service,
-        features
-      };
-    });
+    // Features are already arrays in Supabase, no need to parse JSON
+    const services = data.map(service => ({
+      ...service,
+      features: service.features || []
+    }));
 
     return NextResponse.json({
       services,
@@ -61,7 +49,6 @@ export async function GET(_request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const db = await getConnection();
     const {
       id,
       name,
@@ -81,46 +68,53 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if ID already exists
-    const [existing] = await db.execute(
-      'SELECT id FROM professional_services WHERE id = ?',
-      [id]
-    );
+    const { data: existing, error: checkError } = await supabaseAdmin
+      .from('professional_services')
+      .select('id')
+      .eq('id', id)
+      .single();
 
-    if ((existing as DatabaseRowPacket[]).length > 0) {
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Supabase check error:', checkError);
+      return NextResponse.json(
+        { error: 'Failed to check service ID' },
+        { status: 500 }
+      );
+    }
+
+    if (existing) {
       return NextResponse.json(
         { error: 'Service ID already exists' },
         { status: 400 }
       );
     }
 
-    const [result] = await db.execute(
-      `INSERT INTO professional_services
-       (id, name, description, short_description, features, category, display_order, active)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
+    const { data, error } = await supabaseAdmin
+      .from('professional_services')
+      .insert([{
         id,
         name,
-        description || '',
-        short_description || '',
-        JSON.stringify(features || []),
-        category,
-        display_order,
-        active
-      ]
-    );
-
-    return NextResponse.json({
-      success: true,
-      service: {
-        id,
-        name,
-        description,
-        short_description,
+        description: description || '',
+        short_description: short_description || '',
         features: features || [],
         category,
         display_order,
         active
-      }
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase insert error:', error);
+      return NextResponse.json(
+        { error: 'Failed to create professional service' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      service: data
     });
   } catch (error) {
     console.error('Professional service creation error:', error);

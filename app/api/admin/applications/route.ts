@@ -1,73 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConnection } from '@/lib/mysql';
-import type { DatabaseRowPacket } from '@/types/api';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    const db = await getConnection();
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const paymentStatus = searchParams.get('payment_status');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    let query = `
-      SELECT
-        a.id,
-        a.jurisdiction_id,
-        a.jurisdiction_name,
-        a.jurisdiction_price,
-        a.jurisdiction_currency,
-        a.contact_first_name,
-        a.contact_last_name,
-        a.contact_email as email,
-        a.contact_phone as phone,
-        a.company_proposed_name as company_name,
-        a.step_completed,
-        a.is_complete,
-        a.created_at,
-        a.updated_at
-      FROM applications a
-      WHERE 1=1
-    `;
+    let query = supabaseAdmin
+      .from('applications')
+      .select(`
+        id,
+        jurisdiction_id,
+        jurisdiction_name,
+        jurisdiction_price,
+        jurisdiction_currency,
+        contact_first_name,
+        contact_last_name,
+        contact_email,
+        contact_phone,
+        company_proposed_name,
+        step_completed,
+        is_complete,
+        internal_status,
+        created_at,
+        updated_at
+      `)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    const queryParams: (string | number)[] = [];
+    // Apply filters if provided
+    if (status && status !== 'all') {
+      query = query.eq('internal_status', status);
+    }
 
-    // Note: Since internal_status column doesn't exist yet, we'll skip status filtering for now
-    // if (status && status !== 'all') {
-    //   query += ` AND a.internal_status = ?`;
-    //   queryParams.push(status);
-    // }
+    const { data: rows, error, count } = await query;
 
-    // Note: Since payment_status column doesn't exist yet, we'll skip payment filtering for now
-    // if (paymentStatus && paymentStatus !== 'all') {
-    //   query += ` AND a.payment_status = ?`;
-    //   queryParams.push(paymentStatus);
-    // }
-
-    query += ` ORDER BY a.created_at DESC LIMIT 50`;
-
-    const [rows] = await db.execute(query);
+    if (error) {
+      throw error;
+    }
 
     // Process the results to add derived fields
-    const applications = (rows as DatabaseRowPacket[]).map(row => ({
+    const applications = (rows || []).map(row => ({
       ...row,
+      email: row.contact_email,
+      phone: row.contact_phone,
+      company_name: row.company_proposed_name,
       full_name: `${row.contact_first_name || ''} ${row.contact_last_name || ''}`.trim(),
       company_type: 'LLC',
       status: row.is_complete ? 'completed' : (row.step_completed >= 5 ? 'processing' : 'pending'),
       payment_status: 'pending',
-      internal_status: 'new',
       admin_notes: ''
     }));
 
     // Get total count for pagination
-    const countQuery = `SELECT COUNT(*) as total FROM applications a WHERE 1=1`;
-    const [countResult] = await db.execute(countQuery);
-    const total = (countResult as DatabaseRowPacket[])[0]?.total || 0;
+    const { count: total } = await supabaseAdmin
+      .from('applications')
+      .select('*', { count: 'exact', head: true });
 
     return NextResponse.json({
       applications,
-      total,
+      total: total || 0,
       limit,
       offset
     });

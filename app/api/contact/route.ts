@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Only import mysql on server side
-const { submitFormData } = require('@/lib/supabase');
+import { submitFormData } from '@/lib/supabase';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
