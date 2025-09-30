@@ -15,19 +15,50 @@ function PaymentSuccessContent() {
   const paymentIntentId = searchParams?.get('payment_intent');
 
   useEffect(() => {
-    if (paymentIntentId) {
-      // TODO: Fetch payment details from your backend if needed
-      // For now, we'll just show success message
-      setIsLoading(false);
+    const confirmOrder = async () => {
+      if (!paymentIntentId) {
+        router.push('/portfolio');
+        return;
+      }
 
-      // Clear the portfolio after successful payment
-      setTimeout(() => {
-        dispatch({ type: 'CLEAR_PORTFOLIO' });
-      }, 2000);
-    } else {
-      // No payment intent ID, redirect to portfolio
-      router.push('/portfolio');
-    }
+      try {
+        // Confirm the order by calling our API endpoint
+        const response = await fetch('/api/orders/confirm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            payment_intent_id: paymentIntentId,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log('Order confirmed:', data);
+          setPaymentIntent(data);
+        } else {
+          console.error('Failed to confirm order:', data.error, data.details);
+          console.error('Full response:', data);
+          // Still show success to user since payment went through
+          // The webhook will handle this as a fallback
+        }
+      } catch (error) {
+        console.error('Error confirming order:', error);
+        // Still show success to user since payment went through
+        // The webhook will handle this as a fallback
+      } finally {
+        setIsLoading(false);
+
+        // Clear the portfolio after successful payment
+        setTimeout(() => {
+          dispatch({ type: 'CLEAR_PORTFOLIO' });
+        }, 2000);
+      }
+    };
+
+    confirmOrder();
   }, [paymentIntentId, router, dispatch]);
 
   const handleNewOrder = () => {

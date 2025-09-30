@@ -185,13 +185,11 @@ export interface FormSubmission {
 
 // Contact form submission function
 export async function submitFormData(data: FormSubmission): Promise<void> {
-  // For now, this can just log the data or send it to an API
-  // You can implement actual form submission logic later
-  console.log('Contact form submission:', data);
+  const { error } = await supabaseAdmin
+    .from('contact_forms')
+    .insert([data]);
 
-  // If you want to store contact forms in Supabase, you would:
-  // const { error } = await supabaseAdmin
-  //   .from('contact_forms')
-  //   .insert(data);
-  // if (error) throw error;
+  if (error) {
+    throw error;
+  }
 }

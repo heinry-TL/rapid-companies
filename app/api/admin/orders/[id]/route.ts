@@ -9,29 +9,11 @@ export async function GET(
     const resolvedParams = await params;
     const orderId = resolvedParams.id;
 
-    // Get order details
+    // Get order details - try by order_id first
     const { data: orders, error: orderError } = await supabaseAdmin
       .from('orders')
-      .select(`
-        id,
-        order_id,
-        stripe_payment_intent_id,
-        customer_email,
-        customer_name,
-        customer_phone,
-        total_amount,
-        currency,
-        payment_status,
-        payment_method,
-        applications_count,
-        services_count,
-        order_items,
-        stripe_metadata,
-        created_at,
-        paid_at,
-        updated_at
-      `)
-      .or(`order_id.eq.${orderId},id.eq.${orderId}`);
+      .select('*')
+      .eq('order_id', orderId);
 
     if (orderError) {
       console.error('Supabase order error:', orderError);
@@ -50,30 +32,28 @@ export async function GET(
 
     const order = orders[0];
 
-    // Get order items
+    // Get order items (non-critical, don't fail if missing)
     const { data: orderItems, error: itemsError } = await supabaseAdmin
       .from('order_items')
-      .select(`
-        id,
-        item_type,
-        item_name,
-        jurisdiction_name,
-        unit_price,
-        quantity,
-        total_price,
-        currency,
-        item_metadata,
-        created_at
-      `)
+      .select('*')
       .eq('order_id', order.order_id)
       .order('id', { ascending: true });
 
     if (itemsError) {
-      console.error('Supabase order items error:', itemsError);
-      return NextResponse.json(
-        { error: 'Failed to fetch order items' },
-        { status: 500 }
-      );
+      console.error('Supabase order items error (non-critical):', itemsError);
+      // Don't fail the request if order_items table doesn't exist yet
+    }
+
+    // Get related applications (non-critical, don't fail if missing)
+    const { data: applications, error: appsError } = await supabaseAdmin
+      .from('applications')
+      .select('*')
+      .eq('order_id', order.order_id)
+      .order('created_at', { ascending: true });
+
+    if (appsError) {
+      console.error('Supabase applications error (non-critical):', appsError);
+      // Don't fail the request
     }
 
     // JSON fields are already parsed in Supabase
@@ -82,6 +62,7 @@ export async function GET(
       order_items: order.order_items || null,
       stripe_metadata: order.stripe_metadata || null,
       items: orderItems || [],
+      applications: applications || [],
     };
 
     return NextResponse.json({ order: parsedOrder });
@@ -132,7 +113,7 @@ export async function PATCH(
     const { data, error } = await supabaseAdmin
       .from('orders')
       .update(updates)
-      .or(`order_id.eq.${orderId},id.eq.${orderId}`)
+      .eq('order_id', orderId)
       .select();
 
     if (error) {

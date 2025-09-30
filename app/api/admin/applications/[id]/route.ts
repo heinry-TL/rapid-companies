@@ -21,7 +21,7 @@ export async function GET(
       .from('applications')
       .select(`
         id,
-        jurisdiction_id,
+        application_identifier,
         jurisdiction_name,
         jurisdiction_price,
         jurisdiction_currency,
@@ -29,35 +29,14 @@ export async function GET(
         contact_last_name,
         contact_email,
         contact_phone,
-        contact_address_line1,
-        contact_address_line2,
-        contact_city,
-        contact_county,
-        contact_postcode,
-        contact_country,
         company_proposed_name,
-        company_alternative_name,
         company_business_activity,
-        company_authorized_capital,
-        company_number_of_shares,
-        registered_address_line1,
-        registered_address_line2,
-        registered_city,
-        registered_county,
-        registered_postcode,
-        registered_country,
-        use_contact_address,
+        internal_status,
+        payment_status,
+        order_id,
         step_completed,
-        is_complete,
-        directors,
-        shareholders,
-        additional_services,
         created_at,
-        updated_at,
-        jurisdictions!inner(
-          name,
-          description
-        )
+        updated_at
       `)
       .eq('id', applicationId)
       .single();
@@ -82,22 +61,14 @@ export async function GET(
       email: applicationData.contact_email,
       phone: applicationData.contact_phone,
       company_name: applicationData.company_proposed_name,
-      jurisdiction_name_full: applicationData.jurisdictions?.name,
-      jurisdiction_description: applicationData.jurisdictions?.description,
+      full_name: `${applicationData.contact_first_name || ''} ${applicationData.contact_last_name || ''}`.trim(),
+      company_type: 'LLC',
+      status: applicationData.step_completed >= 5 ? 'completed' : 'pending',
+      admin_notes: '',
+      directors: [],
+      shareholders: [],
+      additional_services: []
     };
-
-    // Add derived fields
-    application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();
-    application.company_type = 'LLC';
-    application.status = application.is_complete ? 'completed' : ((application.step_completed || 0) >= 5 ? 'processing' : 'pending');
-    application.payment_status = 'pending';
-    application.internal_status = 'new';
-    application.admin_notes = '';
-
-    // JSON fields are already parsed in Supabase, ensure they're arrays
-    application.directors = application.directors || [];
-    application.shareholders = application.shareholders || [];
-    application.additional_services = application.additional_services || [];
 
     return NextResponse.json({ application });
   } catch (error) {
@@ -164,7 +135,6 @@ export async function PATCH(
       .from('applications')
       .select(`
         id,
-        jurisdiction_id,
         jurisdiction_name,
         jurisdiction_price,
         jurisdiction_currency,
@@ -173,8 +143,8 @@ export async function PATCH(
         contact_email,
         contact_phone,
         company_proposed_name,
-        step_completed,
-        is_complete,
+        company_business_activity,
+        internal_status,
         created_at,
         updated_at
       `)
@@ -195,15 +165,12 @@ export async function PATCH(
       email: applicationData.contact_email,
       phone: applicationData.contact_phone,
       company_name: applicationData.company_proposed_name,
+      full_name: `${applicationData.contact_first_name || ''} ${applicationData.contact_last_name || ''}`.trim(),
+      company_type: 'LLC',
+      status: 'pending',
+      payment_status: 'pending',
+      admin_notes: ''
     };
-
-    // Add derived fields
-    application.full_name = `${application.contact_first_name || ''} ${application.contact_last_name || ''}`.trim();
-    application.company_type = 'LLC';
-    application.status = application.is_complete ? 'completed' : ((application.step_completed || 0) >= 5 ? 'processing' : 'pending');
-    application.payment_status = 'pending';
-    application.internal_status = 'new';
-    application.admin_notes = '';
 
     return NextResponse.json({
       success: true,

@@ -12,10 +12,11 @@ interface AdminSidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/alpha-console', icon: 'dashboard' },
+  { name: 'Orders', href: '/alpha-console/orders', icon: 'orders' },
+  { name: 'Applications', href: '/alpha-console/applications', icon: 'applications' },
   { name: 'Jurisdictions', href: '/alpha-console/jurisdictions', icon: 'location' },
   { name: 'Additional Services', href: '/alpha-console/services', icon: 'services' },
   { name: 'Professional Services', href: '/alpha-console/professional-services', icon: 'professional-services' },
-  { name: 'Applications', href: '/alpha-console/applications', icon: 'applications' },
   { name: 'Users', href: '/alpha-console/users', icon: 'users' },
   { name: 'Settings', href: '/alpha-console/settings', icon: 'settings' },
 ];

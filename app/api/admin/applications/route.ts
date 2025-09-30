@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       .from('applications')
       .select(`
         id,
-        jurisdiction_id,
+        application_identifier,
         jurisdiction_name,
         jurisdiction_price,
         jurisdiction_currency,
@@ -22,9 +22,11 @@ export async function GET(request: NextRequest) {
         contact_email,
         contact_phone,
         company_proposed_name,
-        step_completed,
-        is_complete,
+        company_business_activity,
         internal_status,
+        payment_status,
+        order_id,
+        step_completed,
         created_at,
         updated_at
       `)
@@ -34,6 +36,10 @@ export async function GET(request: NextRequest) {
     // Apply filters if provided
     if (status && status !== 'all') {
       query = query.eq('internal_status', status);
+    }
+
+    if (paymentStatus && paymentStatus !== 'all') {
+      query = query.eq('payment_status', paymentStatus);
     }
 
     const { data: rows, error, count } = await query;
@@ -50,8 +56,7 @@ export async function GET(request: NextRequest) {
       company_name: row.company_proposed_name,
       full_name: `${row.contact_first_name || ''} ${row.contact_last_name || ''}`.trim(),
       company_type: 'LLC',
-      status: row.is_complete ? 'completed' : (row.step_completed >= 5 ? 'processing' : 'pending'),
-      payment_status: 'pending',
+      status: row.step_completed >= 5 ? 'completed' : 'pending',
       admin_notes: ''
     }));
 

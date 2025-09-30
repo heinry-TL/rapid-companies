@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import { db } from '@/lib/database';
+import { supabaseAdmin } from '@/lib/supabase';
 import type { StripeWebhookEvent } from '@/types/api';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -68,8 +69,14 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
     // Extract order details from metadata
     const metadata = paymentIntent.metadata;
     const orderId = (metadata as any).order_id;
-    const customerEmail = paymentIntent.receipt_email ||
-                         (paymentIntent.charges as any)?.data?.[0]?.billing_details?.email;
+
+    // Extract customer and billing details from Stripe
+    const chargeData = (paymentIntent.charges as any)?.data?.[0];
+    const billingDetails = chargeData?.billing_details;
+
+    const customerEmail = paymentIntent.receipt_email || billingDetails?.email;
+    const billingName = billingDetails?.name || (metadata as any).customer_name;
+    const billingAddress = billingDetails?.address;
 
     console.log('Processing successful payment:', {
       paymentIntentId: paymentIntent.id,
@@ -99,11 +106,19 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
       console.error('Error parsing order metadata:', parseError);
     }
 
-    // Create order data
+    // Create order data with billing information
     const orderData = {
       order_id: orderId,
       stripe_payment_intent_id: paymentIntent.id,
       customer_email: customerEmail,
+      customer_name: billingName,
+      billing_name: billingName,
+      billing_address_line1: billingAddress?.line1,
+      billing_address_line2: billingAddress?.line2,
+      billing_city: billingAddress?.city,
+      billing_state: billingAddress?.state,
+      billing_postal_code: billingAddress?.postal_code,
+      billing_country: billingAddress?.country,
       total_amount: (paymentIntent.amount as number) / 100, // Convert from cents
       currency: (paymentIntent.currency as string).toUpperCase(),
       payment_status: 'paid',
@@ -114,7 +129,69 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
     // Create the order with items using the database abstraction
     await db.createOrderWithItems(orderData, applications, standaloneServices);
 
-    console.log(`Order ${orderId} successfully saved to database`);
+    // Update applications to mark them as paid and link to order
+    if (applications && applications.length > 0) {
+      for (const app of applications) {
+        if (app.id) {
+          await supabaseAdmin
+            .from('applications')
+            .update({
+              payment_status: 'paid',
+              order_id: orderId,
+              internal_status: 'paid',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', app.id);
+        }
+      }
+    }
+
+    // Create applications for standalone services (services purchased without company formation)
+    if (standaloneServices && standaloneServices.length > 0) {
+      for (const service of standaloneServices) {
+        // Create a unique identifier for the service application
+        const serviceApplicationIdentifier = `service_${orderId}_${service.id || service.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
+        // Create an application record for each standalone service with billing info
+        const serviceApplication = {
+          application_identifier: serviceApplicationIdentifier,
+          jurisdiction_name: service.name, // Use service name as jurisdiction for standalone services
+          jurisdiction_price: service.price,
+          jurisdiction_currency: service.currency || 'GBP',
+          contact_email: customerEmail,
+          contact_first_name: billingName?.split(' ')[0] || null,
+          contact_last_name: billingName?.split(' ').slice(1).join(' ') || null,
+          billing_name: billingName,
+          billing_address: billingAddress ? {
+            line1: billingAddress.line1,
+            line2: billingAddress.line2,
+            city: billingAddress.city,
+            state: billingAddress.state,
+            postal_code: billingAddress.postal_code,
+            country: billingAddress.country
+          } : null,
+          company_proposed_name: `Standalone Service: ${service.name}`,
+          company_business_activity: 'Additional Service Purchase',
+          internal_status: 'paid',
+          payment_status: 'paid',
+          order_id: orderId,
+          step_completed: 3, // Mark as completed since payment is done
+          additional_services: { standalone_service: service },
+          updated_at: new Date().toISOString()
+        };
+
+        await supabaseAdmin
+          .from('applications')
+          .upsert([serviceApplication], {
+            onConflict: 'application_identifier',
+            ignoreDuplicates: false
+          });
+      }
+
+      console.log(`Created ${standaloneServices.length} service-only application(s) for order ${orderId}`);
+    }
+
+    console.log(`Order ${orderId} successfully saved to database and applications updated`);
 
   } catch (error) {
     console.error('Error handling successful payment:', error);
@@ -158,7 +235,29 @@ async function handleFailedPayment(paymentIntent: Record<string, unknown>) {
       await db.createOrder(orderData);
     });
 
-    console.log(`Order ${orderId} marked as failed in database`);
+    // Update applications to mark payment as failed
+    const applications = [];
+    try {
+      if ((metadata as any).applications) {
+        const parsedApps = JSON.parse((metadata as any).applications);
+        for (const app of parsedApps) {
+          if (app.id) {
+            await supabaseAdmin
+              .from('applications')
+              .update({
+                payment_status: 'failed',
+                order_id: orderId,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', app.id);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error updating application payment status to failed:', error);
+    }
+
+    console.log(`Order ${orderId} marked as failed in database and applications updated`);
 
   } catch (error) {
     console.error('Error handling failed payment:', error);

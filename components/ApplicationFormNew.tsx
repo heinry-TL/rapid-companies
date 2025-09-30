@@ -34,21 +34,41 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
   const saveToDatabase = async (stepCompleted: number) => {
     setIsLoading(true);
     try {
+      // Transform application data to match API expectations
+      const applicationData = {
+        jurisdiction: {
+          name: application.jurisdiction.name,
+          price: application.jurisdiction.price,
+          currency: application.jurisdiction.currency
+        },
+        contactDetails: {
+          firstName: application.contactDetails.firstName,
+          lastName: application.contactDetails.lastName,
+          email: application.contactDetails.email,
+          phone: application.contactDetails.phone
+        },
+        companyDetails: {
+          proposedName: application.companyDetails.proposedName,
+          businessActivity: application.companyDetails.businessActivity
+        }
+      };
+
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...application,
-          stepCompleted,
-          isComplete: stepCompleted >= 5,
-        }),
+        body: JSON.stringify(applicationData),
       });
 
       if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Server response:', errorData);
         throw new Error('Failed to save application');
       }
+
+      const result = await response.json();
+      console.log('Application saved successfully:', result);
 
       // Update local state
       updateApplication({
