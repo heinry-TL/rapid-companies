@@ -69,6 +69,12 @@ export async function POST(req: NextRequest) {
       if (metadata.standalone_services) {
         standaloneServices = JSON.parse(metadata.standalone_services);
       }
+
+      console.log('Order items:', {
+        orderId,
+        applications: applications.length,
+        standaloneServices: standaloneServices.length
+      });
     } catch (parseError) {
       console.error('Error parsing order metadata:', parseError);
     }
@@ -94,7 +100,9 @@ export async function POST(req: NextRequest) {
     };
 
     // Create the order with items using the database abstraction
+    console.log('Creating order with items...');
     await db.createOrderWithItems(orderData, applications, standaloneServices);
+    console.log('Order created successfully with items');
 
     // Update applications to mark them as paid and link to order
     if (applications && applications.length > 0) {

@@ -738,13 +738,21 @@ export class DatabaseService {
     // Insert all order items
     const allItems = [...applicationItems, ...serviceItems];
     if (allItems.length > 0) {
+      // First, try to delete existing items for this order (in case of retry)
+      await supabaseAdmin
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderData.order_id);
+
+      // Then insert new items
       const { error: itemsError } = await supabaseAdmin
         .from('order_items')
-        .upsert(allItems, {
-          onConflict: 'order_id,item_name'
-        });
+        .insert(allItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Error inserting order items:', itemsError);
+        throw itemsError;
+      }
     }
 
     return order;
