@@ -159,7 +159,7 @@ export default function Services() {
           {services.map((service, index) => (
             <div
               key={service.id}
-              ref={(el) => (cardRefs.current[index] = el)}
+              ref={(el) => {cardRefs.current[index] = el}}
               className="bg-gray-800 rounded-xl p-8 border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10"
             >
               <div className="mb-5">{service.icon}</div>

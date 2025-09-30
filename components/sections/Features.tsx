@@ -126,7 +126,9 @@ export default function Features() {
           {features.map((feature, index) => (
             <div
               key={feature.id}
-              ref={(el) => (featureRefs.current[index] = el)}
+              ref={(el) => {
+                featureRefs.current[index] = el;
+              }}
               className="flex items-start"
             >
               <div className="flex-shrink-0 mr-6">

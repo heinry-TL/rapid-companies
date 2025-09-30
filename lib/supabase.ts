@@ -176,8 +176,11 @@ export type OrderItemInsert = Database['public']['Tables']['order_items']['Inser
 export interface FormSubmission {
   name: string;
   email: string;
-  message: string;
-  phone?: string;
+  phone: string;
+  companyName: string;
+  country: string;
+  serviceType: string;
+  message?: string;
 }
 
 // Contact form submission function
