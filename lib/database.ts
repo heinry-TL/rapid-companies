@@ -206,10 +206,10 @@ export class DatabaseService {
 
       if (!ordersError && orders) {
         orderStats.total_orders = orders.length;
-        orderStats.paid_orders = orders.filter(o => o.payment_status === 'paid').length;
+        orderStats.paid_orders = orders.filter((o: any) => o.payment_status === 'paid').length;
         orderStats.total_revenue = orders
-          .filter(o => o.payment_status === 'paid')
-          .reduce((sum, o) => sum + (o.total_amount || 0), 0);
+          .filter((o: any) => o.payment_status === 'paid')
+          .reduce((sum: number, o: any) => sum + (o.total_amount || 0), 0);
 
         const { data: monthlyOrders, error: monthlyOrdersError } = await supabaseAdmin
           .from('orders')
@@ -219,10 +219,10 @@ export class DatabaseService {
 
         if (!monthlyOrdersError && monthlyOrders) {
           monthlyOrderStats.total_orders = monthlyOrders.length;
-          monthlyOrderStats.paid_orders = monthlyOrders.filter(o => o.payment_status === 'paid').length;
+          monthlyOrderStats.paid_orders = monthlyOrders.filter((o: any) => o.payment_status === 'paid').length;
           monthlyOrderStats.revenue = monthlyOrders
-            .filter(o => o.payment_status === 'paid')
-            .reduce((sum, o) => sum + (o.total_amount || 0), 0);
+            .filter((o: any) => o.payment_status === 'paid')
+            .reduce((sum: number, o: any) => sum + (o.total_amount || 0), 0);
         }
       }
 
@@ -519,14 +519,14 @@ export class DatabaseService {
 
       const statistics = {
         total_orders: orders?.length || 0,
-        paid_orders: orders?.filter(o => o.payment_status === 'paid').length || 0,
-        pending_orders: orders?.filter(o => o.payment_status === 'pending').length || 0,
-        failed_orders: orders?.filter(o => o.payment_status === 'failed').length || 0,
-        total_revenue: orders?.filter(o => o.payment_status === 'paid').reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0,
+        paid_orders: orders?.filter((o: any) => o.payment_status === 'paid').length || 0,
+        pending_orders: orders?.filter((o: any) => o.payment_status === 'pending').length || 0,
+        failed_orders: orders?.filter((o: any) => o.payment_status === 'failed').length || 0,
+        total_revenue: orders?.filter((o: any) => o.payment_status === 'paid').reduce((sum: number, o: any) => sum + (o.total_amount || 0), 0) || 0,
         average_order_value: 0,
       };
 
-      const paidOrders = orders?.filter(o => o.payment_status === 'paid') || [];
+      const paidOrders = orders?.filter((o: any) => o.payment_status === 'paid') || [];
       if (paidOrders.length > 0) {
         statistics.average_order_value = statistics.total_revenue / paidOrders.length;
       }
@@ -552,7 +552,7 @@ export class DatabaseService {
       const monthlyRevenue = [];
       const monthlyGroups: { [key: string]: { orders_count: number; revenue: number } } = {};
 
-      monthlyData?.forEach(order => {
+      monthlyData?.forEach((order: any) => {
         const month = new Date(order.created_at).toISOString().substring(0, 7);
         if (!monthlyGroups[month]) {
           monthlyGroups[month] = { orders_count: 0, revenue: 0 };
