@@ -75,13 +75,17 @@ export default function JurisdictionsPage() {
     if (!confirm("Are you sure you want to delete this jurisdiction?")) return;
     try {
       const res = await fetch(`/api/admin/jurisdictions/${id}`, { method: "DELETE" });
+      const data = await res.json();
+
       if (res.ok) {
+        alert("Jurisdiction deleted successfully");
         fetchJurisdictions();
       } else {
-        alert("Failed to delete jurisdiction");
+        alert(`Failed to delete jurisdiction: ${data.error || 'Unknown error'}`);
       }
-    } catch {
-      alert("Network error");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Network error: Could not delete jurisdiction");
     }
   };
 

@@ -137,14 +137,18 @@ export default function JurisdictionDetailPage() {
               <div className="text-gray-400">Formation Cost</div>
             </div>
 
-            <div className="w-px h-12 bg-gray-700"></div>
+            {jurisdiction.processing_time && (
+              <>
+                <div className="w-px h-12 bg-gray-700"></div>
 
-            <div className="text-center">
-              <div className="text-xl font-semibold text-green-400">
-                {jurisdiction.processing_time}
-              </div>
-              <div className="text-gray-400">Processing Time</div>
-            </div>
+                <div className="text-center">
+                  <div className="text-xl font-semibold text-green-400">
+                    {jurisdiction.processing_time}
+                  </div>
+                  <div className="text-gray-400">Processing Time</div>
+                </div>
+              </>
+            )}
           </div>
 
           <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
@@ -171,13 +175,15 @@ export default function JurisdictionDetailPage() {
             <div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
               <h2 className="text-2xl font-bold text-white mb-6">Why Choose {jurisdiction.name}?</h2>
               <div className="space-y-4 text-gray-300">
-                <div className="flex items-start">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-4 flex-shrink-0"></div>
-                  <div>
-                    <h3 className="font-semibold text-white">Fast Processing</h3>
-                    <p>Your company can be incorporated in just {jurisdiction.processing_time.toLowerCase()}</p>
+                {jurisdiction.processing_time && (
+                  <div className="flex items-start">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-4 flex-shrink-0"></div>
+                    <div>
+                      <h3 className="font-semibold text-white">Fast Processing</h3>
+                      <p>Your company can be incorporated in just {jurisdiction.processing_time.toLowerCase()}</p>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-4 flex-shrink-0"></div>

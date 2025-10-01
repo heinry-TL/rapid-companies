@@ -160,13 +160,17 @@ export default function ServicesPage() {
     if (!confirm('Are you sure you want to delete this service?')) return;
     try {
       const res = await fetch(`/api/admin/services/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+
       if (res.ok) {
+        alert('Service deleted successfully');
         fetchServices();
       } else {
-        alert('Failed to delete service');
+        alert(`Failed to delete service: ${data.error || 'Unknown error'}`);
       }
-    } catch (e) {
-      alert('Network error');
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Network error: Could not delete service');
     }
   };
 

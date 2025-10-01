@@ -184,13 +184,17 @@ export default function ProfessionalServicesPage() {
     if (!confirm('Are you sure you want to delete this professional service?')) return;
     try {
       const res = await fetch(`/api/admin/professional-services/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+
       if (res.ok) {
+        alert('Professional service deleted successfully');
         fetchServices();
       } else {
-        alert('Failed to delete professional service');
+        alert(`Failed to delete professional service: ${data.error || 'Unknown error'}`);
       }
-    } catch (e) {
-      alert('Network error');
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Network error: Could not delete professional service');
     }
   };
 

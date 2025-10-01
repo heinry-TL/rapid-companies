@@ -145,9 +145,11 @@ export default function JurisdictionsPage() {
                     </div>
                   )}
                 </div>
-                <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  {jurisdiction.processing_time}
-                </div>
+                {jurisdiction.processing_time && (
+                  <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    {jurisdiction.processing_time}
+                  </div>
+                )}
               </div>
 
               <div className="p-6">
