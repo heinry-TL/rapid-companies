@@ -25,34 +25,26 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
-const serviceTypes = [
-  'Company Formation',
-  'Business Consulting',
-  'Tax Planning',
-  'Banking Services',
-  'Compliance Services',
-  'Asset Protection',
-  'Investment Funds',
-  'Other',
-];
+interface Jurisdiction {
+  id: number;
+  name: string;
+  country_code: string;
+  status: string;
+}
 
-const jurisdictions = [
-  'Belize',
-  'Hong Kong',
-  'Dubai International Financial Centre',
-  'British Virgin Islands',
-  'Cayman Islands',
-  'Seychelles',
-  'Panama',
-  'Delaware',
-  'Singapore',
-  'Other',
-];
+interface Service {
+  id: number;
+  name: string;
+  active: boolean;
+}
 
 function ContactForm() {
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const headerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -67,6 +59,34 @@ function ContactForm() {
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
   });
+
+  // Fetch jurisdictions and services
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [jurisdictionsRes, servicesRes] = await Promise.all([
+          fetch('/api/jurisdictions'),
+          fetch('/api/services')
+        ]);
+
+        if (jurisdictionsRes.ok) {
+          const jurisdictionsData = await jurisdictionsRes.json();
+          setJurisdictions(jurisdictionsData);
+        }
+
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          setServices(servicesData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // Pre-fill jurisdiction if passed via URL params
@@ -239,19 +259,23 @@ function ContactForm() {
 
                   <div>
                     <label htmlFor="jurisdiction" className="block text-sm font-medium text-gray-300 mb-2">
-                      Preferred Jurisdiction *
+                      Preferred Jurisdiction
                     </label>
                     <select
                       {...register('jurisdiction')}
                       id="jurisdiction"
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={loading}
                     >
-                      <option value="">Select a jurisdiction</option>
+                      <option value="">
+                        {loading ? 'Loading jurisdictions...' : 'Select a jurisdiction'}
+                      </option>
                       {jurisdictions.map((jurisdiction) => (
-                        <option key={jurisdiction} value={jurisdiction}>
-                          {jurisdiction}
+                        <option key={jurisdiction.id} value={jurisdiction.name}>
+                          {jurisdiction.name}
                         </option>
                       ))}
+                      <option value="Other">Other</option>
                     </select>
                     {errors.jurisdiction && (
                       <p className="mt-1 text-sm text-red-400">{errors.jurisdiction.message}</p>
@@ -260,19 +284,23 @@ function ContactForm() {
 
                   <div>
                     <label htmlFor="serviceType" className="block text-sm font-medium text-gray-300 mb-2">
-                      Service Type *
+                      Service Type
                     </label>
                     <select
                       {...register('serviceType')}
                       id="serviceType"
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={loading}
                     >
-                      <option value="">Select a service</option>
-                      {serviceTypes.map((service) => (
-                        <option key={service} value={service}>
-                          {service}
+                      <option value="">
+                        {loading ? 'Loading services...' : 'Select a service'}
+                      </option>
+                      {services.map((service) => (
+                        <option key={service.id} value={service.name}>
+                          {service.name}
                         </option>
                       ))}
+                      <option value="Other">Other</option>
                     </select>
                     {errors.serviceType && (
                       <p className="mt-1 text-sm text-red-400">{errors.serviceType.message}</p>

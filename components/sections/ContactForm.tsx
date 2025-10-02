@@ -1,10 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { submitFormData, FormSubmission } from "@/lib/supabase";
+
+interface Jurisdiction {
+  id: number;
+  name: string;
+  country_code: string;
+  status: string;
+}
+
+interface Service {
+  id: number;
+  name: string;
+  active: boolean;
+}
 
 // Define the form validation schema using Zod
 const formSchema = z.object({
@@ -48,6 +61,39 @@ export default function ContactForm({
   const [formStatus, setFormStatus] = useState<"idle" | "success" | "error">(
     "idle"
   );
+
+  // State for jurisdictions and services
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch jurisdictions and services on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [jurisdictionsRes, servicesRes] = await Promise.all([
+          fetch('/api/jurisdictions'),
+          fetch('/api/services')
+        ]);
+
+        if (jurisdictionsRes.ok) {
+          const jurisdictionsData = await jurisdictionsRes.json();
+          setJurisdictions(jurisdictionsData);
+        }
+
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          setServices(servicesData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Handle form submission
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
@@ -213,14 +259,16 @@ export default function ContactForm({
                 errors.country ? "border-red-500" : "border-gray-600"
               } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               {...register("country")}
+              disabled={loading}
             >
-              <option value="">Select a jurisdiction</option>
-              <option value="bvi">British Virgin Islands</option>
-              <option value="cayman">Cayman Islands</option>
-              <option value="seychelles">Seychelles</option>
-              <option value="panama">Panama</option>
-              <option value="delaware">Delaware (USA)</option>
-              <option value="singapore">Singapore</option>
+              <option value="">
+                {loading ? "Loading jurisdictions..." : "Select a jurisdiction"}
+              </option>
+              {jurisdictions.map((jurisdiction) => (
+                <option key={jurisdiction.id} value={jurisdiction.name}>
+                  {jurisdiction.name}
+                </option>
+              ))}
               <option value="other">Other</option>
             </select>
             {errors.country && (
@@ -244,13 +292,16 @@ export default function ContactForm({
                 errors.serviceType ? "border-red-500" : "border-gray-600"
               } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               {...register("serviceType")}
+              disabled={loading}
             >
-              <option value="">Select a service</option>
-              <option value="basic">Basic Formation</option>
-              <option value="professional">Professional Formation</option>
-              <option value="enterprise">Enterprise Formation</option>
-              <option value="banking">Banking Assistance</option>
-              <option value="nominee">Nominee Services</option>
+              <option value="">
+                {loading ? "Loading services..." : "Select a service"}
+              </option>
+              {services.map((service) => (
+                <option key={service.id} value={service.name}>
+                  {service.name}
+                </option>
+              ))}
               <option value="custom">Custom Solution</option>
             </select>
             {errors.serviceType && (
