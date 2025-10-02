@@ -5,12 +5,12 @@ import { supabaseAdmin } from './supabase';
 
 export interface AdminUser {
   id: number;
-  username: string;
+  username?: string;
   email: string;
   password_hash: string;
   full_name: string;
   role: 'super_admin' | 'admin' | 'editor';
-  is_active: boolean;
+  active: boolean;
   last_login: Date | null;
   created_at: Date;
   updated_at: Date;
@@ -32,7 +32,6 @@ export function generateToken(user: AdminUser): string {
   return jwt.sign(
     {
       userId: user.id,
-      username: user.username,
       email: user.email,
       role: user.role,
     },
@@ -51,21 +50,35 @@ export function verifyToken(token: string): any {
 
 export async function authenticateAdmin(username: string, password: string): Promise<AdminUser | null> {
   try {
+    console.log('🔍 Authenticating user:', username);
+
     const { data, error } = await supabaseAdmin
       .from('admin_users')
       .select('*')
-      .or(`username.eq.${username},email.eq.${username}`)
-      .eq('is_active', true)
+      .eq('email', username)
+      .eq('active', true)
       .single();
 
-    if (error || !data) {
+    if (error) {
+      console.error('❌ Database query error:', error);
       return null;
     }
+
+    if (!data) {
+      console.error('❌ No user found for email:', username);
+      return null;
+    }
+
+    console.log('✅ User found:', data.email);
+    console.log('🔑 Password hash from DB:', data.password_hash?.substring(0, 20) + '...');
 
     const user = data as AdminUser;
     const isValid = await verifyPassword(password, user.password_hash);
 
+    console.log('🔐 Password valid:', isValid);
+
     if (!isValid) {
+      console.error('❌ Invalid password for user:', username);
       return null;
     }
 
@@ -75,9 +88,10 @@ export async function authenticateAdmin(username: string, password: string): Pro
       .update({ last_login: new Date().toISOString() })
       .eq('id', user.id);
 
+    console.log('✅ Authentication successful for:', username);
     return user;
   } catch (error) {
-    console.error('Authentication error:', error);
+    console.error('❌ Authentication error:', error);
     return null;
   }
 }
@@ -86,9 +100,9 @@ export async function getAdminUser(userId: number): Promise<AdminUser | null> {
   try {
     const { data, error } = await supabaseAdmin
       .from('admin_users')
-      .select('id, username, email, full_name, role, is_active, last_login, created_at, updated_at')
+      .select('id, email, full_name, role, active, last_login, created_at, updated_at')
       .eq('id', userId)
-      .eq('is_active', true)
+      .eq('active', true)
       .single();
 
     if (error || !data) {
