@@ -30,9 +30,14 @@ export default function AdminLogin() {
       const data = await response.json();
 
       if (response.ok) {
+        console.log('✅ Login successful, redirecting...');
+        console.log('Response data:', data);
         // Successful login - redirect to alpha-console
-        window.location.href = '/alpha-console';
+        setTimeout(() => {
+          window.location.href = '/alpha-console';
+        }, 100);
       } else {
+        console.error('❌ Login failed:', data);
         setError(data.error || 'Login failed');
       }
     } catch (error) {

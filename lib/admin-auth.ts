@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from './supabase';
 
@@ -16,8 +16,10 @@ export interface AdminUser {
   updated_at: Date;
 }
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || process.env.ADMIN_SESSION_SECRET || 'your-secret-key';
 const JWT_EXPIRES_IN = '24h';
+
+console.log('🔑 JWT_SECRET loaded:', !!JWT_SECRET, JWT_SECRET?.substring(0, 10) + '...');
 
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 12;
@@ -28,24 +30,28 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return bcrypt.compare(password, hash);
 }
 
-export function generateToken(user: AdminUser): string {
-  return jwt.sign(
-    {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
-  );
+export async function generateToken(user: AdminUser): Promise<string> {
+  console.log('🔑 Generating token with secret:', JWT_SECRET?.substring(0, 10) + '...');
+  const secret = new TextEncoder().encode(JWT_SECRET);
+
+  const token = await new SignJWT({
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('24h')
+    .sign(secret);
+
+  return token;
 }
 
+// This function is no longer needed as we use jose in middleware
+// Keeping it for backward compatibility but it won't work in Edge runtime
 export function verifyToken(token: string): any {
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return null;
-  }
+  console.warn('⚠️ verifyToken is deprecated - use jose directly');
+  return null;
 }
 
 export async function authenticateAdmin(username: string, password: string): Promise<AdminUser | null> {
@@ -119,17 +125,29 @@ export async function getAdminUser(userId: number): Promise<AdminUser | null> {
 export async function requireAuth(request: NextRequest): Promise<{ user: AdminUser } | NextResponse> {
   const token = request.cookies.get('admin-token')?.value;
 
+  console.log('🔍 requireAuth - token exists:', !!token);
+  if (token) {
+    console.log('🔍 Token preview:', token.substring(0, 20) + '...');
+  }
+
   if (!token) {
+    console.log('❌ No token found in cookies');
     return NextResponse.redirect(new URL('/alpha-console/login', request.url));
   }
 
   const decoded = verifyToken(token);
+  console.log('🔍 Token decoded:', !!decoded);
+
   if (!decoded) {
+    console.log('❌ Token verification failed');
     return NextResponse.redirect(new URL('/alpha-console/login', request.url));
   }
 
   const user = await getAdminUser(decoded.userId);
+  console.log('🔍 User found:', !!user);
+
   if (!user) {
+    console.log('❌ User not found for ID:', decoded.userId);
     return NextResponse.redirect(new URL('/alpha-console/login', request.url));
   }
 

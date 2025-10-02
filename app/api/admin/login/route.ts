@@ -21,7 +21,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = generateToken(user);
+    const token = await generateToken(user);
+    console.log('🔑 Generated token:', token.substring(0, 20) + '...');
 
     // Create response with cookie
     const response = NextResponse.json({
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
+    console.log('🍪 Cookie set on response');
     return response;
   } catch (error) {
     console.error('Login error:', error);
