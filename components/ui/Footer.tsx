@@ -1,16 +1,59 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+interface Jurisdiction {
+  id: number;
+  name: string;
+  country_code: string;
+}
+
+interface Service {
+  id: number;
+  name: string;
+}
 
 // Define the Footer component
 export default function Footer() {
   // Get the current year for copyright
   const currentYear = new Date().getFullYear();
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [jurisdictionsRes, servicesRes] = await Promise.all([
+          fetch('/api/jurisdictions'),
+          fetch('/api/services')
+        ]);
+
+        if (jurisdictionsRes.ok) {
+          const jurisdictionsData = await jurisdictionsRes.json();
+          // Take only first 5 jurisdictions
+          setJurisdictions(jurisdictionsData.slice(0, 5));
+        }
+
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          // Take only first 5 services
+          setServices(servicesData.slice(0, 5));
+        }
+      } catch (error) {
+        console.error('Error fetching footer data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Return the footer component
   return (
     <footer className="bg-gray-900 border-gray-800 pt-12 pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Company Info */}
           <div className="col-span-1">
             <Image
@@ -59,46 +102,49 @@ export default function Footer() {
 
           {/* Jurisdictions */}
           <div className="col-span-1">
-            <h3 className="text-white font-semibold mb-4">Jurisdictions</h3>
+            <h3 className="text-white font-semibold mb-4">Popular Jurisdictions</h3>
             <ul className="space-y-2">
+              {jurisdictions.map((jurisdiction) => (
+                <li key={jurisdiction.id}>
+                  <Link
+                    href={`/jurisdictions/${jurisdiction.id}`}
+                    className="text-gray-400 hover:text-blue-400 text-sm"
+                  >
+                    {jurisdiction.name}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link
-                  href="/jurisdictions/bvi"
-                  className="text-gray-400 hover:text-blue-400 text-sm"
+                  href="/jurisdictions"
+                  className="text-blue-400 hover:text-blue-300 text-sm font-medium"
                 >
-                  BVI
+                  See More →
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          {/* Services */}
+          <div className="col-span-1">
+            <h3 className="text-white font-semibold mb-4">Our Services</h3>
+            <ul className="space-y-2">
+              {services.map((service) => (
+                <li key={service.id}>
+                  <Link
+                    href={`/services#${service.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="text-gray-400 hover:text-blue-400 text-sm"
+                  >
+                    {service.name}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link
-                  href="/jurisdictions/cayman"
-                  className="text-gray-400 hover:text-blue-400 text-sm"
+                  href="/services"
+                  className="text-blue-400 hover:text-blue-300 text-sm font-medium"
                 >
-                  Cayman Islands
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/jurisdictions/seychelles"
-                  className="text-gray-400 hover:text-blue-400 text-sm"
-                >
-                  Seychelles
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/jurisdictions/panama"
-                  className="text-gray-400 hover:text-blue-400 text-sm"
-                >
-                  Panama
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/jurisdictions/delaware"
-                  className="text-gray-400 hover:text-blue-400 text-sm"
-                >
-                  Delaware
+                  See More →
                 </Link>
               </li>
             </ul>
