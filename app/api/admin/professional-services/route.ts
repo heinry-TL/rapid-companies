@@ -10,9 +10,16 @@ export async function GET(_request: NextRequest) {
         name,
         description,
         short_description,
+        full_description,
         features,
+        benefits,
         category,
+        icon_svg,
         display_order,
+        pricing,
+        timeline,
+        link_url,
+        link_text,
         active,
         created_at,
         updated_at
@@ -28,10 +35,11 @@ export async function GET(_request: NextRequest) {
       );
     }
 
-    // Features are already arrays in Supabase, no need to parse JSON
+    // Features and benefits are already arrays in Supabase, no need to parse JSON
     const services = data.map(service => ({
       ...service,
-      features: service.features || []
+      features: service.features || [],
+      benefits: service.benefits || []
     }));
 
     return NextResponse.json({
@@ -54,9 +62,16 @@ export async function POST(request: NextRequest) {
       name,
       description,
       short_description,
+      full_description,
       features,
+      benefits,
       category,
+      icon_svg,
       display_order = 1,
+      pricing,
+      timeline,
+      link_url,
+      link_text,
       active = true
     } = await request.json();
 
@@ -95,10 +110,17 @@ export async function POST(request: NextRequest) {
         id,
         name,
         description: description || '',
-        short_description: short_description || '',
+        short_description: short_description || null,
+        full_description: full_description || null,
         features: features || [],
+        benefits: benefits || [],
         category,
+        icon_svg: icon_svg || null,
         display_order,
+        pricing: pricing || null,
+        timeline: timeline || null,
+        link_url: link_url || null,
+        link_text: link_text || null,
         active
       }])
       .select()

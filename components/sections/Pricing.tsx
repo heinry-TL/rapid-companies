@@ -15,7 +15,7 @@ const pricingPlans = [
   {
     id: "company-formation",
     name: "Offshore Company Formation",
-    price: 599,
+    price: 425,
     description:
       "Perfect for small businesses looking to establish an offshore presence.",
     features: [
@@ -28,6 +28,7 @@ const pricingPlans = [
     ],
     cta: "Get Started",
     popular: false,
+    link: "/jurisdictions",
   },
   {
     id: "offshore-banking",
@@ -44,24 +45,25 @@ const pricingPlans = [
     ],
     cta: "Get Started",
     popular: false,
+    link: "/contact",
   },
-  {
-    id: "formation + banking",
-    name: "Offshore Company Formation + Offshore Banking",
-    price: 1899,
-    description:
-      "Comprehensive solution for established businesses with complex needs.",
-    features: [
-      "Everything in Professional",
-      "Tax consultation (2 hours)",
-      "Corporate structure planning",
-      "Nominee shareholder (1 year)",
-      "Multiple jurisdictions setup",
-      "Dedicated account manager",
-    ],
-    cta: "Get Started",
-    popular: true,
-  },
+  // {
+  //   id: "formation + banking",
+  //   name: "Offshore Company Formation + Offshore Banking",
+  //   price: 1899,
+  //   description:
+  //     "Comprehensive solution for established businesses with complex needs.",
+  //   features: [
+  //     "Everything in Professional",
+  //     "Tax consultation (2 hours)",
+  //     "Corporate structure planning",
+  //     "Nominee shareholder (1 year)",
+  //     "Multiple jurisdictions setup",
+  //     "Dedicated account manager",
+  //   ],
+  //   cta: "Get Started",
+  //   popular: true,
+  // },
 ];
 
 // Define the Pricing component
@@ -133,7 +135,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {pricingPlans.map((plan, index) => (
             <div
               key={plan.id}
@@ -154,10 +156,13 @@ export default function Pricing() {
                 {plan.name}
               </h3>
               <div className="flex items-baseline mb-5">
-                <span className="text-3xl font-bold text-white">
-                  £{plan.price}
-                </span>
-                <span className="text-gray-400 ml-1">/ one-time</span>
+                <>
+                  <span className="text-gray-400 ml-1">starting from:</span>
+                  <span className="mx-2" />
+                  <span className="text-3xl font-bold text-white">
+                    £{plan.price}
+                  </span>
+                </>
               </div>
               <p className="text-gray-400 mb-6">{plan.description}</p>
 
@@ -183,7 +188,7 @@ export default function Pricing() {
               </ul>
 
               <Link
-                href={`/register?plan=${plan.id}`}
+                href={plan.link}
                 className={`w-full block text-center py-3 px-4 rounded-lg font-medium transition-colors ${
                   plan.popular
                     ? "bg-blue-500 hover:bg-blue-600 text-white"
@@ -204,7 +209,7 @@ export default function Pricing() {
           </p>
           <p className="mt-2">
             Need a custom solution?{" "}
-            <a href="#contact" className="text-blue-400 hover:text-blue-300">
+            <a href="/contact" className="text-blue-400 hover:text-blue-300">
               Contact us
             </a>{" "}
             for personalized pricing.

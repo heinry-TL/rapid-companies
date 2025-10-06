@@ -13,9 +13,15 @@ interface ProfessionalService {
   description: string;
   short_description: string;
   features: string[];
+  benefits: string[];
   category: string;
   icon_svg: string;
   display_order: number;
+  full_description: string;
+  pricing: string;
+  timeline: string;
+  link_url: string;
+  link_text: string;
 }
 
 if (typeof window !== 'undefined') {
@@ -27,6 +33,8 @@ export default function ServicesPage() {
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const [professionalServices, setProfessionalServices] = useState<ProfessionalService[]>([]);
   const [servicesLoading, setServicesLoading] = useState(true);
+  const [selectedService, setSelectedService] = useState<ProfessionalService | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch professional services
   const fetchProfessionalServices = async () => {
@@ -43,6 +51,18 @@ export default function ServicesPage() {
     } finally {
       setServicesLoading(false);
     }
+  };
+
+  // Handle service card click
+  const handleServiceClick = (service: ProfessionalService) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setSelectedService(null), 300); // Delay to allow animation
   };
 
   useEffect(() => {
@@ -124,7 +144,7 @@ export default function ServicesPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
           </svg>
         );
-      case 'immigration':
+      case 'general':
         return (
           <svg {...iconProps}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -356,18 +376,35 @@ export default function ServicesPage() {
                 <div
                   key={service.id}
                   id={service.id}
-                  className="bg-gray-800 rounded-xl p-8 border border-gray-700 hover:border-blue-500 transition-all duration-300"
+                  className="bg-gray-800 rounded-xl p-8 border border-gray-700 hover:border-blue-500 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10"
+                  onClick={() => handleServiceClick(service)}
                 >
                   <div className="mb-5">
                     <ServiceIcon category={service.category} />
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-3">{service.name}</h3>
                   <p className="text-gray-400 mb-5">{service.description}</p>
-                  <ul className="text-sm text-gray-300 space-y-2">
+                  <ul className="text-sm text-gray-300 space-y-2 mb-6">
                     {service.features.map((feature, index) => (
                       <li key={index}>• {feature}</li>
                     ))}
                   </ul>
+                  <div className="inline-flex items-center text-blue-400 hover:text-blue-300">
+                    {service.link_text || 'Learn More'}
+                    <svg
+                      className="ml-2 h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  </div>
                 </div>
               ))}
             </div>
@@ -400,6 +437,107 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+
+      {/* Service Detail Modal */}
+      {isModalOpen && selectedService && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div className="flex items-center space-x-4">
+                <div className="p-2 bg-gray-700 rounded-lg">
+                  <ServiceIcon category={selectedService.category} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white">{selectedService.name}</h3>
+                  <div className="flex items-center space-x-4 mt-1">
+                    <span className="text-blue-400 font-semibold">{selectedService.pricing}</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {/* Description */}
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold text-white mb-3">Overview</h4>
+                <p className="text-gray-300 leading-relaxed">{selectedService.full_description || selectedService.description}</p>
+              </div>
+
+              {/* Features and Benefits Grid */}
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                {/* Features */}
+                {selectedService.features && selectedService.features.length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-white mb-4">What's Included</h4>
+                    <ul className="space-y-3">
+                      {selectedService.features.map((feature, index) => (
+                        <li key={index} className="flex items-start">
+                          <svg className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-gray-300">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Benefits */}
+                {selectedService.benefits && selectedService.benefits.length > 0 && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-white mb-4">Key Benefits</h4>
+                    <ul className="space-y-3">
+                      {selectedService.benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start">
+                          <svg className="h-5 w-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                          </svg>
+                          <span className="text-gray-300">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
+                {selectedService.link_url && (
+                  <Link
+                    href={selectedService.link_url}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
+                    onClick={handleCloseModal}
+                  >
+                    {selectedService.link_text || 'Get Started Now'}
+                  </Link>
+                )}
+                <button
+                  onClick={handleCloseModal}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="pb-8"></div>
       <Footer />

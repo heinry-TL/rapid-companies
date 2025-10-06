@@ -16,9 +16,16 @@ export async function GET(
         name,
         description,
         short_description,
+        full_description,
         features,
+        benefits,
         category,
+        icon_svg,
         display_order,
+        pricing,
+        timeline,
+        link_url,
+        link_text,
         active,
         created_at,
         updated_at
@@ -40,10 +47,11 @@ export async function GET(
       );
     }
 
-    // Features are already arrays in Supabase, no need to parse
+    // Features and benefits are already arrays in Supabase, no need to parse
     return NextResponse.json({
       ...service,
-      features: service.features || []
+      features: service.features || [],
+      benefits: service.benefits || []
     });
   } catch (error) {
     console.error('Professional service fetch error:', error);
@@ -75,14 +83,35 @@ export async function PATCH(
     if (updates.short_description !== undefined) {
       updateData.short_description = updates.short_description;
     }
+    if (updates.full_description !== undefined) {
+      updateData.full_description = updates.full_description;
+    }
     if (updates.features !== undefined) {
       updateData.features = updates.features; // Already an array in Supabase
+    }
+    if (updates.benefits !== undefined) {
+      updateData.benefits = updates.benefits; // Already an array in Supabase
     }
     if (updates.category !== undefined) {
       updateData.category = updates.category;
     }
+    if (updates.icon_svg !== undefined) {
+      updateData.icon_svg = updates.icon_svg;
+    }
     if (updates.display_order !== undefined) {
       updateData.display_order = updates.display_order;
+    }
+    if (updates.pricing !== undefined) {
+      updateData.pricing = updates.pricing;
+    }
+    if (updates.timeline !== undefined) {
+      updateData.timeline = updates.timeline;
+    }
+    if (updates.link_url !== undefined) {
+      updateData.link_url = updates.link_url;
+    }
+    if (updates.link_text !== undefined) {
+      updateData.link_text = updates.link_text;
     }
     if (updates.active !== undefined) {
       updateData.active = updates.active;

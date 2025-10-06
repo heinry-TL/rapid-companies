@@ -6,10 +6,20 @@ interface Service {
   id: string;
   name: string;
   description: string;
-  base_price: number;
-  currency: string;
-  note: string;
+  short_description?: string;
+  full_description?: string;
+  features?: string[];
+  benefits?: string[];
   category: string;
+  icon_svg?: string;
+  display_order?: number;
+  pricing?: string;
+  timeline?: string;
+  link_url?: string;
+  link_text?: string;
+  base_price?: number;
+  currency?: string;
+  note?: string;
   active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -27,10 +37,20 @@ export default function ServicesPage() {
     id: '',
     name: '',
     description: '',
+    short_description: '',
+    full_description: '',
+    features: '',
+    benefits: '',
+    category: '',
+    icon_svg: '',
+    display_order: 0,
+    pricing: '',
+    timeline: '',
+    link_url: '',
+    link_text: '',
     base_price: '',
     currency: 'GBP',
     note: '',
-    category: '',
     active: true,
   });
   const [formError, setFormError] = useState('');
@@ -95,10 +115,20 @@ export default function ServicesPage() {
       id: '',
       name: '',
       description: '',
+      short_description: '',
+      full_description: '',
+      features: '',
+      benefits: '',
+      category: '',
+      icon_svg: '',
+      display_order: 0,
+      pricing: '',
+      timeline: '',
+      link_url: '',
+      link_text: '',
       base_price: '',
       currency: 'GBP',
       note: '',
-      category: '',
       active: true,
     });
     setFormError('');
@@ -107,7 +137,11 @@ export default function ServicesPage() {
   };
 
   const openEditModal = (service: Service) => {
-    setForm({ ...service });
+    setForm({
+      ...service,
+      features: Array.isArray(service.features) ? service.features.join('\n') : '',
+      benefits: Array.isArray(service.benefits) ? service.benefits.join('\n') : '',
+    });
     setFormError('');
     setEditingService(service);
     setShowAddModal(false);
@@ -134,13 +168,35 @@ export default function ServicesPage() {
     try {
       const method = editingService ? 'PATCH' : 'POST';
       const url = editingService ? `/api/admin/services/${editingService.id}` : '/api/admin/services';
+
+      // Prepare the payload with proper data types
+      const payload: any = {
+        id: form.id,
+        name: form.name,
+        description: form.description,
+        short_description: form.short_description || null,
+        full_description: form.full_description || null,
+        features: form.features ? form.features.split('\n').filter((f: string) => f.trim()) : [],
+        benefits: form.benefits ? form.benefits.split('\n').filter((b: string) => b.trim()) : [],
+        category: form.category,
+        icon_svg: form.icon_svg || null,
+        display_order: Number(form.display_order) || 0,
+        pricing: form.pricing || null,
+        timeline: form.timeline || null,
+        link_url: form.link_url || null,
+        link_text: form.link_text || null,
+        active: form.active,
+      };
+
+      // Add optional fields if they exist
+      if (form.base_price) payload.base_price = Number(form.base_price);
+      if (form.currency) payload.currency = form.currency;
+      if (form.note) payload.note = form.note;
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          base_price: Number(form.base_price),
-        }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         closeModal();
@@ -258,7 +314,7 @@ export default function ServicesPage() {
 
             <div className="flex justify-between items-center">
               <div className="text-lg font-bold text-gray-900">
-                {service.currency} {service.base_price.toLocaleString()}
+                {service.pricing || (service.base_price && service.currency ? `${service.currency} ${service.base_price.toLocaleString()}` : 'Contact for pricing')}
               </div>
               <div className="flex space-x-2">
                 <button
@@ -294,49 +350,122 @@ export default function ServicesPage() {
       {/* Add/Edit Modal */}
       {(showAddModal || editingService) && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full mx-4">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {editingService ? 'Edit Service' : 'Add New Service'}
             </h3>
-            <form onSubmit={handleFormSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <label className="block text-sm font-medium text-gray-700">ID *</label>
+                <input name="id" value={form.id} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required disabled={!!editingService} />
+                <p className="text-xs text-gray-500 mt-1">Unique identifier (e.g., "trusts", "nominees")</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name *</label>
                 <input name="name" value={form.name} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" value={form.description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={3} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Base Price</label>
-                <input name="base_price" type="number" value={form.base_price} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Currency</label>
-                <select name="currency" value={form.currency} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                  <option value="GBP">GBP</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Note</label>
-                <textarea name="note" value={form.note} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} placeholder="Pricing notes or conditions" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Category</label>
+                <label className="block text-sm font-medium text-gray-700">Category *</label>
                 <select name="category" value={form.category} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                   <option value="">Select category</option>
-                  <option value="banking">Banking</option>
+                  <option value="trusts">Trusts</option>
                   <option value="nominees">Nominees</option>
                   <option value="office">Office</option>
-                  <option value="documentation">Documentation</option>
-                  <option value="consultation">Consultation</option>
-                  <option value="trust">Trust</option>
                   <option value="compliance">Compliance</option>
+                  <option value="licensing">Licensing</option>
+                  <option value="general">General</option>
                 </select>
               </div>
-              <div className="flex items-center">
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description *</label>
+                <textarea name="description" value={form.description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} required />
+                <p className="text-xs text-gray-500 mt-1">Short description for the card</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Short Description</label>
+                <textarea name="short_description" value={form.short_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Full Description</label>
+                <textarea name="full_description" value={form.full_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={3} />
+                <p className="text-xs text-gray-500 mt-1">Detailed description for the modal</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Features</label>
+                <textarea name="features" value={form.features} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={4} placeholder="One feature per line" />
+                <p className="text-xs text-gray-500 mt-1">Enter one feature per line</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Benefits</label>
+                <textarea name="benefits" value={form.benefits} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={4} placeholder="One benefit per line" />
+                <p className="text-xs text-gray-500 mt-1">Enter one benefit per line</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Pricing</label>
+                  <input name="pricing" value={form.pricing} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., Starting from £2,500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Timeline</label>
+                  <input name="timeline" value={form.timeline} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., 2-4 weeks" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Link URL</label>
+                  <input name="link_url" value={form.link_url} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="/services#example" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Link Text</label>
+                  <input name="link_text" value={form.link_text} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Learn More" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Display Order</label>
+                <input name="display_order" type="number" value={form.display_order} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Icon SVG</label>
+                <textarea name="icon_svg" value={form.icon_svg} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm font-mono text-xs" rows={3} placeholder="<svg>...</svg>" />
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Legacy Fields (Optional)</h4>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Base Price</label>
+                    <input name="base_price" type="number" value={form.base_price} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Currency</label>
+                    <select name="currency" value={form.currency} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                      <option value="GBP">GBP</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-gray-700">Note</label>
+                  <textarea name="note" value={form.note} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} placeholder="Pricing notes or conditions" />
+                </div>
+              </div>
+
+              <div className="flex items-center pt-2">
                 <input
                   id="active"
                   name="active"
@@ -349,8 +478,10 @@ export default function ServicesPage() {
                   Active
                 </label>
               </div>
+
               {formError && <div className="text-red-500 text-sm">{formError}</div>}
-              <div className="flex justify-end space-x-2">
+
+              <div className="flex justify-end space-x-2 pt-4 border-t sticky bottom-0 bg-white">
                 <button type="button" onClick={closeModal} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">Cancel</button>
                 <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
                   {saving ? (editingService ? 'Saving...' : 'Adding...') : (editingService ? 'Save Changes' : 'Add Service')}

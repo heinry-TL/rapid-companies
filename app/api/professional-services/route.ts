@@ -13,7 +13,13 @@ export async function GET(_request: NextRequest) {
         features,
         category,
         icon_svg,
-        display_order
+        display_order,
+        full_description,
+        benefits,
+        pricing,
+        timeline,
+        link_url,
+        link_text
       `)
       .eq('active', true)
       .order('display_order', { ascending: true })
@@ -23,10 +29,12 @@ export async function GET(_request: NextRequest) {
       throw error;
     }
 
-    // Parse JSON features for each service with error handling
+    // Parse JSON features and benefits for each service with error handling
     const services = (rows || []).map(service => {
       let features: string[] = [];
+      let benefits: string[] = [];
 
+      // Parse features
       if (service.features) {
         try {
           // Features should already be parsed as JSON from Supabase
@@ -43,9 +51,27 @@ export async function GET(_request: NextRequest) {
         }
       }
 
+      // Parse benefits
+      if (service.benefits) {
+        try {
+          // Benefits should already be parsed as JSON from Supabase
+          benefits = Array.isArray(service.benefits) ? service.benefits : JSON.parse(service.benefits);
+        } catch {
+          // If JSON parsing fails, try to extract comma-separated values
+          const benefitsStr = String(service.benefits);
+          if (benefitsStr.includes(',')) {
+            benefits = benefitsStr.split(',').map(b => b.trim().replace(/["\[\]]/g, ''));
+          } else {
+            // Single benefit or malformed, just use as-is
+            benefits = [benefitsStr.replace(/["\[\]]/g, '')];
+          }
+        }
+      }
+
       return {
         ...service,
-        features
+        features,
+        benefits
       };
     });
 

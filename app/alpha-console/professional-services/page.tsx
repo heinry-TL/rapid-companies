@@ -6,10 +6,17 @@ interface ProfessionalService {
   id: string;
   name: string;
   description: string;
-  short_description: string;
+  short_description?: string;
+  full_description?: string;
   features: string[];
+  benefits?: string[];
   category: string;
+  icon_svg?: string;
   display_order: number;
+  pricing?: string;
+  timeline?: string;
+  link_url?: string;
+  link_text?: string;
   active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -28,9 +35,16 @@ export default function ProfessionalServicesPage() {
     name: '',
     description: '',
     short_description: '',
+    full_description: '',
     features: [''],
+    benefits: [''],
     category: '',
+    icon_svg: '',
     display_order: 1,
+    pricing: '',
+    timeline: '',
+    link_url: '',
+    link_text: '',
     active: true,
   });
   const [formError, setFormError] = useState('');
@@ -83,7 +97,7 @@ export default function ProfessionalServicesPage() {
       office: 'bg-purple-100 text-purple-800',
       compliance: 'bg-red-100 text-red-800',
       licensing: 'bg-green-100 text-green-800',
-      immigration: 'bg-orange-100 text-orange-800',
+      general: 'bg-orange-100 text-orange-800',
       other: 'bg-gray-100 text-gray-800',
     };
     return colors[category as keyof typeof colors] || colors.other;
@@ -95,9 +109,16 @@ export default function ProfessionalServicesPage() {
       name: '',
       description: '',
       short_description: '',
+      full_description: '',
       features: [''],
+      benefits: [''],
       category: '',
+      icon_svg: '',
       display_order: services.length + 1,
+      pricing: '',
+      timeline: '',
+      link_url: '',
+      link_text: '',
       active: true,
     });
     setFormError('');
@@ -108,7 +129,8 @@ export default function ProfessionalServicesPage() {
   const openEditModal = (service: ProfessionalService) => {
     setForm({
       ...service,
-      features: service.features.length > 0 ? service.features : ['']
+      features: service.features.length > 0 ? service.features : [''],
+      benefits: service.benefits && service.benefits.length > 0 ? service.benefits : ['']
     });
     setFormError('');
     setEditingService(service);
@@ -146,13 +168,31 @@ export default function ProfessionalServicesPage() {
     }
   };
 
+  const handleBenefitChange = (index: number, value: string) => {
+    const newBenefits = [...form.benefits];
+    newBenefits[index] = value;
+    setForm((prev: any) => ({ ...prev, benefits: newBenefits }));
+  };
+
+  const addBenefit = () => {
+    setForm((prev: any) => ({ ...prev, benefits: [...prev.benefits, ''] }));
+  };
+
+  const removeBenefit = (index: number) => {
+    if (form.benefits.length > 1) {
+      const newBenefits = form.benefits.filter((_: any, i: number) => i !== index);
+      setForm((prev: any) => ({ ...prev, benefits: newBenefits }));
+    }
+  };
+
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
     setSaving(true);
     setFormError('');
 
-    // Filter out empty features
+    // Filter out empty features and benefits
     const cleanedFeatures = form.features.filter((f: string) => f.trim() !== '');
+    const cleanedBenefits = form.benefits.filter((b: string) => b.trim() !== '');
 
     try {
       const method = editingService ? 'PATCH' : 'POST';
@@ -163,6 +203,7 @@ export default function ProfessionalServicesPage() {
         body: JSON.stringify({
           ...form,
           features: cleanedFeatures,
+          benefits: cleanedBenefits,
           display_order: Number(form.display_order),
         }),
       });
@@ -384,7 +425,7 @@ export default function ProfessionalServicesPage() {
                   <option value="office">Office</option>
                   <option value="compliance">Compliance</option>
                   <option value="licensing">Licensing</option>
-                  <option value="immigration">Immigration</option>
+                  <option value="general">General</option>
                 </select>
               </div>
 
@@ -419,6 +460,108 @@ export default function ProfessionalServicesPage() {
                   + Add Feature
                 </button>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
+                {form.benefits.map((benefit: string, index: number) => (
+                  <div key={index} className="flex items-center gap-2 mb-2">
+                    <input
+                      value={benefit}
+                      onChange={(e) => handleBenefitChange(index, e.target.value)}
+                      className="flex-1 border-gray-300 rounded-md shadow-sm"
+                      placeholder={`Benefit ${index + 1}`}
+                    />
+                    {form.benefits.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeBenefit(index)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addBenefit}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  + Add Benefit
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Pricing</label>
+                  <input
+                    name="pricing"
+                    value={form.pricing}
+                    onChange={handleFormChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    placeholder="e.g., Starting from £2,500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Timeline</label>
+                  <input
+                    name="timeline"
+                    value={form.timeline}
+                    onChange={handleFormChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    placeholder="e.g., 2-4 weeks"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Link URL</label>
+                  <input
+                    name="link_url"
+                    value={form.link_url}
+                    onChange={handleFormChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    placeholder="/services#example"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Link Text</label>
+                  <input
+                    name="link_text"
+                    value={form.link_text}
+                    onChange={handleFormChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    placeholder="Learn More"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Full Description (for modal)</label>
+                <textarea
+                  name="full_description"
+                  value={form.full_description}
+                  onChange={handleFormChange}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  rows={4}
+                  placeholder="Detailed description shown in the modal popup"
+                />
+              </div>
+
+              {/* <div>
+                <label className="block text-sm font-medium text-gray-700">Icon SVG (optional)</label>
+                <textarea
+                  name="icon_svg"
+                  value={form.icon_svg}
+                  onChange={handleFormChange}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm font-mono text-xs"
+                  rows={3}
+                  placeholder="<svg>...</svg>"
+                />
+              </div> */}
 
               <div className="flex items-center">
                 <input
