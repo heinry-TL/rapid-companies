@@ -100,7 +100,11 @@ export default function Header() {
                   alt="Rapid Offshore Logo"
                   width={400}
                   height={120}
-                  className="h-20 w-auto"
+                  className={`h-20 w-auto transition-all duration-300 ${
+                    !isScrolled && pathname === '/'
+                      ? 'brightness-0 invert'
+                      : ''
+                  }`}
                 />
               </motion.div>
             </Link>
