@@ -88,6 +88,45 @@ export async function GET(
       additional_services: additionalServices
     };
 
+    // Fetch additional services from order_items table if this application has an order_id
+    let orderServices = [];
+    if (application.order_id) {
+      try {
+        const { data: orderServiceData, error: orderServiceError } = await supabaseAdmin
+          .from('order_items')
+          .select('*')
+          .eq('order_id', application.order_id)
+          .eq('item_type', 'service');
+
+        if (orderServiceError) {
+          console.error('Error fetching order services:', orderServiceError);
+        } else {
+          orderServices = orderServiceData || [];
+        }
+      } catch (e) {
+        console.error('Error fetching order services:', e);
+      }
+    }
+
+    // Combine both sources of additional services
+    const combinedAdditionalServices = [
+      ...application.additional_services,
+      ...orderServices.map(service => ({
+        id: service.id,
+        name: service.item_name,
+        price: service.total_price,
+        unit_price: service.unit_price,
+        quantity: service.quantity,
+        currency: service.currency,
+        jurisdiction_name: service.jurisdiction_name,
+        metadata: service.item_metadata,
+        source: 'order_item'
+      }))
+    ];
+
+    // Update the application object with combined services
+    application.additional_services = combinedAdditionalServices;
+
     return NextResponse.json({ application });
   } catch (error) {
     console.error('Application fetch error:', error);

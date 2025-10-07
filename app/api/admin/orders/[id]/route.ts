@@ -45,13 +45,24 @@ export async function GET(
       // Don't fail the request if order_items table doesn't exist yet
     } else {
       console.log('Order items found:', orderItems?.length || 0, 'for order:', order.order_id);
+      if (orderItems && orderItems.length > 0) {
+        console.log('Order items details:', orderItems.map(item => ({
+          id: item.id,
+          item_type: item.item_type,
+          item_name: item.item_name,
+          jurisdiction_name: item.jurisdiction_name
+        })));
+      }
     }
 
     // Get related applications (non-critical, don't fail if missing)
+    // Only fetch actual company formation applications, not additional services
     const { data: applications, error: appsError } = await supabaseAdmin
       .from('applications')
       .select('*')
       .eq('order_id', order.order_id)
+      .not('company_proposed_name', 'is', null)  // Ensure we have actual company applications
+      .not('contact_email', 'is', null)          // Ensure we have actual contact info
       .order('created_at', { ascending: true });
 
     if (appsError) {

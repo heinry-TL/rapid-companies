@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Prepare metadata - Stripe limits each value to 500 characters
-    // So we'll store minimal info in metadata and full data separately
+    // Store only minimal identifiers - we'll look up full data from database when payment succeeds
     const stripeMetadata: Record<string, string> = {
       order_id: (metadata as any).order_id || '',
       applications_count: (metadata as any).applications_count || '0',
@@ -30,30 +30,55 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    // For applications and services, we need to include essential fields for order item creation
-    // Keep jurisdiction info for applications and name/price for services
+    // Parse the full application data to extract minimal identifiers
     const applicationsJson = (metadata as any).applications || '[]';
     const servicesJson = (metadata as any).standalone_services || '[]';
 
-    // Parse and send minimal but necessary data for applications
     try {
       const apps = JSON.parse(applicationsJson);
-      const minimalApps = apps.map((app: any) => ({
-        id: app.id,
-        jurisdiction: typeof app.jurisdiction === 'string'
-          ? app.jurisdiction
-          : app.jurisdiction?.name || 'Unknown',
-        price: app.price || app.jurisdiction?.price || 0,
-        currency: app.currency || app.jurisdiction?.currency || 'GBP'
+      // Store only email + jurisdiction for lookup (much smaller)
+      const appIdentifiers = apps.map((app: any) => ({
+        email: app.contactDetails?.email,
+        jurisdiction: app.jurisdiction?.name
       }));
-      stripeMetadata.applications = JSON.stringify(minimalApps);
+      const appMetadata = JSON.stringify(appIdentifiers);
+      console.log('Applications metadata length:', appMetadata.length);
+
+      if (appMetadata.length > 500) {
+        console.warn('Applications metadata too large, truncating');
+        stripeMetadata.applications = '[]';
+      } else {
+        stripeMetadata.applications = appMetadata;
+      }
     } catch (e) {
       console.error('Error parsing applications for metadata:', e);
-      stripeMetadata.applications = applicationsJson.substring(0, 400);
+      stripeMetadata.applications = '[]';
     }
 
-    // Services can stay as-is since they're usually small
-    stripeMetadata.standalone_services = servicesJson;
+    // For standalone services, store only IDs and names (small)
+    try {
+      const services = JSON.parse(servicesJson);
+      const serviceIdentifiers = services.map((svc: any) => ({
+        id: svc.id,
+        name: svc.name,
+        price: svc.price,
+        currency: svc.currency
+      }));
+      const svcMetadata = JSON.stringify(serviceIdentifiers);
+      console.log('Services metadata length:', svcMetadata.length);
+
+      if (svcMetadata.length > 500) {
+        console.warn('Services metadata too large, truncating');
+        stripeMetadata.standalone_services = '[]';
+      } else {
+        stripeMetadata.standalone_services = svcMetadata;
+      }
+    } catch (e) {
+      console.error('Error parsing services for metadata:', e);
+      stripeMetadata.standalone_services = '[]';
+    }
+
+    console.log('Final metadata:', JSON.stringify(stripeMetadata, null, 2));
 
     // Create PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
@@ -74,8 +99,14 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('Error creating payment intent:', error);
+    console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+
     return NextResponse.json(
-      { error: 'Failed to create payment intent' },
+      {
+        error: 'Failed to create payment intent',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

@@ -9,7 +9,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    let query = supabaseAdmin
+    // Fetch complete applications with directors and shareholders
+    let applicationsQuery = supabaseAdmin
       .from('applications')
       .select(`
         id,
@@ -27,29 +28,35 @@ export async function GET(request: NextRequest) {
         payment_status,
         order_id,
         step_completed,
+        directors,
+        shareholders,
+        additional_services,
         created_at,
         updated_at
       `)
+      .not('company_proposed_name', 'is', null)  // Ensure we have actual company applications
+      .not('contact_email', 'is', null)          // Ensure we have actual contact info
+      .not('directors', 'is', null)              // Must have directors data
+      .not('shareholders', 'is', null)           // Must have shareholders data
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     // Apply filters if provided
     if (status && status !== 'all') {
-      query = query.eq('internal_status', status);
+      applicationsQuery = applicationsQuery.eq('internal_status', status);
     }
-
     if (paymentStatus && paymentStatus !== 'all') {
-      query = query.eq('payment_status', paymentStatus);
+      applicationsQuery = applicationsQuery.eq('payment_status', paymentStatus);
     }
 
-    const { data: rows, error, count } = await query;
+    const { data: applicationsData, error: applicationsError } = await applicationsQuery;
 
-    if (error) {
-      throw error;
+    if (applicationsError) {
+      throw applicationsError;
     }
 
-    // Process the results to add derived fields
-    const applications = (rows || []).map(row => ({
+    // Process applications
+    const applications = (applicationsData || []).map(row => ({
       ...row,
       email: row.contact_email,
       phone: row.contact_phone,
@@ -60,10 +67,24 @@ export async function GET(request: NextRequest) {
       admin_notes: ''
     }));
 
-    // Get total count for pagination
-    const { count: total } = await supabaseAdmin
+    // Get total count for pagination (with same filters)
+    let countQuery = supabaseAdmin
       .from('applications')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .not('company_proposed_name', 'is', null)  // Ensure we have actual company applications
+      .not('contact_email', 'is', null)          // Ensure we have actual contact info
+      .not('directors', 'is', null)              // Must have directors data
+      .not('shareholders', 'is', null);          // Must have shareholders data
+
+    // Apply the same status filters to count
+    if (status && status !== 'all') {
+      countQuery = countQuery.eq('internal_status', status);
+    }
+    if (paymentStatus && paymentStatus !== 'all') {
+      countQuery = countQuery.eq('payment_status', paymentStatus);
+    }
+
+    const { count: total } = await countQuery;
 
     return NextResponse.json({
       applications,

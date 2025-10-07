@@ -8,7 +8,7 @@ interface Application {
   full_name: string;
   email: string;
   phone: string;
-  jurisdiction_id: number;
+  jurisdiction_id?: number;
   jurisdiction_name?: string;
   company_name: string;
   company_type: string;
@@ -16,6 +16,9 @@ interface Application {
   payment_status: string;
   internal_status: 'new' | 'in_progress' | 'completed' | 'on_hold';
   admin_notes?: string;
+  directors?: any[];
+  shareholders?: any[];
+  additional_services?: any[];
   created_at: Date;
   updated_at: Date;
 }
@@ -111,9 +114,9 @@ export default function ApplicationsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Applications Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Company Formation Applications</h1>
           <p className="mt-1 text-sm text-gray-600">
-            View and manage customer applications
+            Complete applications with directors and shareholders data
           </p>
         </div>
         <div className="flex space-x-3">
@@ -165,6 +168,9 @@ export default function ApplicationsPage() {
                   Jurisdiction
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Directors/Shareholders
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -202,6 +208,14 @@ export default function ApplicationsPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
                       {application.jurisdiction_name || `ID: ${application.jurisdiction_id}`}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {(application.directors?.length || 0)} Directors
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {(application.shareholders?.length || 0)} Shareholders
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

@@ -9,27 +9,57 @@ interface OrderRow {
   jurisdiction_currency: string;
   full_name: string;
   company_name?: string;
-  formation_fee?: number;
+  total_amount?: number;
   created_at: string;
 }
+
+// async function getRecentOrders() {
+//   try {
+//     const { data, error } = await supabaseAdmin
+//       .from('applications')
+//       .select(`
+//         id,
+//         company_proposed_name,
+//         jurisdiction_name,
+//         jurisdiction_price,
+//         jurisdiction_currency,
+//         contact_first_name,
+//         contact_last_name,
+//         created_at
+//       `)
+//       .order('created_at', { ascending: false })
+//       .limit(5);
+
+//     if (error) {
+//       console.error('Supabase error:', error);
+//       return [];
+//     }
+
+//     return (data || []).map(row => ({
+//       ...row,
+//       full_name: `${row.contact_first_name} ${row.contact_last_name}`.trim()
+//     })) as OrderRow[];
+//   } catch (error) {
+//     console.error('Error fetching recent orders:', error);
+//     return [];
+//   }
+// }
 
 async function getRecentOrders() {
   try {
     const { data, error } = await supabaseAdmin
-      .from('applications')
+      .from('orders') 
       .select(`
         id,
-        company_proposed_name,
-        jurisdiction_name,
-        jurisdiction_price,
-        jurisdiction_currency,
-        contact_first_name,
-        contact_last_name,
+        order_id,
+        customer_email,
+        total_amount,
+        currency,
         created_at
       `)
       .order('created_at', { ascending: false })
       .limit(5);
-
+      
     if (error) {
       console.error('Supabase error:', error);
       return [];
@@ -37,7 +67,7 @@ async function getRecentOrders() {
 
     return (data || []).map(row => ({
       ...row,
-      full_name: `${row.contact_first_name} ${row.contact_last_name}`.trim()
+      company_name: row.order_id ? `Order #${row.order_id}` : undefined
     })) as OrderRow[];
   } catch (error) {
     console.error('Error fetching recent orders:', error);
@@ -101,14 +131,14 @@ export default async function RecentOrders() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {order.company_name || `Order #${order.id}`}
+                          {order.company_name || `${order.id}`}
                         </div>
                         <div className="text-sm text-gray-500">{order.jurisdiction_name}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        £{order.formation_fee?.toLocaleString() || '0'}
+                        £{order.total_amount?.toLocaleString() || '0'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

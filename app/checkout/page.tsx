@@ -100,7 +100,9 @@ export default function CheckoutPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create payment intent');
+        const errorData = await response.json();
+        console.error('Payment intent error:', errorData);
+        throw new Error(errorData.details || 'Failed to create payment intent');
       }
 
       const { client_secret } = await response.json();

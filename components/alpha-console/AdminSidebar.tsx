@@ -14,6 +14,7 @@ const navigation = [
   { name: 'Dashboard', href: '/alpha-console', icon: 'dashboard' },
   { name: 'Orders', href: '/alpha-console/orders', icon: 'orders' },
   { name: 'Applications', href: '/alpha-console/applications', icon: 'applications' },
+  { name: 'Standalone Services', href: '/alpha-console/standalone-services', icon: 'standalone-services' },
   { name: 'Jurisdictions', href: '/alpha-console/jurisdictions', icon: 'location' },
   { name: 'Additional Services', href: '/alpha-console/services', icon: 'services' },
   { name: 'Professional Services', href: '/alpha-console/professional-services', icon: 'professional-services' },
@@ -46,6 +47,12 @@ const getIcon = (iconName: string) => {
       return (
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      );
+    case 'standalone-services':
+      return (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
       );
     case 'applications':
