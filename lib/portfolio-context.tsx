@@ -261,6 +261,12 @@ function portfolioReducer(state: PortfolioState, action: PortfolioAction): Portf
       };
 
     case 'ADD_STANDALONE_SERVICE':
+      // Check if service already exists to prevent duplicates
+      const existingService = state.standaloneServices.find(s => s.id === action.payload.id);
+      if (existingService) {
+        // Service already exists, don't add it again
+        return state;
+      }
       return {
         ...state,
         standaloneServices: [...state.standaloneServices, action.payload],

@@ -22,6 +22,54 @@ interface ProfessionalService {
   updated_at: Date;
 }
 
+/**
+ * Category URL Configuration
+ *
+ * This configuration automatically sets the Link URL and Link Text
+ * when a category is selected in the professional services form.
+ *
+ * HOW TO MODIFY:
+ * 1. To change a category's URL: Update the 'url' property
+ * 2. To change a category's button text: Update the 'text' property
+ * 3. To add a new category: Add a new entry with the category key
+ *
+ * SPECIAL CATEGORIES:
+ * - 'general': Uses /portfolio?action=add to add service directly to cart
+ * - Other categories: Link to service sections or external pages
+ *
+ * Example:
+ * newcategory: {
+ *   url: '/services#newcategory',
+ *   text: 'View Details'
+ * }
+ */
+const CATEGORY_URL_CONFIG: Record<string, { url: string; text: string }> = {
+  general: {
+    url: '/portfolio?action=add',
+    text: 'Buy Now'
+  },
+  trusts: {
+    url: '/portfolio?action=add',
+    text: 'Buy Now'
+  },
+  nominees: {
+    url: '/portfolio?action=add',
+    text: 'Buy Now'
+  },
+  office: {
+    url: '/portfolio?action=add',
+    text: 'Buy Now'
+  },
+  compliance: {
+    url: '/portfolio?action=add',
+    text: 'Buy Now'
+  },
+  licensing: {
+    url: '/portfolio?action=add',
+    text: 'Buy Now'
+  },
+};
+
 export default function ProfessionalServicesPage() {
   const [services, setServices] = useState<ProfessionalService[]>([]);
   const [loading, setLoading] = useState(true);
@@ -129,6 +177,13 @@ export default function ProfessionalServicesPage() {
   const openEditModal = (service: ProfessionalService) => {
     setForm({
       ...service,
+      short_description: service.short_description || '',
+      full_description: service.full_description || '',
+      icon_svg: service.icon_svg || '',
+      pricing: service.pricing || '',
+      timeline: service.timeline || '',
+      link_url: service.link_url || '',
+      link_text: service.link_text || '',
       features: service.features.length > 0 ? service.features : [''],
       benefits: service.benefits && service.benefits.length > 0 ? service.benefits : ['']
     });
@@ -145,6 +200,21 @@ export default function ProfessionalServicesPage() {
 
   const handleFormChange = (e: any) => {
     const { name, value, type, checked } = e.target;
+
+    // If category changes, auto-fill link URL and text from configuration
+    if (name === 'category' && value) {
+      const categoryConfig = CATEGORY_URL_CONFIG[value];
+      if (categoryConfig) {
+        setForm((prev: any) => ({
+          ...prev,
+          category: value,
+          link_url: categoryConfig.url,
+          link_text: categoryConfig.text,
+        }));
+        return;
+      }
+    }
+
     setForm((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -427,6 +497,9 @@ export default function ProfessionalServicesPage() {
                   <option value="licensing">Licensing</option>
                   <option value="general">General</option>
                 </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  💡 Link URL and text will auto-fill based on category selection
+                </p>
               </div>
 
               <div>
@@ -523,9 +596,10 @@ export default function ProfessionalServicesPage() {
                     name="link_url"
                     value={form.link_url}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-blue-50"
                     placeholder="/services#example"
                   />
+                  <p className="mt-1 text-xs text-blue-600">Auto-filled from category</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Link Text</label>
@@ -533,9 +607,10 @@ export default function ProfessionalServicesPage() {
                     name="link_text"
                     value={form.link_text}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-blue-50"
                     placeholder="Learn More"
                   />
+                  <p className="mt-1 text-xs text-blue-600">Auto-filled from category</p>
                 </div>
               </div>
 

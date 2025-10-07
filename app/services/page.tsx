@@ -5,6 +5,8 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { usePortfolio } from '@/lib/portfolio-context';
 import Footer from '@/components/ui/Footer';
 
 interface ProfessionalService {
@@ -35,6 +37,8 @@ export default function ServicesPage() {
   const [servicesLoading, setServicesLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<ProfessionalService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+  const { dispatch } = usePortfolio();
 
   // Fetch professional services
   const fetchProfessionalServices = async () => {
@@ -63,6 +67,48 @@ export default function ServicesPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTimeout(() => setSelectedService(null), 300); // Delay to allow animation
+  };
+
+  // Handle adding service to portfolio
+  const handleAddToPortfolio = (service: ProfessionalService) => {
+    // Extract price from pricing string - handles multiple formats:
+    // "£2,500", "£2500", "2,500", "Starting from £2,500", "From £1,200", etc.
+    let price = 0;
+
+    if (service.pricing) {
+      // Try to match £ symbol followed by numbers and optional commas
+      const poundMatch = service.pricing.match(/£\s*([\d,]+(?:\.\d{2})?)/);
+      if (poundMatch) {
+        price = parseFloat(poundMatch[1].replace(/,/g, ''));
+      } else {
+        // Try to match just numbers (without £ symbol)
+        const numberMatch = service.pricing.match(/([\d,]+(?:\.\d{2})?)/);
+        if (numberMatch) {
+          price = parseFloat(numberMatch[1].replace(/,/g, ''));
+        }
+      }
+    }
+
+    console.log('Adding to portfolio:', {
+      service: service.name,
+      pricing: service.pricing,
+      extractedPrice: price
+    });
+
+    dispatch({
+      type: 'ADD_STANDALONE_SERVICE',
+      payload: {
+        id: service.id,
+        name: service.name,
+        price: price,
+        currency: 'GBP',
+        description: service.description,
+      }
+    });
+
+    // Close modal and redirect to portfolio
+    handleCloseModal();
+    router.push('/portfolio');
   };
 
   useEffect(() => {
@@ -370,27 +416,52 @@ export default function ServicesPage() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
               <span className="ml-4 text-gray-400 text-lg">Loading professional services...</span>
             </div>
+          ) : professionalServices.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-400 text-lg">No professional services available at the moment.</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className={`grid gap-8 ${
+              professionalServices.length === 1
+                ? 'grid-cols-1 max-w-md mx-auto'
+                : professionalServices.length === 2
+                ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+                : professionalServices.length === 3
+                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                : professionalServices.length === 4
+                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4'
+                : professionalServices.length === 5
+                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                : professionalServices.length % 3 === 0
+                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                : professionalServices.length % 4 === 0
+                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+                : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+            }`}>
               {professionalServices.map((service) => (
                 <div
                   key={service.id}
                   id={service.id}
-                  className="bg-gray-800 rounded-xl p-8 border border-gray-700 hover:border-blue-500 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10"
+                  className="bg-gray-800 rounded-xl p-8 border border-gray-700 hover:border-blue-500 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10 flex flex-col h-full"
                   onClick={() => handleServiceClick(service)}
                 >
                   <div className="mb-5">
                     <ServiceIcon category={service.category} />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">{service.name}</h3>
-                  <p className="text-gray-400 mb-5">{service.description}</p>
-                  <ul className="text-sm text-gray-300 space-y-2 mb-6">
-                    {service.features.map((feature, index) => (
-                      <li key={index}>• {feature}</li>
-                    ))}
-                  </ul>
-                  <div className="inline-flex items-center text-blue-400 hover:text-blue-300">
-                    {service.link_text || 'Learn More'}
+                  <h3 className="text-xl font-semibold text-white mb-3 line-clamp-2">{service.name}</h3>
+                  <p className="text-gray-400 mb-5 line-clamp-3">{service.description}</p>
+                  {service.features && service.features.length > 0 && (
+                    <ul className="text-sm text-gray-300 space-y-2 mb-6">
+                      {service.features.slice(0, 3).map((feature, index) => (
+                        <li key={index} className="line-clamp-1">• {feature}</li>
+                      ))}
+                      {service.features.length > 3 && (
+                        <li className="text-blue-400">• +{service.features.length - 3} more features</li>
+                      )}
+                    </ul>
+                  )}
+                  <div className="inline-flex items-center text-blue-400 hover:text-blue-300 mt-auto pt-4 border-t border-gray-700">
+                    View Details
                     <svg
                       className="ml-2 h-4 w-4"
                       fill="none"
@@ -401,7 +472,7 @@ export default function ServicesPage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
                   </div>
@@ -457,7 +528,7 @@ export default function ServicesPage() {
                 <div>
                   <h3 className="text-2xl font-bold text-white">{selectedService.name}</h3>
                   <div className="flex items-center space-x-4 mt-1">
-                    <span className="text-blue-400 font-semibold">{selectedService.pricing}</span>
+                    <span className="text-blue-400 font-semibold"> £{selectedService.pricing}</span>
                   </div>
                 </div>
               </div>
@@ -519,13 +590,24 @@ export default function ServicesPage() {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
                 {selectedService.link_url && (
-                  <Link
-                    href={selectedService.link_url}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
-                    onClick={handleCloseModal}
-                  >
-                    {selectedService.link_text || 'Get Started Now'}
-                  </Link>
+                  <>
+                    {selectedService.category === 'general' || selectedService.link_url.includes('portfolio') ? (
+                      <button
+                        onClick={() => handleAddToPortfolio(selectedService)}
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
+                      >
+                        {selectedService.link_text || 'Add to Portfolio'}
+                      </button>
+                    ) : (
+                      <Link
+                        href={selectedService.link_url}
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
+                        onClick={handleCloseModal}
+                      >
+                        {selectedService.link_text || 'Get Started Now'}
+                      </Link>
+                    )}
+                  </>
                 )}
                 <button
                   onClick={handleCloseModal}
