@@ -631,6 +631,14 @@ export class DatabaseService {
 
       // Insert individual order items for applications
       for (const app of applications) {
+        // Handle both old format (app.jurisdiction is string) and new format (app.jurisdiction is object)
+        const jurisdictionName = typeof (app as any).jurisdiction === 'string'
+          ? (app as any).jurisdiction
+          : ((app as any).jurisdiction?.name || 'Unknown');
+
+        const price = (app as any).price || (app as any).jurisdiction?.price || 0;
+        const currency = (app as any).currency || (app as any).jurisdiction?.currency || 'GBP';
+
         await db.execute(
           `INSERT INTO order_items (
             order_id,
@@ -645,11 +653,11 @@ export class DatabaseService {
           ) VALUES (?, 'application', ?, ?, ?, 1, ?, ?, ?)`,
           [
             orderData.order_id,
-            `${app.jurisdiction} Company Formation`,
-            app.jurisdiction,
-            app.price,
-            app.price,
-            app.currency || 'GBP',
+            `${jurisdictionName} Company Formation`,
+            jurisdictionName,
+            price,
+            price,
+            currency,
             JSON.stringify(app)
           ]
         );
@@ -710,17 +718,27 @@ export class DatabaseService {
     if (orderError) throw orderError;
 
     // Insert individual order items for applications
-    const applicationItems = applications.map(app => ({
-      order_id: orderData.order_id,
-      item_type: 'application' as const,
-      item_name: `${app.jurisdiction} Company Formation`,
-      jurisdiction_name: app.jurisdiction,
-      unit_price: app.price,
-      quantity: 1,
-      total_price: app.price,
-      currency: app.currency || 'GBP',
-      item_metadata: app
-    }));
+    const applicationItems = applications.map((app: any) => {
+      // Handle both old format (app.jurisdiction is string) and new format (app.jurisdiction is object)
+      const jurisdictionName = typeof app.jurisdiction === 'string'
+        ? app.jurisdiction
+        : (app.jurisdiction?.name || 'Unknown');
+
+      const price = app.price || app.jurisdiction?.price || 0;
+      const currency = app.currency || app.jurisdiction?.currency || 'GBP';
+
+      return {
+        order_id: orderData.order_id,
+        item_type: 'application' as const,
+        item_name: `${jurisdictionName} Company Formation`,
+        jurisdiction_name: jurisdictionName,
+        unit_price: price,
+        quantity: 1,
+        total_price: price,
+        currency: currency,
+        item_metadata: app
+      };
+    });
 
     // Insert individual order items for services
     const serviceItems = services.map(service => ({

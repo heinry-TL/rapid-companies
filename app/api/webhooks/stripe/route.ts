@@ -76,6 +76,7 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
 
     const customerEmail = paymentIntent.receipt_email || billingDetails?.email;
     const billingName = billingDetails?.name || (metadata as any).customer_name;
+    const customerPhone = billingDetails?.phone || (metadata as any).customer_phone;
     const billingAddress = billingDetails?.address;
 
     console.log('Processing successful payment:', {
@@ -112,6 +113,7 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
       stripe_payment_intent_id: paymentIntent.id,
       customer_email: customerEmail,
       customer_name: billingName,
+      customer_phone: customerPhone,
       billing_name: billingName,
       billing_address_line1: billingAddress?.line1,
       billing_address_line2: billingAddress?.line2,
@@ -133,14 +135,70 @@ async function handleSuccessfulPayment(paymentIntent: Record<string, unknown>) {
     if (applications && applications.length > 0) {
       for (const app of applications) {
         if (app.id) {
+          // Prepare complete application update data
+          const updateData: any = {
+            payment_status: 'paid',
+            order_id: orderId,
+            internal_status: 'paid',
+            updated_at: new Date().toISOString(),
+          };
+
+          // Add contact details if available
+          if (app.contactDetails) {
+            updateData.contact_first_name = app.contactDetails.firstName;
+            updateData.contact_last_name = app.contactDetails.lastName;
+            updateData.contact_email = app.contactDetails.email;
+            updateData.contact_phone = app.contactDetails.phone;
+            if (app.contactDetails.address) {
+              updateData.contact_address_line1 = app.contactDetails.address.street;
+              updateData.contact_city = app.contactDetails.address.city;
+              updateData.contact_county = app.contactDetails.address.state;
+              updateData.contact_postcode = app.contactDetails.address.postalCode;
+              updateData.contact_country = app.contactDetails.address.country;
+            }
+          }
+
+          // Add company details if available
+          if (app.companyDetails) {
+            updateData.company_proposed_name = app.companyDetails.proposedName;
+            updateData.company_alternative_name = app.companyDetails.alternativeName;
+            updateData.company_business_activity = app.companyDetails.businessActivity;
+            updateData.company_authorized_capital = app.companyDetails.authorizedCapital;
+            updateData.company_number_of_shares = app.companyDetails.numberOfShares;
+          }
+
+          // Add registered address if available
+          if (app.registeredAddress) {
+            updateData.registered_address_line1 = app.registeredAddress.line1;
+            updateData.registered_address_line2 = app.registeredAddress.line2;
+            updateData.registered_city = app.registeredAddress.city;
+            updateData.registered_county = app.registeredAddress.county;
+            updateData.registered_postcode = app.registeredAddress.postcode;
+            updateData.registered_country = app.registeredAddress.country;
+            updateData.use_contact_address = app.registeredAddress.useContactAddress;
+          }
+
+          // Add directors, shareholders, and additional services as JSON
+          if (app.directors) {
+            updateData.directors = JSON.stringify(app.directors);
+          }
+
+          if (app.shareholders) {
+            updateData.shareholders = JSON.stringify(app.shareholders);
+          }
+
+          if (app.additionalServices) {
+            updateData.additional_services = JSON.stringify(app.additionalServices);
+          }
+
+          if (app.stepCompleted) {
+            updateData.step_completed = app.stepCompleted;
+          }
+
+          // Update the application
           await supabaseAdmin
             .from('applications')
-            .update({
-              payment_status: 'paid',
-              order_id: orderId,
-              internal_status: 'paid',
-              updated_at: new Date().toISOString()
-            })
+            .update(updateData)
             .eq('id', app.id);
         }
       }

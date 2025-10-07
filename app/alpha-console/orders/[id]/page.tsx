@@ -104,9 +104,15 @@ export default function OrderDetailsPage() {
   };
 
   const formatCurrency = (amount: number, currency: string = 'GBP') => {
+    // Clean and validate currency code
+    const cleanCurrency = (currency || 'GBP').trim().toUpperCase();
+
+    // Validate currency code (should be 3 letters)
+    const validCurrency = /^[A-Z]{3}$/.test(cleanCurrency) ? cleanCurrency : 'GBP';
+
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: currency,
+      currency: validCurrency,
     }).format(amount);
   };
 
@@ -260,7 +266,62 @@ export default function OrderDetailsPage() {
                     </div>
                   </div>
                 ))
-              ) : (
+              ) : order.order_items && (
+                <>
+                  {/* Applications */}
+                  {Array.isArray(order.order_items.applications) && order.order_items.applications.length > 0 && order.order_items.applications.map((app: any, idx: number) => {
+                    // Ensure correct price extraction
+                    const appAmount = typeof app.total_price === 'number'
+                      ? app.total_price
+                      : typeof app.price === 'number'
+                        ? app.price
+                        : 0;
+                    return (
+                      <div key={app.id || idx} className="flex justify-between items-start border-b border-gray-200 pb-4 last:border-0 last:pb-0">
+                        <div className="flex-1">
+                          <h3 className="text-sm font-medium text-gray-900">Company Formation</h3>
+                          <p className="text-xs text-gray-400 mt-1">Application ID: {app.id}</p>
+                        </div>
+                        <div className="text-right ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {formatCurrency(
+                              appAmount,
+                              app.currency || order.currency
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500">Qty: 1</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {/* Standalone Services */}
+                  {Array.isArray(order.order_items.standalone_services) && order.order_items.standalone_services.length > 0 && order.order_items.standalone_services.map((svc: any, idx: number) => {
+                    const svcAmount = typeof svc.total_price === 'number'
+                      ? svc.total_price
+                      : typeof svc.price === 'number'
+                        ? svc.price
+                        : 0;
+                    return (
+                      <div key={svc.id || idx} className="flex justify-between items-start border-b border-gray-200 pb-4 last:border-0 last:pb-0">
+                        <div className="flex-1">
+                          <h3 className="text-sm font-medium text-gray-900">{svc.name || svc.id}</h3>
+                          <p className="text-xs text-gray-400 mt-1">Additional Service</p>
+                        </div>
+                        <div className="text-right ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {formatCurrency(svcAmount, svc.currency || order.currency)}
+                          </div>
+                          <div className="text-xs text-gray-500">Qty: 1</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {(!order.order_items.applications?.length && !order.order_items.standalone_services?.length) && (
+                    <p className="text-sm text-gray-500">No items found</p>
+                  )}
+                </>
+              )}
+              {(!order.items?.length && (!order.order_items || (!order.order_items.applications?.length && !order.order_items.standalone_services?.length))) && (
                 <p className="text-sm text-gray-500">No items found</p>
               )}
             </div>

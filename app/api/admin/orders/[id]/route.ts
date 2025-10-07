@@ -41,7 +41,10 @@ export async function GET(
 
     if (itemsError) {
       console.error('Supabase order items error (non-critical):', itemsError);
+      console.error('Order ID being queried:', order.order_id);
       // Don't fail the request if order_items table doesn't exist yet
+    } else {
+      console.log('Order items found:', orderItems?.length || 0, 'for order:', order.order_id);
     }
 
     // Get related applications (non-critical, don't fail if missing)

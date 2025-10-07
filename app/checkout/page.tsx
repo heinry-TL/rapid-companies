@@ -52,16 +52,25 @@ export default function CheckoutPage() {
       setIsLoading(true);
       setError('');
 
-      // Prepare order metadata
+      // Prepare order metadata with complete application data
       const orderMetadata = {
         order_id: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         applications_count: state.applications.length.toString(),
         services_count: state.standaloneServices.length.toString(),
         applications: JSON.stringify(state.applications.map(app => ({
           id: app.id,
-          jurisdiction: app.jurisdiction.name,
-          price: app.jurisdiction.price,
-          currency: app.jurisdiction.currency,
+          jurisdiction: {
+            name: app.jurisdiction.name,
+            price: app.jurisdiction.price,
+            currency: app.jurisdiction.currency,
+          },
+          contactDetails: app.contactDetails,
+          companyDetails: app.companyDetails,
+          registeredAddress: app.registeredAddress,
+          directors: app.directors,
+          shareholders: app.shareholders,
+          additionalServices: app.additionalServices,
+          stepCompleted: app.stepCompleted,
         }))),
         standalone_services: JSON.stringify(state.standaloneServices.map(service => ({
           id: service.id,
@@ -71,6 +80,11 @@ export default function CheckoutPage() {
         }))),
       };
 
+      // Get customer email from first application if available
+      const customerEmail = state.applications.length > 0
+        ? state.applications[0].contactDetails?.email
+        : undefined;
+
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
@@ -79,6 +93,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           amount: totalAmount,
           currency: currency,
+          customer_email: customerEmail,
           metadata: orderMetadata,
           description: `Offshore Company Formation - ${state.applications.length} application(s), ${state.standaloneServices.length} service(s)`,
         }),

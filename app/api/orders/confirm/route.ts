@@ -63,11 +63,34 @@ export async function POST(req: NextRequest) {
     let standaloneServices: any[] = [];
 
     try {
+      // Try to parse applications from metadata
       if (metadata.applications) {
-        applications = JSON.parse(metadata.applications);
+        try {
+          applications = JSON.parse(metadata.applications);
+        } catch (appParseError) {
+          console.error('Error parsing applications metadata:', appParseError);
+          // If metadata has application_ids, look them up from database
+          if (metadata.application_ids) {
+            const appIds = metadata.application_ids.split(',');
+            const { data: dbApplications } = await supabaseAdmin
+              .from('applications')
+              .select('*')
+              .in('id', appIds);
+
+            if (dbApplications) {
+              applications = dbApplications;
+            }
+          }
+        }
       }
+
+      // Parse standalone services
       if (metadata.standalone_services) {
-        standaloneServices = JSON.parse(metadata.standalone_services);
+        try {
+          standaloneServices = JSON.parse(metadata.standalone_services);
+        } catch (svcParseError) {
+          console.error('Error parsing standalone_services metadata:', svcParseError);
+        }
       }
 
       console.log('Order items:', {
@@ -108,14 +131,74 @@ export async function POST(req: NextRequest) {
     if (applications && applications.length > 0) {
       for (const app of applications) {
         if (app.id) {
+          // Prepare complete application update data
+          const updateData: any = {
+            payment_status: 'paid',
+            order_id: orderId,
+            internal_status: 'paid',
+            updated_at: new Date().toISOString(),
+          };
+
+          // Add contact details if available
+          if (app.contactDetails) {
+            updateData.contact_first_name = app.contactDetails.firstName;
+            updateData.contact_last_name = app.contactDetails.lastName;
+            updateData.contact_email = app.contactDetails.email;
+            updateData.contact_phone = app.contactDetails.phone;
+            if (app.contactDetails.address) {
+              updateData.contact_address_line1 = app.contactDetails.address.street;
+              updateData.contact_city = app.contactDetails.address.city;
+              updateData.contact_county = app.contactDetails.address.state;
+              updateData.contact_postcode = app.contactDetails.address.postalCode;
+              updateData.contact_country = app.contactDetails.address.country;
+            }
+          }
+
+          // Add company details if available
+          if (app.companyDetails) {
+            updateData.company_proposed_name = app.companyDetails.proposedName;
+            updateData.company_alternative_name = app.companyDetails.alternativeName;
+            updateData.company_business_activity = app.companyDetails.businessActivity;
+            updateData.company_authorized_capital = app.companyDetails.authorizedCapital;
+            updateData.company_number_of_shares = app.companyDetails.numberOfShares;
+          }
+
+          // Add registered address if available
+          if (app.registeredAddress) {
+            updateData.registered_address_line1 = app.registeredAddress.line1;
+            updateData.registered_address_line2 = app.registeredAddress.line2;
+            updateData.registered_city = app.registeredAddress.city;
+            updateData.registered_county = app.registeredAddress.county;
+            updateData.registered_postcode = app.registeredAddress.postcode;
+            updateData.registered_country = app.registeredAddress.country;
+            updateData.use_contact_address = app.registeredAddress.useContactAddress;
+          }
+
+          // Add directors, shareholders, and additional services as JSON
+          if (app.directors) {
+            updateData.directors = typeof app.directors === 'string' ? app.directors : JSON.stringify(app.directors);
+          }
+
+          if (app.shareholders) {
+            updateData.shareholders = typeof app.shareholders === 'string' ? app.shareholders : JSON.stringify(app.shareholders);
+          }
+
+          if (app.additionalServices) {
+            updateData.additional_services = typeof app.additionalServices === 'string' ? app.additionalServices : JSON.stringify(app.additionalServices);
+          } else if (app.additional_services) {
+            updateData.additional_services = typeof app.additional_services === 'string' ? app.additional_services : JSON.stringify(app.additional_services);
+          }
+
+          if (app.stepCompleted) {
+            updateData.step_completed = app.stepCompleted;
+          } else if (app.step_completed) {
+            updateData.step_completed = app.step_completed;
+          }
+
+          // Update the application
           await supabaseAdmin
             .from('applications')
-            .update({
-              payment_status: 'paid',
-              order_id: orderId,
-              internal_status: 'paid',
-              updated_at: new Date().toISOString()
-            })
+            .update(updateData)
             .eq('id', app.id);
         }
       }

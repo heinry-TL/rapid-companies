@@ -9,6 +9,7 @@ interface Order {
   stripe_payment_intent_id: string;
   customer_email: string;
   customer_name: string;
+  customer_phone: string;
   total_amount: number;
   currency: string;
   payment_status: string;
@@ -89,9 +90,15 @@ export default function OrdersPage() {
   };
 
   const formatCurrency = (amount: number, currency: string = 'GBP') => {
+    // Clean and validate currency code
+    const cleanCurrency = (currency || 'GBP').trim().toUpperCase();
+
+    // Validate currency code (should be 3 letters)
+    const validCurrency = /^[A-Z]{3}$/.test(cleanCurrency) ? cleanCurrency : 'GBP';
+
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: currency,
+      currency: validCurrency,
     }).format(amount);
   };
 
@@ -263,12 +270,17 @@ export default function OrdersPage() {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm text-gray-900">
+                          <div className="text-sm font-medium text-gray-900">
                             {order.customer_name || 'N/A'}
                           </div>
                           <div className="text-sm text-gray-500">
                             {order.customer_email || 'N/A'}
                           </div>
+                          {order.customer_phone && (
+                            <div className="text-sm text-gray-500">
+                              {order.customer_phone}
+                            </div>
+                          )}
                         </div>
                       </td>
 

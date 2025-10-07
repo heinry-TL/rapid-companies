@@ -29,6 +29,8 @@ export default function CheckoutForm({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [email, setEmail] = useState(customerEmail || '');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
 
   useEffect(() => {
     if (!stripe) {
@@ -79,6 +81,13 @@ export default function CheckoutForm({
         // Return URL after payment completion
         return_url: `${window.location.origin}/payment/success`,
         receipt_email: email,
+        payment_method_data: {
+          billing_details: {
+            name: name,
+            email: email,
+            phone: phone,
+          },
+        },
       },
     });
 
@@ -108,6 +117,22 @@ export default function CheckoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Name Input */}
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+          Full Name
+        </label>
+        <input
+          id="name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="John Doe"
+          required
+        />
+      </div>
+
       {/* Email Input */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
@@ -120,6 +145,22 @@ export default function CheckoutForm({
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           placeholder="your@email.com"
+          required
+        />
+      </div>
+
+      {/* Phone Input */}
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+          Phone Number
+        </label>
+        <input
+          id="phone"
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="+44 1234 567890"
           required
         />
       </div>

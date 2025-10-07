@@ -17,27 +17,10 @@ export async function GET(
       );
     }
 
+    // Select all columns using * to avoid errors if some columns don't exist
     const { data: applicationData, error: applicationError } = await supabaseAdmin
       .from('applications')
-      .select(`
-        id,
-        application_identifier,
-        jurisdiction_name,
-        jurisdiction_price,
-        jurisdiction_currency,
-        contact_first_name,
-        contact_last_name,
-        contact_email,
-        contact_phone,
-        company_proposed_name,
-        company_business_activity,
-        internal_status,
-        payment_status,
-        order_id,
-        step_completed,
-        created_at,
-        updated_at
-      `)
+      .select('*')
       .eq('id', applicationId)
       .single();
 
@@ -55,6 +38,41 @@ export async function GET(
       );
     }
 
+    // Parse JSON fields if they're strings - with error handling
+    let directors = [];
+    let shareholders = [];
+    let additionalServices = [];
+
+    try {
+      if (applicationData.directors) {
+        directors = typeof applicationData.directors === 'string'
+          ? JSON.parse(applicationData.directors)
+          : applicationData.directors;
+      }
+    } catch (e) {
+      console.error('Error parsing directors:', e);
+    }
+
+    try {
+      if (applicationData.shareholders) {
+        shareholders = typeof applicationData.shareholders === 'string'
+          ? JSON.parse(applicationData.shareholders)
+          : applicationData.shareholders;
+      }
+    } catch (e) {
+      console.error('Error parsing shareholders:', e);
+    }
+
+    try {
+      if (applicationData.additional_services) {
+        additionalServices = typeof applicationData.additional_services === 'string'
+          ? JSON.parse(applicationData.additional_services)
+          : applicationData.additional_services;
+      }
+    } catch (e) {
+      console.error('Error parsing additional_services:', e);
+    }
+
     const application = {
       ...applicationData,
       // Rename fields to match expected structure
@@ -64,10 +82,10 @@ export async function GET(
       full_name: `${applicationData.contact_first_name || ''} ${applicationData.contact_last_name || ''}`.trim(),
       company_type: 'LLC',
       status: applicationData.step_completed >= 5 ? 'completed' : 'pending',
-      admin_notes: '',
-      directors: [],
-      shareholders: [],
-      additional_services: []
+      admin_notes: applicationData.admin_notes || '',
+      directors: directors,
+      shareholders: shareholders,
+      additional_services: additionalServices
     };
 
     return NextResponse.json({ application });
@@ -130,24 +148,10 @@ export async function PATCH(
       );
     }
 
-    // Fetch updated application
+    // Fetch updated application with all fields
     const { data: applicationData, error: fetchError } = await supabaseAdmin
       .from('applications')
-      .select(`
-        id,
-        jurisdiction_name,
-        jurisdiction_price,
-        jurisdiction_currency,
-        contact_first_name,
-        contact_last_name,
-        contact_email,
-        contact_phone,
-        company_proposed_name,
-        company_business_activity,
-        internal_status,
-        created_at,
-        updated_at
-      `)
+      .select('*')
       .eq('id', applicationId)
       .single();
 
@@ -159,6 +163,41 @@ export async function PATCH(
       );
     }
 
+    // Parse JSON fields if they're strings - with error handling
+    let directors = [];
+    let shareholders = [];
+    let additionalServices = [];
+
+    try {
+      if (applicationData.directors) {
+        directors = typeof applicationData.directors === 'string'
+          ? JSON.parse(applicationData.directors)
+          : applicationData.directors;
+      }
+    } catch (e) {
+      console.error('Error parsing directors:', e);
+    }
+
+    try {
+      if (applicationData.shareholders) {
+        shareholders = typeof applicationData.shareholders === 'string'
+          ? JSON.parse(applicationData.shareholders)
+          : applicationData.shareholders;
+      }
+    } catch (e) {
+      console.error('Error parsing shareholders:', e);
+    }
+
+    try {
+      if (applicationData.additional_services) {
+        additionalServices = typeof applicationData.additional_services === 'string'
+          ? JSON.parse(applicationData.additional_services)
+          : applicationData.additional_services;
+      }
+    } catch (e) {
+      console.error('Error parsing additional_services:', e);
+    }
+
     const application = {
       ...applicationData,
       // Rename fields to match expected structure
@@ -167,9 +206,11 @@ export async function PATCH(
       company_name: applicationData.company_proposed_name,
       full_name: `${applicationData.contact_first_name || ''} ${applicationData.contact_last_name || ''}`.trim(),
       company_type: 'LLC',
-      status: 'pending',
-      payment_status: 'pending',
-      admin_notes: ''
+      status: applicationData.step_completed >= 5 ? 'completed' : 'pending',
+      admin_notes: applicationData.admin_notes || '',
+      directors: directors,
+      shareholders: shareholders,
+      additional_services: additionalServices
     };
 
     return NextResponse.json({

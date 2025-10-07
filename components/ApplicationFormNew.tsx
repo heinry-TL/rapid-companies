@@ -45,12 +45,21 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
           firstName: application.contactDetails.firstName,
           lastName: application.contactDetails.lastName,
           email: application.contactDetails.email,
-          phone: application.contactDetails.phone
+          phone: application.contactDetails.phone,
+          address: application.contactDetails.address
         },
         companyDetails: {
           proposedName: application.companyDetails.proposedName,
-          businessActivity: application.companyDetails.businessActivity
-        }
+          alternativeName: application.companyDetails.alternativeName,
+          businessActivity: application.companyDetails.businessActivity,
+          authorizedCapital: application.companyDetails.authorizedCapital,
+          numberOfShares: application.companyDetails.numberOfShares
+        },
+        registeredAddress: application.registeredAddress,
+        directors: application.directors,
+        shareholders: application.shareholders,
+        additionalServices: application.additionalServices,
+        stepCompleted: stepCompleted
       };
 
       const response = await fetch('/api/applications', {
