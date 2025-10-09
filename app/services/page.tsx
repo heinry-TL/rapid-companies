@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
@@ -30,7 +30,7 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export default function ServicesPage() {
+function ServicesContent() {
   const headerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const [professionalServices, setProfessionalServices] = useState<ProfessionalService[]>([]);
@@ -722,5 +722,17 @@ export default function ServicesPage() {
       <div className="pb-8"></div>
       <Footer />
     </div>
+  );
+}
+
+export default function ServicesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading services...</div>
+      </div>
+    }>
+      <ServicesContent />
+    </Suspense>
   );
 }
