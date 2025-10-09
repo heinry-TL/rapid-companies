@@ -26,7 +26,9 @@ export default function CheckoutPage() {
       return total + Number(service.price);
     }, 0);
 
-    return applicationsTotal + standaloneServicesTotal;
+    const mailForwardingTotal = state.mailForwarding ? Number(state.mailForwarding.price) : 0;
+
+    return applicationsTotal + standaloneServicesTotal + mailForwardingTotal;
   };
 
   const totalAmount = getTotalAmount();
@@ -34,7 +36,7 @@ export default function CheckoutPage() {
 
   // Redirect if no items in portfolio
   useEffect(() => {
-    if (state.applications.length === 0 && state.standaloneServices.length === 0) {
+    if (state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding) {
       router.push('/portfolio');
       return;
     }
@@ -57,6 +59,8 @@ export default function CheckoutPage() {
         order_id: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         applications_count: state.applications.length.toString(),
         services_count: state.standaloneServices.length.toString(),
+        mail_forwarding_count: state.mailForwarding ? '1' : '0',
+        has_mail_forwarding: state.mailForwarding ? 'true' : 'false',
         applications: JSON.stringify(state.applications.map(app => ({
           id: app.id,
           jurisdiction: {
@@ -78,12 +82,26 @@ export default function CheckoutPage() {
           price: service.price,
           currency: service.currency,
         }))),
+        mail_forwarding: state.mailForwarding ? JSON.stringify({
+          id: state.mailForwarding.id,
+          price: state.mailForwarding.price,
+          currency: state.mailForwarding.currency,
+          formData: state.mailForwarding.formData,
+        }) : null,
       };
 
-      // Get customer email from first application if available
+      // Get customer email from first application or mail forwarding
       const customerEmail = state.applications.length > 0
         ? state.applications[0].contactDetails?.email
+        : state.mailForwarding
+        ? state.mailForwarding.formData.email
         : undefined;
+
+      // DEBUG: Log what we're about to send
+      console.log('=== CHECKOUT SENDING TO API ===');
+      console.log('Mail forwarding in state:', state.mailForwarding);
+      console.log('Order metadata mail_forwarding:', orderMetadata.mail_forwarding);
+      console.log('Full metadata:', JSON.stringify(orderMetadata, null, 2));
 
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
@@ -95,7 +113,7 @@ export default function CheckoutPage() {
           currency: currency,
           customer_email: customerEmail,
           metadata: orderMetadata,
-          description: `Offshore Company Formation - ${state.applications.length} application(s), ${state.standaloneServices.length} service(s)`,
+          description: `Offshore Company Formation - ${state.applications.length} application(s), ${state.standaloneServices.length} service(s)${state.mailForwarding ? ', 1 mail forwarding' : ''}`,
         }),
       });
 
@@ -229,6 +247,27 @@ export default function CheckoutPage() {
                     </p>
                   </div>
                 ))}
+
+                {/* Mail Forwarding Service */}
+                {state.mailForwarding && (
+                  <div className="mb-2 p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-white font-medium">Mail Forwarding Service</p>
+                        <p className="text-blue-400 text-sm">{state.mailForwarding.formData.jurisdiction}</p>
+                        <p className="text-gray-400 text-xs mt-1">
+                          {state.mailForwarding.formData.entityType === 'company' ? 'Company' : 'Individual'}: {state.mailForwarding.formData.entityName}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          Frequency: {state.mailForwarding.formData.forwardingFrequency}
+                        </p>
+                      </div>
+                      <p className="text-white font-semibold">
+                        £{state.mailForwarding.price.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Total */}
                 <div className="border-t border-gray-600 pt-4 mt-4">

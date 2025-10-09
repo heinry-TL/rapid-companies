@@ -61,8 +61,19 @@ export async function POST(req: NextRequest) {
     // Parse order items from metadata
     let applications: any[] = [];
     let standaloneServices: any[] = [];
+    let mailForwarding: any = null;
 
     try {
+      // Parse mail forwarding from metadata
+      if (metadata.mail_forwarding) {
+        try {
+          mailForwarding = JSON.parse(metadata.mail_forwarding);
+          console.log('Mail forwarding data found:', mailForwarding);
+        } catch (mfParseError) {
+          console.error('Error parsing mail forwarding metadata:', mfParseError);
+        }
+      }
+
       // Parse application identifiers from metadata and look up from database
       if (metadata.applications) {
         try {
@@ -114,7 +125,8 @@ export async function POST(req: NextRequest) {
       console.log('Order items:', {
         orderId,
         applications: applications.length,
-        standaloneServices: standaloneServices.length
+        standaloneServices: standaloneServices.length,
+        mailForwarding: mailForwarding ? 'yes' : 'no'
       });
     } catch (parseError) {
       console.error('Error parsing order metadata:', parseError);
@@ -137,13 +149,115 @@ export async function POST(req: NextRequest) {
       currency: paymentIntent.currency.toUpperCase(),
       payment_status: 'paid',
       stripe_metadata: metadata,
-      paid_at: new Date().toISOString()
+      paid_at: new Date().toISOString(),
+      mail_forwarding_count: mailForwarding ? 1 : 0,
+      has_mail_forwarding: mailForwarding ? true : false
     };
 
     // Create the order with items using the database abstraction
     console.log('Creating order with items...');
     await db.createOrderWithItems(orderData, applications, standaloneServices);
     console.log('Order created successfully with items');
+
+    // Update mail forwarding application status if exists
+    // Mail forwarding was already saved to database with pending status
+    // Now we just need to update it to paid and link it to the order
+    const hasMailForwarding = metadata.has_mail_forwarding === 'true';
+
+    if (hasMailForwarding && mailForwarding) {
+      try {
+        console.log('Updating mail forwarding status to paid');
+
+        // Look up the pending mail forwarding by email and jurisdiction
+        const email = mailForwarding.email || customerEmail;
+        const jurisdiction = mailForwarding.jurisdiction;
+
+        if (email && jurisdiction) {
+          // Find the most recent pending mail forwarding for this email + jurisdiction
+          const { data: pendingMF, error: lookupError } = await supabaseAdmin
+            .from('mail_forwarding_applications')
+            .select('*')
+            .eq('email', email)
+            .eq('jurisdiction', jurisdiction)
+            .eq('payment_status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (lookupError) {
+            console.error('Error looking up pending mail forwarding:', lookupError);
+          } else if (pendingMF) {
+            // Update the mail forwarding to mark as paid and link to order
+            const { error: updateError } = await supabaseAdmin
+              .from('mail_forwarding_applications')
+              .update({
+                payment_status: 'paid',
+                status: 'active',
+                order_id: orderId,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', pendingMF.id);
+
+            if (updateError) {
+              console.error('Error updating mail forwarding status:', updateError);
+            } else {
+              console.log(`Mail forwarding application ${pendingMF.id} marked as paid for order ${orderId}`);
+            }
+          } else {
+            console.warn('No pending mail forwarding found for email:', email, 'jurisdiction:', jurisdiction);
+          }
+        } else {
+          console.warn('Missing email or jurisdiction for mail forwarding update');
+        }
+      } catch (mfError) {
+        console.error('Error processing mail forwarding status update:', mfError);
+      }
+    }
+
+    // LEGACY: Save mail forwarding if full formData is available (backward compatibility)
+    if (mailForwarding && mailForwarding.formData) {
+      try {
+        console.log('Legacy path: Creating new mail forwarding record from full formData');
+        const mailForwardingData = {
+          entity_type: mailForwarding.formData.entityType,
+          entity_name: mailForwarding.formData.entityName,
+          contact_person: mailForwarding.formData.contactPerson,
+          email: mailForwarding.formData.email,
+          phone: mailForwarding.formData.phone,
+          address_line1: mailForwarding.formData.address.line1,
+          address_line2: mailForwarding.formData.address.line2,
+          city: mailForwarding.formData.address.city,
+          county: mailForwarding.formData.address.county,
+          postcode: mailForwarding.formData.address.postcode,
+          country: mailForwarding.formData.address.country,
+          jurisdiction: mailForwarding.formData.jurisdiction,
+          forwarding_frequency: mailForwarding.formData.forwardingFrequency,
+          service_users: mailForwarding.formData.serviceUsers,
+          additional_info: mailForwarding.formData.additionalInfo || null,
+          price: mailForwarding.price,
+          currency: mailForwarding.currency || 'GBP',
+          payment_status: 'paid',
+          order_id: orderId,
+          status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        const { data: mfData, error: mfError } = await supabaseAdmin
+          .from('mail_forwarding_applications')
+          .insert([mailForwardingData])
+          .select()
+          .single();
+
+        if (mfError) {
+          console.error('Error saving mail forwarding application:', mfError);
+        } else {
+          console.log(`Mail forwarding application saved successfully for order ${orderId}:`, mfData.id);
+        }
+      } catch (mfSaveError) {
+        console.error('Error processing mail forwarding save:', mfSaveError);
+      }
+    }
 
     // Update applications to mark them as paid and link to order
     if (applications && applications.length > 0) {

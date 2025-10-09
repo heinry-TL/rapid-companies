@@ -92,10 +92,38 @@ export interface StandaloneService {
   description: string;
 }
 
+export interface MailForwardingService {
+  id: string;
+  dbId?: number; // Database ID from mail_forwarding_applications table
+  price: number;
+  currency: string;
+  formData: {
+    entityType: 'company' | 'individual';
+    entityName: string;
+    contactPerson: string;
+    email: string;
+    phone: string;
+    address: {
+      line1: string;
+      line2: string;
+      city: string;
+      county: string;
+      postcode: string;
+      country: string;
+    };
+    jurisdiction: string;
+    jurisdictionPrice: number;
+    forwardingFrequency: 'weekly' | 'biweekly' | 'monthly';
+    serviceUsers: string;
+    additionalInfo: string;
+  };
+}
+
 export interface PortfolioState {
   applications: CompanyApplication[];
   currentApplicationId: string | null;
   standaloneServices: StandaloneService[];
+  mailForwarding: MailForwardingService | null;
 }
 
 type PortfolioAction =
@@ -113,6 +141,8 @@ type PortfolioAction =
   | { type: 'REMOVE_SERVICE'; payload: { applicationId: string; serviceId: string } }
   | { type: 'ADD_STANDALONE_SERVICE'; payload: StandaloneService }
   | { type: 'REMOVE_STANDALONE_SERVICE'; payload: string }
+  | { type: 'ADD_MAIL_FORWARDING'; payload: MailForwardingService }
+  | { type: 'REMOVE_MAIL_FORWARDING' }
   | { type: 'CLEAR_PORTFOLIO' }
   | { type: 'LOAD_FROM_STORAGE'; payload: PortfolioState };
 
@@ -120,6 +150,7 @@ const initialState: PortfolioState = {
   applications: [],
   currentApplicationId: null,
   standaloneServices: [],
+  mailForwarding: null,
 };
 
 function portfolioReducer(state: PortfolioState, action: PortfolioAction): PortfolioState {
@@ -278,17 +309,31 @@ function portfolioReducer(state: PortfolioState, action: PortfolioAction): Portf
         standaloneServices: state.standaloneServices.filter(service => service.id !== action.payload),
       };
 
+    case 'ADD_MAIL_FORWARDING':
+      return {
+        ...state,
+        mailForwarding: action.payload,
+      };
+
+    case 'REMOVE_MAIL_FORWARDING':
+      return {
+        ...state,
+        mailForwarding: null,
+      };
+
     case 'CLEAR_PORTFOLIO':
       return {
         applications: [],
         currentApplicationId: null,
         standaloneServices: [],
+        mailForwarding: null,
       };
 
     case 'LOAD_FROM_STORAGE':
       return {
         ...action.payload,
         standaloneServices: action.payload.standaloneServices || [],
+        mailForwarding: action.payload.mailForwarding || null,
       };
 
     default:

@@ -13,6 +13,13 @@ export const metadata: Metadata = {
   title: "Offshore Company Formation Services",
   description:
     "Professional offshore company formation services for international business needs",
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' }
+    ],
+    apple: '/icon.svg',
+  },
 };
 
 // Define the RootLayout component

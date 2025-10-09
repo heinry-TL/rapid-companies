@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePortfolio } from '@/lib/portfolio-context';
 import Footer from '@/components/ui/Footer';
+import MailForwardingForm, { MailForwardingData } from '@/components/MailForwardingForm';
 
 interface ProfessionalService {
   id: string;
@@ -38,6 +39,7 @@ function ServicesContent() {
   const [selectedService, setSelectedService] = useState<ProfessionalService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showContactInfo, setShowContactInfo] = useState(false);
+  const [showMailForwardingForm, setShowMailForwardingForm] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { dispatch } = usePortfolio();
@@ -64,12 +66,14 @@ function ServicesContent() {
     setSelectedService(service);
     setIsModalOpen(true);
     setShowContactInfo(false);
+    setShowMailForwardingForm(false);
   };
 
   // Handle modal close
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setShowContactInfo(false);
+    setShowMailForwardingForm(false);
     setTimeout(() => setSelectedService(null), 300); // Delay to allow animation
     // Remove the service parameter from URL but stay on services page
     router.push('/services', { scroll: false });
@@ -78,6 +82,82 @@ function ServicesContent() {
   // Handle contact us button click
   const handleContactUsClick = () => {
     setShowContactInfo(true);
+  };
+
+  // Handle buy now for mail forwarding
+  const handleMailForwardingBuyNow = () => {
+    setShowMailForwardingForm(true);
+  };
+
+  // Parse jurisdictions from features
+  const parseJurisdictionsFromFeatures = (features: string[]) => {
+    const jurisdictions: { name: string; price: number }[] = [];
+
+    features.forEach(feature => {
+      // Match patterns like "BVI - £500" or "Seychelles - £350"
+      const match = feature.match(/^(.+?)\s*[-–]\s*£\s*([\d,]+(?:\.\d{2})?)/);
+      if (match) {
+        const name = match[1].trim();
+        const price = parseFloat(match[2].replace(/,/g, ''));
+        jurisdictions.push({ name, price });
+      }
+    });
+
+    return jurisdictions;
+  };
+
+  // Handle mail forwarding form submission
+  const handleMailForwardingSubmit = async (formData: MailForwardingData) => {
+    if (!selectedService) return;
+
+    try {
+      // Use the jurisdiction price from the form
+      const price = formData.jurisdictionPrice;
+
+      console.log('Saving mail forwarding to database with pending status...');
+
+      // Save to database with pending status BEFORE adding to portfolio
+      const response = await fetch('/api/mail-forwarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          formData,
+          price,
+          currency: 'GBP',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Failed to save mail forwarding:', errorData);
+        alert('Failed to save mail forwarding application. Please try again.');
+        return;
+      }
+
+      const result = await response.json();
+      console.log('Mail forwarding saved to database:', result);
+
+      // Add to portfolio with database ID
+      dispatch({
+        type: 'ADD_MAIL_FORWARDING',
+        payload: {
+          id: `${selectedService.id}-${formData.jurisdiction}`,
+          dbId: result.application.id, // Store the database ID
+          price,
+          currency: 'GBP',
+          formData,
+        },
+      });
+
+      // Close modal and redirect to portfolio
+      handleCloseModal();
+      router.push('/portfolio');
+    } catch (error) {
+      console.error('Error submitting mail forwarding:', error);
+      alert('Failed to submit mail forwarding application. Please try again.');
+    }
   };
 
   // Handle adding service to portfolio
@@ -566,9 +646,16 @@ function ServicesContent() {
             </div>
 
             {/* Modal Content */}
-            <div className="p-6">
-              {!showContactInfo ? (
-                <>
+            {showMailForwardingForm ? (
+              <MailForwardingForm
+                onSubmit={handleMailForwardingSubmit}
+                onCancel={() => setShowMailForwardingForm(false)}
+                availableJurisdictions={parseJurisdictionsFromFeatures(selectedService.features || [])}
+              />
+            ) : (
+              <div className="p-6">
+                {!showContactInfo ? (
+                  <>
                   {/* Description */}
                   <div className="mb-8">
                     <h4 className="text-lg font-semibold text-white mb-3">Overview</h4>
@@ -614,7 +701,14 @@ function ServicesContent() {
 
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
-                    {selectedService.category === 'office' ? (
+                    {selectedService.name.toLowerCase().includes('mail') && selectedService.name.toLowerCase().includes('forwarding') ? (
+                      <button
+                        onClick={handleMailForwardingBuyNow}
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
+                      >
+                        Buy Now
+                      </button>
+                    ) : selectedService.category === 'office' ? (
                       <button
                         onClick={handleContactUsClick}
                         className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
@@ -714,7 +808,8 @@ function ServicesContent() {
                   </div>
                 </>
               )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -94,7 +94,9 @@ export default function PortfolioPage() {
       return total + Number(service.price);
     }, 0);
 
-    return applicationsTotal + standaloneServicesTotal;
+    const mailForwardingTotal = state.mailForwarding ? Number(state.mailForwarding.price) : 0;
+
+    return applicationsTotal + standaloneServicesTotal + mailForwardingTotal;
   };
 
   const getMainCurrency = () => {
@@ -147,8 +149,8 @@ export default function PortfolioPage() {
   };
 
   const canProceedToCheckout = (): boolean => {
-    // Must have at least one item (application or standalone service)
-    const hasItems = state.applications.length > 0 || state.standaloneServices.length > 0;
+    // Must have at least one item (application, standalone service, or mail forwarding)
+    const hasItems = state.applications.length > 0 || state.standaloneServices.length > 0 || state.mailForwarding !== null;
 
     // If there are applications, ALL must be complete
     const allApplicationsComplete = state.applications.length === 0 || areAllApplicationsComplete();
@@ -579,6 +581,33 @@ export default function PortfolioPage() {
                     </div>
                   </div>
                 ))}
+
+                {/* Mail Forwarding Service */}
+                {state.mailForwarding && (
+                  <div className="flex justify-between items-start mb-2 p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
+                    <div>
+                      <p className="text-white font-medium">Mail Forwarding Service</p>
+                      <p className="text-blue-400 text-sm">{state.mailForwarding.formData.jurisdiction}</p>
+                      <p className="text-gray-400 text-xs mt-1">
+                        {state.mailForwarding.formData.entityType === 'company' ? 'Company' : 'Individual'}: {state.mailForwarding.formData.entityName}
+                      </p>
+                      <p className="text-gray-400 text-xs">
+                        Frequency: {state.mailForwarding.formData.forwardingFrequency}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white font-semibold">
+                        £{state.mailForwarding.price.toLocaleString()}
+                      </p>
+                      <button
+                        onClick={() => dispatch({ type: 'REMOVE_MAIL_FORWARDING' })}
+                        className="text-red-400 hover:text-red-300 text-xs mt-1"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-gray-600 pt-4 mb-6">
@@ -605,7 +634,7 @@ export default function PortfolioPage() {
                   }`}
                 >
                   {canProceedToCheckout() ? 'Proceed to Checkout' :
-                    (state.applications.length === 0 && state.standaloneServices.length === 0)
+                    (state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding)
                       ? 'Add items to your portfolio to checkout'
                       : 'Complete all applications to checkout'}
                 </button>
@@ -626,12 +655,12 @@ export default function PortfolioPage() {
                     </svg>
                     <div>
                       <p className="text-yellow-300 text-sm font-semibold">
-                        {state.applications.length === 0 && state.standaloneServices.length === 0
+                        {state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding
                           ? 'No items in portfolio'
                           : `${getIncompleteApplications().length} Incomplete Application(s)`}
                       </p>
                       <p className="text-yellow-200 text-xs mt-1">
-                        {state.applications.length === 0 && state.standaloneServices.length === 0
+                        {state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding
                           ? 'Add company formation applications or services to proceed to checkout.'
                           : 'Please complete all required fields in your applications before proceeding to checkout.'}
                       </p>
