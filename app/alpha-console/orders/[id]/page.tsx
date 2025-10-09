@@ -304,7 +304,7 @@ export default function OrderDetailsPage() {
                   {Array.isArray(order.order_items.applications) && order.order_items.applications.length > 0 && (
                     <div>
                       <h3 className="text-sm font-medium text-gray-700 mb-3">Company Formation Applications</h3>
-                      {order.order_items.applications.map((app: any, idx: number) => {
+                      {order.order_items?.applications?.map((app: any, idx: number) => {
                         // Ensure correct price extraction
                         const appAmount = typeof app.total_price === 'number'
                           ? app.total_price
@@ -379,7 +379,7 @@ export default function OrderDetailsPage() {
             <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Company Formation Applications</h2>
               <div className="space-y-3">
-                {order.applications.map((app) => (
+                {order.applications.filter(app => app.contact_first_name || app.contact_last_name).map((app) => (
                   <Link
                     key={app.id}
                     href={`/alpha-console/applications/${app.id}`}
@@ -389,7 +389,7 @@ export default function OrderDetailsPage() {
                       <div>
                         <h3 className="text-sm font-medium text-gray-900">{app.jurisdiction_name}</h3>
                         <p className="text-sm text-gray-600 mt-1">
-                          {app.company_proposed_name || `${app.contact_first_name} ${app.contact_last_name}`}
+                          {app.company_proposed_name || [app.contact_first_name, app.contact_last_name].filter(Boolean).join(' ') || 'N/A'}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{app.contact_email}</p>
                       </div>

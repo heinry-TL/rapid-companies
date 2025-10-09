@@ -5,7 +5,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePortfolio } from '@/lib/portfolio-context';
 import Footer from '@/components/ui/Footer';
 
@@ -37,7 +37,9 @@ export default function ServicesPage() {
   const [servicesLoading, setServicesLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<ProfessionalService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { dispatch } = usePortfolio();
 
   // Fetch professional services
@@ -61,12 +63,21 @@ export default function ServicesPage() {
   const handleServiceClick = (service: ProfessionalService) => {
     setSelectedService(service);
     setIsModalOpen(true);
+    setShowContactInfo(false);
   };
 
   // Handle modal close
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setShowContactInfo(false);
     setTimeout(() => setSelectedService(null), 300); // Delay to allow animation
+    // Remove the service parameter from URL but stay on services page
+    router.push('/services', { scroll: false });
+  };
+
+  // Handle contact us button click
+  const handleContactUsClick = () => {
+    setShowContactInfo(true);
   };
 
   // Handle adding service to portfolio
@@ -149,6 +160,18 @@ export default function ServicesPage() {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
+
+  // Handle URL parameter to open modal
+  useEffect(() => {
+    const serviceId = searchParams.get('service');
+    if (serviceId && professionalServices.length > 0 && !isModalOpen) {
+      const service = professionalServices.find(s => s.id === serviceId);
+      if (service) {
+        setSelectedService(service);
+        setIsModalOpen(true);
+      }
+    }
+  }, [searchParams, professionalServices, isModalOpen]);
 
   // Component to render service icons
   const ServiceIcon = ({ category }: { category: string }) => {
@@ -544,78 +567,153 @@ export default function ServicesPage() {
 
             {/* Modal Content */}
             <div className="p-6">
-              {/* Description */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-white mb-3">Overview</h4>
-                <p className="text-gray-300 leading-relaxed">{selectedService.full_description || selectedService.description}</p>
-              </div>
-
-              {/* Features and Benefits Grid */}
-              <div className="grid md:grid-cols-2 gap-8 mb-8">
-                {/* Features */}
-                {selectedService.features && selectedService.features.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-white mb-4">What's Included</h4>
-                    <ul className="space-y-3">
-                      {selectedService.features.map((feature, index) => (
-                        <li key={index} className="flex items-start">
-                          <svg className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-300">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+              {!showContactInfo ? (
+                <>
+                  {/* Description */}
+                  <div className="mb-8">
+                    <h4 className="text-lg font-semibold text-white mb-3">Overview</h4>
+                    <p className="text-gray-300 leading-relaxed">{selectedService.full_description || selectedService.description}</p>
                   </div>
-                )}
 
-                {/* Benefits */}
-                {selectedService.benefits && selectedService.benefits.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-white mb-4">Key Benefits</h4>
-                    <ul className="space-y-3">
-                      {selectedService.benefits.map((benefit, index) => (
-                        <li key={index} className="flex items-start">
-                          <svg className="h-5 w-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                          </svg>
-                          <span className="text-gray-300">{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
-                {selectedService.link_url && (
-                  <>
-                    {selectedService.category === 'general' || selectedService.link_url.includes('portfolio') ? (
-                      <button
-                        onClick={() => handleAddToPortfolio(selectedService)}
-                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
-                      >
-                        {selectedService.link_text || 'Add to Portfolio'}
-                      </button>
-                    ) : (
-                      <Link
-                        href={selectedService.link_url}
-                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
-                        onClick={handleCloseModal}
-                      >
-                        {selectedService.link_text || 'Get Started Now'}
-                      </Link>
+                  {/* Features and Benefits Grid */}
+                  <div className="grid md:grid-cols-2 gap-8 mb-8">
+                    {/* Features */}
+                    {selectedService.features && selectedService.features.length > 0 && (
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4">What's Included</h4>
+                        <ul className="space-y-3">
+                          {selectedService.features.map((feature, index) => (
+                            <li key={index} className="flex items-start">
+                              <svg className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              <span className="text-gray-300">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
-                  </>
-                )}
-                <button
-                  onClick={handleCloseModal}
-                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
-                >
-                  Close
-                </button>
-              </div>
+
+                    {/* Benefits */}
+                    {selectedService.benefits && selectedService.benefits.length > 0 && (
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4">Key Benefits</h4>
+                        <ul className="space-y-3">
+                          {selectedService.benefits.map((benefit, index) => (
+                            <li key={index} className="flex items-start">
+                              <svg className="h-5 w-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                              </svg>
+                              <span className="text-gray-300">{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
+                    {selectedService.category === 'office' ? (
+                      <button
+                        onClick={handleContactUsClick}
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
+                      >
+                        Contact Us
+                      </button>
+                    ) : selectedService.link_url ? (
+                      <>
+                        {selectedService.category === 'general' || selectedService.link_url.includes('portfolio') ? (
+                          <button
+                            onClick={() => handleAddToPortfolio(selectedService)}
+                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
+                          >
+                            {selectedService.link_text || 'Add to Portfolio'}
+                          </button>
+                        ) : (
+                          <Link
+                            href={selectedService.link_url}
+                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
+                            onClick={handleCloseModal}
+                          >
+                            {selectedService.link_text || 'Get Started Now'}
+                          </Link>
+                        )}
+                      </>
+                    ) : null}
+                    <button
+                      onClick={handleCloseModal}
+                      className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Contact Information View */}
+                  <div className="mb-8">
+                    <h4 className="text-lg font-semibold text-white mb-3">Get in Touch</h4>
+                    <p className="text-gray-300 leading-relaxed mb-6">
+                      Contact us directly to discuss your virtual office needs. Our team is ready to assist you.
+                    </p>
+
+                    <div className="space-y-4">
+                      {/* Email */}
+                      <a
+                        href="mailto:info@rapidcorporateservices.com"
+                        className="flex items-center p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors group"
+                      >
+                        <div className="flex-shrink-0 w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-sm">Email us at</p>
+                          <p className="text-white font-semibold group-hover:text-blue-400 transition-colors">
+                            info@rapidcorporateservices.com
+                          </p>
+                        </div>
+                      </a>
+
+                      {/* Phone */}
+                      <a
+                        href="tel:+441904560089"
+                        className="flex items-center p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors group"
+                      >
+                        <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-sm">Call us at</p>
+                          <p className="text-white font-semibold group-hover:text-green-400 transition-colors">
+                            +44 1904 560089
+                          </p>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
+                    <button
+                      onClick={() => setShowContactInfo(false)}
+                      className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                    >
+                      Back to Service Details
+                    </button>
+                    <button
+                      onClick={handleCloseModal}
+                      className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

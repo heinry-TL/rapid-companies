@@ -1,16 +1,10 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatCurrency } from '@/lib/currency';
 import Footer from '@/components/ui/Footer';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface Jurisdiction {
   id: number;
@@ -29,9 +23,6 @@ export default function JurisdictionsPage() {
   const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const titleRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const fetchJurisdictions = async () => {
@@ -52,46 +43,6 @@ export default function JurisdictionsPage() {
     fetchJurisdictions();
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || loading) return;
-
-    gsap.fromTo(
-      titleRef.current,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        scrollTrigger: {
-          trigger: titleRef.current,
-          start: "top 80%",
-        },
-      }
-    );
-
-    cardRefs.current.forEach((card, index) => {
-      if (card) {
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            delay: 0.1 + index * 0.1,
-            scrollTrigger: {
-              trigger: card,
-              start: "top 85%",
-            },
-          }
-        );
-      }
-    });
-
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, [loading, jurisdictions]);
 
   if (loading) {
     return (
@@ -112,7 +63,7 @@ export default function JurisdictionsPage() {
   return (
     <div className="min-h-screen bg-gray-900 pt-38 py-20">
       <div className="container mx-auto px-4">
-        <div ref={titleRef} className="text-center mb-16">
+        <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Choose Your <span className="text-blue-400">Jurisdiction</span>
           </h1>
@@ -123,10 +74,9 @@ export default function JurisdictionsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {jurisdictions.map((jurisdiction, index) => (
+          {jurisdictions.map((jurisdiction) => (
             <div
               key={jurisdiction.id}
-              ref={(el) => { cardRefs.current[index] = el; }}
               className="bg-gray-800 rounded-xl border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 overflow-hidden"
             >
               <div className="relative h-48 bg-gradient-to-br from-gray-700 to-gray-800">
