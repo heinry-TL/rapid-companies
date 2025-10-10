@@ -19,7 +19,7 @@ export default function Header() {
   const { state } = usePortfolio();
 
   // Calculate total items in portfolio
-  const totalItems = state.applications.length + state.standaloneServices.length + (state.mailForwarding ? 1 : 0);
+  const totalItems = state.applications.length + state.standaloneServices.length + (state.mailForwarding ? 1 : 0) + (state.trustFormation ? 1 : 0);
 
   // Handle scroll for transparency effect (only on homepage)
   useEffect(() => {

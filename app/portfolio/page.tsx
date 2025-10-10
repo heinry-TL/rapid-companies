@@ -95,8 +95,9 @@ export default function PortfolioPage() {
     }, 0);
 
     const mailForwardingTotal = state.mailForwarding ? Number(state.mailForwarding.price) : 0;
+    const trustFormationTotal = state.trustFormation ? Number(state.trustFormation.price) : 0;
 
-    return applicationsTotal + standaloneServicesTotal + mailForwardingTotal;
+    return applicationsTotal + standaloneServicesTotal + mailForwardingTotal + trustFormationTotal;
   };
 
   const getMainCurrency = () => {
@@ -149,8 +150,8 @@ export default function PortfolioPage() {
   };
 
   const canProceedToCheckout = (): boolean => {
-    // Must have at least one item (application, standalone service, or mail forwarding)
-    const hasItems = state.applications.length > 0 || state.standaloneServices.length > 0 || state.mailForwarding !== null;
+    // Must have at least one item (application, standalone service, mail forwarding, or trust formation)
+    const hasItems = state.applications.length > 0 || state.standaloneServices.length > 0 || state.mailForwarding !== null || state.trustFormation !== null;
 
     // If there are applications, ALL must be complete
     const allApplicationsComplete = state.applications.length === 0 || areAllApplicationsComplete();
@@ -608,6 +609,45 @@ export default function PortfolioPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Trust Formation Service */}
+                {state.trustFormation && (
+                  <div className="flex justify-between items-start mb-2 p-4 bg-purple-900/20 rounded-lg border border-purple-500/30">
+                    <div>
+                      <p className="text-white font-medium">Trust Formation Service</p>
+                      <p className="text-purple-400 text-sm">{state.trustFormation.formData.jurisdiction}</p>
+                      {state.trustFormation.provideDetailsNow ? (
+                        <>
+                          {state.trustFormation.formData.trustName && (
+                            <p className="text-gray-400 text-xs mt-1">
+                              Trust: {state.trustFormation.formData.trustName}
+                            </p>
+                          )}
+                          {state.trustFormation.formData.trustType && (
+                            <p className="text-gray-400 text-xs">
+                              Type: {state.trustFormation.formData.trustType}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-gray-400 text-xs mt-1 italic">
+                          Details to be provided after payment
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white font-semibold">
+                        £{state.trustFormation.price.toLocaleString()}
+                      </p>
+                      <button
+                        onClick={() => dispatch({ type: 'REMOVE_TRUST_FORMATION' })}
+                        className="text-red-400 hover:text-red-300 text-xs mt-1"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-gray-600 pt-4 mb-6">
@@ -634,7 +674,7 @@ export default function PortfolioPage() {
                   }`}
                 >
                   {canProceedToCheckout() ? 'Proceed to Checkout' :
-                    (state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding)
+                    (state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding && !state.trustFormation)
                       ? 'Add items to your portfolio to checkout'
                       : 'Complete all applications to checkout'}
                 </button>
@@ -655,12 +695,12 @@ export default function PortfolioPage() {
                     </svg>
                     <div>
                       <p className="text-yellow-300 text-sm font-semibold">
-                        {state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding
+                        {state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding && !state.trustFormation
                           ? 'No items in portfolio'
                           : `${getIncompleteApplications().length} Incomplete Application(s)`}
                       </p>
                       <p className="text-yellow-200 text-xs mt-1">
-                        {state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding
+                        {state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding && !state.trustFormation
                           ? 'Add company formation applications or services to proceed to checkout.'
                           : 'Please complete all required fields in your applications before proceeding to checkout.'}
                       </p>

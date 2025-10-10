@@ -119,11 +119,36 @@ export interface MailForwardingService {
   };
 }
 
+export interface TrustFormationService {
+  id: string;
+  dbId?: number; // Database ID from trust_formation_applications table
+  price: number;
+  currency: string;
+  provideDetailsNow: boolean;
+  formData: {
+    contactFirstName: string;
+    contactLastName: string;
+    contactEmail: string;
+    contactPhone: string;
+    jurisdiction: string;
+    jurisdictionPrice: number;
+    trustName?: string;
+    trustType?: string;
+    trustPurpose?: string;
+    settlor?: any;
+    trustees?: any[];
+    beneficiaries?: any[];
+    additionalNotes?: string;
+    specialInstructions?: string;
+  };
+}
+
 export interface PortfolioState {
   applications: CompanyApplication[];
   currentApplicationId: string | null;
   standaloneServices: StandaloneService[];
   mailForwarding: MailForwardingService | null;
+  trustFormation: TrustFormationService | null;
 }
 
 type PortfolioAction =
@@ -143,6 +168,8 @@ type PortfolioAction =
   | { type: 'REMOVE_STANDALONE_SERVICE'; payload: string }
   | { type: 'ADD_MAIL_FORWARDING'; payload: MailForwardingService }
   | { type: 'REMOVE_MAIL_FORWARDING' }
+  | { type: 'ADD_TRUST_FORMATION'; payload: TrustFormationService }
+  | { type: 'REMOVE_TRUST_FORMATION' }
   | { type: 'CLEAR_PORTFOLIO' }
   | { type: 'LOAD_FROM_STORAGE'; payload: PortfolioState };
 
@@ -151,6 +178,7 @@ const initialState: PortfolioState = {
   currentApplicationId: null,
   standaloneServices: [],
   mailForwarding: null,
+  trustFormation: null,
 };
 
 function portfolioReducer(state: PortfolioState, action: PortfolioAction): PortfolioState {
@@ -321,12 +349,25 @@ function portfolioReducer(state: PortfolioState, action: PortfolioAction): Portf
         mailForwarding: null,
       };
 
+    case 'ADD_TRUST_FORMATION':
+      return {
+        ...state,
+        trustFormation: action.payload,
+      };
+
+    case 'REMOVE_TRUST_FORMATION':
+      return {
+        ...state,
+        trustFormation: null,
+      };
+
     case 'CLEAR_PORTFOLIO':
       return {
         applications: [],
         currentApplicationId: null,
         standaloneServices: [],
         mailForwarding: null,
+        trustFormation: null,
       };
 
     case 'LOAD_FROM_STORAGE':

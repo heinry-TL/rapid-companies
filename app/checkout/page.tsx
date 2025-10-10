@@ -27,8 +27,9 @@ export default function CheckoutPage() {
     }, 0);
 
     const mailForwardingTotal = state.mailForwarding ? Number(state.mailForwarding.price) : 0;
+    const trustFormationTotal = state.trustFormation ? Number(state.trustFormation.price) : 0;
 
-    return applicationsTotal + standaloneServicesTotal + mailForwardingTotal;
+    return applicationsTotal + standaloneServicesTotal + mailForwardingTotal + trustFormationTotal;
   };
 
   const totalAmount = getTotalAmount();
@@ -36,7 +37,7 @@ export default function CheckoutPage() {
 
   // Redirect if no items in portfolio
   useEffect(() => {
-    if (state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding) {
+    if (state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding && !state.trustFormation) {
       router.push('/portfolio');
       return;
     }
@@ -61,6 +62,8 @@ export default function CheckoutPage() {
         services_count: state.standaloneServices.length.toString(),
         mail_forwarding_count: state.mailForwarding ? '1' : '0',
         has_mail_forwarding: state.mailForwarding ? 'true' : 'false',
+        trust_formation_count: state.trustFormation ? '1' : '0',
+        has_trust_formation: state.trustFormation ? 'true' : 'false',
         applications: JSON.stringify(state.applications.map(app => ({
           id: app.id,
           jurisdiction: {
@@ -88,13 +91,23 @@ export default function CheckoutPage() {
           currency: state.mailForwarding.currency,
           formData: state.mailForwarding.formData,
         }) : null,
+        trust_formation: state.trustFormation ? JSON.stringify({
+          id: state.trustFormation.id,
+          price: state.trustFormation.price,
+          currency: state.trustFormation.currency,
+          provideDetailsNow: state.trustFormation.provideDetailsNow,
+          email: state.trustFormation.formData.contactEmail,
+          jurisdiction: state.trustFormation.formData.jurisdiction,
+        }) : null,
       };
 
-      // Get customer email from first application or mail forwarding
+      // Get customer email from first application, mail forwarding, or trust formation
       const customerEmail = state.applications.length > 0
         ? state.applications[0].contactDetails?.email
         : state.mailForwarding
         ? state.mailForwarding.formData.email
+        : state.trustFormation
+        ? state.trustFormation.formData.contactEmail
         : undefined;
 
       // DEBUG: Log what we're about to send
@@ -113,7 +126,7 @@ export default function CheckoutPage() {
           currency: currency,
           customer_email: customerEmail,
           metadata: orderMetadata,
-          description: `Offshore Company Formation - ${state.applications.length} application(s), ${state.standaloneServices.length} service(s)${state.mailForwarding ? ', 1 mail forwarding' : ''}`,
+          description: `Offshore Company Formation - ${state.applications.length} application(s), ${state.standaloneServices.length} service(s)${state.mailForwarding ? ', 1 mail forwarding' : ''}${state.trustFormation ? ', 1 trust formation' : ''}`,
         }),
       });
 
@@ -191,6 +204,30 @@ export default function CheckoutPage() {
     );
   }
 
+  // Get dynamic checkout description
+  const getCheckoutDescription = () => {
+    const items = [];
+    if (state.applications.length > 0) {
+      items.push(`${state.applications.length} company formation${state.applications.length > 1 ? 's' : ''}`);
+    }
+    if (state.mailForwarding) {
+      items.push('mail forwarding');
+    }
+    if (state.trustFormation) {
+      items.push('trust formation');
+    }
+    if (state.standaloneServices.length > 0) {
+      items.push(`${state.standaloneServices.length} additional service${state.standaloneServices.length > 1 ? 's' : ''}`);
+    }
+
+    if (items.length === 0) return 'Complete your order';
+    if (items.length === 1) return `Complete your ${items[0]} order`;
+    if (items.length === 2) return `Complete your ${items[0]} and ${items[1]} order`;
+
+    const lastItem = items.pop();
+    return `Complete your ${items.join(', ')}, and ${lastItem} order`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 pt-38 py-20">
       <div className="container mx-auto px-4">
@@ -201,7 +238,7 @@ export default function CheckoutPage() {
               Secure <span className="text-blue-400">Checkout</span>
             </h1>
             <p className="text-gray-300 text-lg">
-              Complete your offshore company formation order
+              {getCheckoutDescription()}
             </p>
           </div>
 
@@ -217,7 +254,9 @@ export default function CheckoutPage() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="text-white font-medium">{application.jurisdiction.name}</p>
-                        <p className="text-gray-400 text-sm">Company Formation</p>
+                        <p className="text-gray-400 text-sm">
+                          {application.companyDetails?.companyName || 'Company Formation'}
+                        </p>
                       </div>
                       <p className="text-white">
                         {formatCurrency(application.jurisdiction.price, application.jurisdiction.currency)}
@@ -264,6 +303,39 @@ export default function CheckoutPage() {
                       </div>
                       <p className="text-white font-semibold">
                         £{state.mailForwarding.price.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Trust Formation Service */}
+                {state.trustFormation && (
+                  <div className="mb-2 p-4 bg-purple-900/20 rounded-lg border border-purple-500/30">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-white font-medium">Trust Formation Service</p>
+                        <p className="text-purple-400 text-sm">{state.trustFormation.formData.jurisdiction}</p>
+                        {state.trustFormation.provideDetailsNow ? (
+                          <>
+                            {state.trustFormation.formData.trustName && (
+                              <p className="text-gray-400 text-xs mt-1">
+                                Trust: {state.trustFormation.formData.trustName}
+                              </p>
+                            )}
+                            {state.trustFormation.formData.trustType && (
+                              <p className="text-gray-400 text-xs">
+                                Type: {state.trustFormation.formData.trustType}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-gray-400 text-xs mt-1 italic">
+                            Details to be provided after payment
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-white font-semibold">
+                        £{state.trustFormation.price.toLocaleString()}
                       </p>
                     </div>
                   </div>
