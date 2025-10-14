@@ -6,22 +6,28 @@ import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { AdminUser } from '@/lib/admin-auth';
 
-interface AdminSidebarProps {
-  user: AdminUser;
-}
-
+// --- Categorised navigation ---
 const navigation = [
-  { name: 'Dashboard', href: '/alpha-console', icon: 'dashboard' },
-  { name: 'Orders', href: '/alpha-console/orders', icon: 'orders' },
-  { name: 'Applications', href: '/alpha-console/applications', icon: 'applications' },
-  { name: 'Trust Formations', href: '/alpha-console/trust-formations', icon: 'trust' },
-  { name: 'Mail Forwarding', href: '/alpha-console/mail-forwarding', icon: 'mail' },
-  { name: 'Standalone Services', href: '/alpha-console/standalone-services', icon: 'standalone-services' },
-  { name: 'Jurisdictions', href: '/alpha-console/jurisdictions', icon: 'location' },
-  { name: 'Additional Services', href: '/alpha-console/services', icon: 'services' },
-  { name: 'Professional Services', href: '/alpha-console/professional-services', icon: 'professional-services' },
-  { name: 'Users', href: '/alpha-console/users', icon: 'users' },
-  { name: 'Settings', href: '/alpha-console/settings', icon: 'settings' },
+  {
+    category: 'Order Details',
+    items: [
+      { name: 'Dashboard', href: '/alpha-console', icon: 'dashboard' },
+      { name: 'Orders', href: '/alpha-console/orders', icon: 'orders' },
+      { name: 'Applications', href: '/alpha-console/applications', icon: 'applications' },
+      { name: 'Trust Formations', href: '/alpha-console/trust-formations', icon: 'trust' },
+      { name: 'Mail Forwarding', href: '/alpha-console/mail-forwarding', icon: 'mail' },
+      { name: 'Standalone Services', href: '/alpha-console/standalone-services', icon: 'standalone-services' },
+    ],
+  },
+  {
+    category: 'Content Management',
+    items: [
+      { name: 'Jurisdictions', href: '/alpha-console/jurisdictions', icon: 'location' },
+      { name: 'Additional Services', href: '/alpha-console/services', icon: 'services' },
+      { name: 'Professional Services', href: '/alpha-console/professional-services', icon: 'professional-services' },
+      { name: 'Settings', href: '/alpha-console/settings', icon: 'settings' },
+    ],
+  },
 ];
 
 const getIcon = (iconName: string) => {
@@ -103,6 +109,10 @@ const getIcon = (iconName: string) => {
   }
 };
 
+interface AdminSidebarProps {
+  user: AdminUser;
+}
+
 export default function AdminSidebar({ user }: AdminSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
@@ -153,19 +163,28 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
                 className="h-12 w-auto"
               />
             </div>
-            <nav className="mt-5 px-2 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${pathname === item.href
-                    ? 'bg-blue-600 text-white'
-                    : 'text-white hover:bg-gray-700 hover:text-white'
-                    }`}
-                >
-                  {getIcon(item.icon)}
-                  <span className="ml-3">{item.name}</span>
-                </Link>
+            <nav className="mt-5 px-2 space-y-6">
+              {navigation.map((section) => (
+                <div key={section.category}>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest px-2">
+                    {section.category}
+                  </h4>
+                  <div className="space-y-1">
+                    {section.items.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${pathname === item.href
+                          ? 'bg-blue-600 text-white'
+                          : 'text-white hover:bg-gray-700 hover:text-white'
+                          }`}
+                      >
+                        {getIcon(item.icon)}
+                        <span className="ml-3">{item.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               ))}
             </nav>
           </div>
@@ -198,19 +217,28 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
                   className="h-12 w-auto"
                 />
               </div>
-              <nav className="mt-5 flex-1 px-2 bg-gray-900 space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${pathname === item.href
-                      ? 'bg-blue-600 text-white'
-                      : 'text-white hover:bg-gray-700 hover:text-white'
-                      }`}
-                  >
-                    {getIcon(item.icon)}
-                    <span className="ml-3">{item.name}</span>
-                  </Link>
+              <nav className="mt-5 flex-1 px-2 bg-gray-900 space-y-6">
+                {navigation.map((section) => (
+                  <div key={section.category}>
+                    <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest px-2">
+                      {section.category}
+                    </h4>
+                    <div className="space-y-1">
+                      {section.items.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${pathname === item.href
+                            ? 'bg-blue-600 text-white'
+                            : 'text-white hover:bg-gray-700 hover:text-white'
+                            }`}
+                        >
+                          {getIcon(item.icon)}
+                          <span className="ml-3">{item.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </nav>
             </div>
