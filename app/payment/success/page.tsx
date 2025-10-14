@@ -99,7 +99,7 @@ function PaymentSuccessContent() {
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Payment <span className="text-green-400">Successful!</span>
             </h1>
-            <p className="text-gray-300 text-lg">
+            <p className="text-white text-lg">
               Thank you for your order. Your offshore company formation is now in progress.
             </p>
           </div>
@@ -190,7 +190,7 @@ function PaymentSuccessContent() {
             </button>
             <button
               onClick={() => router.push('/contact')}
-              className="border border-gray-600 text-gray-300 hover:bg-gray-700 font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
+              className="border border-gray-600 text-white hover:bg-gray-700 font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
             >
               Contact Support
             </button>

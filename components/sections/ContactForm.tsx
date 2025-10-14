@@ -155,16 +155,15 @@ export default function ContactForm({
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               Full Name *
             </label>
             <input
               id="name"
               type="text"
-              className={`w-full px-4 py-2 bg-gray-700 border ${
-                errors.name ? "border-red-500" : "border-gray-600"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
+              className={`w-full px-4 py-2 bg-gray-700 border ${errors.name ? "border-red-500" : "border-gray-600"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               placeholder="John Doe"
               {...register("name")}
             />
@@ -177,16 +176,15 @@ export default function ContactForm({
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               Email Address *
             </label>
             <input
               id="email"
               type="email"
-              className={`w-full px-4 py-2 bg-gray-700 border ${
-                errors.email ? "border-red-500" : "border-gray-600"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
+              className={`w-full px-4 py-2 bg-gray-700 border ${errors.email ? "border-red-500" : "border-gray-600"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               placeholder="john@example.com"
               {...register("email")}
             />
@@ -201,16 +199,15 @@ export default function ContactForm({
           <div>
             <label
               htmlFor="phone"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               Phone Number *
             </label>
             <input
               id="phone"
               type="tel"
-              className={`w-full px-4 py-2 bg-gray-700 border ${
-                errors.phone ? "border-red-500" : "border-gray-600"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
+              className={`w-full px-4 py-2 bg-gray-700 border ${errors.phone ? "border-red-500" : "border-gray-600"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               placeholder="+1 (555) 123-4567"
               {...register("phone")}
             />
@@ -225,16 +222,15 @@ export default function ContactForm({
           <div>
             <label
               htmlFor="companyName"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               Desired Company Name *
             </label>
             <input
               id="companyName"
               type="text"
-              className={`w-full px-4 py-2 bg-gray-700 border ${
-                errors.companyName ? "border-red-500" : "border-gray-600"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
+              className={`w-full px-4 py-2 bg-gray-700 border ${errors.companyName ? "border-red-500" : "border-gray-600"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               placeholder="Your Company Ltd"
               {...register("companyName")}
             />
@@ -249,15 +245,14 @@ export default function ContactForm({
           <div>
             <label
               htmlFor="country"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               Jurisdiction *
             </label>
             <select
               id="country"
-              className={`w-full px-4 py-2 bg-gray-700 border ${
-                errors.country ? "border-red-500" : "border-gray-600"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
+              className={`w-full px-4 py-2 bg-gray-700 border ${errors.country ? "border-red-500" : "border-gray-600"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               {...register("country")}
               disabled={loading}
             >
@@ -282,15 +277,14 @@ export default function ContactForm({
           <div>
             <label
               htmlFor="serviceType"
-              className="block text-sm font-medium text-gray-300 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               Service Type *
             </label>
             <select
               id="serviceType"
-              className={`w-full px-4 py-2 bg-gray-700 border ${
-                errors.serviceType ? "border-red-500" : "border-gray-600"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
+              className={`w-full px-4 py-2 bg-gray-700 border ${errors.serviceType ? "border-red-500" : "border-gray-600"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white`}
               {...register("serviceType")}
               disabled={loading}
             >
@@ -316,7 +310,7 @@ export default function ContactForm({
         <div className="mt-6">
           <label
             htmlFor="message"
-            className="block text-sm font-medium text-gray-300 mb-1"
+            className="block text-sm font-medium text-white mb-1"
           >
             Additional Information
           </label>

@@ -160,7 +160,7 @@ function ContactForm() {
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Contact Our <span className="text-blue-400">Experts</span>
           </h1>
-          <p className="text-gray-300 max-w-3xl mx-auto text-lg">
+          <p className="text-white max-w-3xl mx-auto text-lg">
             Get personalized advice from our offshore formation specialists.
             We&apos;ll help you choose the right jurisdiction and structure for your business needs.
           </p>
@@ -197,7 +197,7 @@ function ContactForm() {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="name" className="block text-sm font-medium text-white mb-2">
                       Full Name *
                     </label>
                     <input
@@ -213,7 +213,7 @@ function ContactForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
                       Email Address *
                     </label>
                     <input
@@ -229,7 +229,7 @@ function ContactForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="phone" className="block text-sm font-medium text-white mb-2">
                       Phone Number *
                     </label>
                     <input
@@ -245,7 +245,7 @@ function ContactForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="companyName" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="companyName" className="block text-sm font-medium text-white mb-2">
                       Company Name
                     </label>
                     <input
@@ -258,7 +258,7 @@ function ContactForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="jurisdiction" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="jurisdiction" className="block text-sm font-medium text-white mb-2">
                       Preferred Jurisdiction
                     </label>
                     <select
@@ -283,7 +283,7 @@ function ContactForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="serviceType" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="serviceType" className="block text-sm font-medium text-white mb-2">
                       Service Type
                     </label>
                     <select
@@ -309,7 +309,7 @@ function ContactForm() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-white mb-2">
                     Message *
                   </label>
                   <textarea

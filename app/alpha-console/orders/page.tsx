@@ -171,7 +171,7 @@ export default function OrdersPage() {
       <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-900 mb-2">
               Search
             </label>
             <input
@@ -180,7 +180,7 @@ export default function OrdersPage() {
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               placeholder="Order ID, Email, Payment ID..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full text-gray-900 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -192,13 +192,13 @@ export default function OrdersPage() {
               id="status"
               value={filters.status}
               onChange={(e) => handleFilterChange('status', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
             >
-              <option value="">All Status</option>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-              <option value="refunded">Refunded</option>
+              <option value="" className="text-gray-900">All Status</option>
+              <option value="paid" className="text-gray-900">Paid</option>
+              <option value="pending" className="text-gray-900">Pending</option>
+              <option value="failed" className="text-gray-900">Failed</option>
+              <option value="refunded" className="text-gray-900">Refunded</option>
             </select>
           </div>
 

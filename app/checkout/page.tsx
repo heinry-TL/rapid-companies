@@ -105,10 +105,10 @@ export default function CheckoutPage() {
       const customerEmail = state.applications.length > 0
         ? state.applications[0].contactDetails?.email
         : state.mailForwarding
-        ? state.mailForwarding.formData.email
-        : state.trustFormation
-        ? state.trustFormation.formData.contactEmail
-        : undefined;
+          ? state.mailForwarding.formData.email
+          : state.trustFormation
+            ? state.trustFormation.formData.contactEmail
+            : undefined;
 
       // DEBUG: Log what we're about to send
       console.log('=== CHECKOUT SENDING TO API ===');
@@ -237,7 +237,7 @@ export default function CheckoutPage() {
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Secure <span className="text-blue-400">Checkout</span>
             </h1>
-            <p className="text-gray-300 text-lg">
+            <p className="text-white text-lg">
               {getCheckoutDescription()}
             </p>
           </div>
@@ -266,7 +266,7 @@ export default function CheckoutPage() {
                     {application.additionalServices.map((service) => (
                       <div key={service.id} className="flex justify-between items-center pl-4">
                         <p className="text-gray-400 text-sm">{service.name}</p>
-                        <p className="text-gray-300 text-sm">
+                        <p className="text-white text-sm">
                           £{service.price.toLocaleString()}
                         </p>
                       </div>

@@ -189,7 +189,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
             {/* Entity Type */}
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">
+              <label className="block text-white mb-2 text-sm font-medium">
                 I am purchasing this service as:
               </label>
               <div className="flex gap-4">
@@ -202,7 +202,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
                     onChange={(e) => updateFormData('entityType', e.target.value)}
                     className="mr-2"
                   />
-                  <span className="text-gray-300">Company</span>
+                  <span className="text-white">Company</span>
                 </label>
                 <label className="flex items-center cursor-pointer">
                   <input
@@ -213,14 +213,14 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
                     onChange={(e) => updateFormData('entityType', e.target.value)}
                     className="mr-2"
                   />
-                  <span className="text-gray-300">Individual</span>
+                  <span className="text-white">Individual</span>
                 </label>
               </div>
             </div>
 
             {/* Entity Name */}
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">
+              <label className="block text-white mb-2 text-sm font-medium">
                 {formData.entityType === 'company' ? 'Company Name' : 'Full Name'} *
               </label>
               <input
@@ -235,7 +235,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
             {/* Contact Person */}
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">
+              <label className="block text-white mb-2 text-sm font-medium">
                 Contact Person *
               </label>
               <input
@@ -251,7 +251,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
             {/* Email and Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-gray-300 mb-2 text-sm font-medium">
+                <label className="block text-white mb-2 text-sm font-medium">
                   Email Address *
                 </label>
                 <input
@@ -265,7 +265,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
               </div>
 
               <div>
-                <label className="block text-gray-300 mb-2 text-sm font-medium">
+                <label className="block text-white mb-2 text-sm font-medium">
                   Phone Number *
                 </label>
                 <input
@@ -284,7 +284,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
               <h5 className="text-white font-medium">Address</h5>
 
               <div>
-                <label className="block text-gray-300 mb-2 text-sm">Address Line 1 *</label>
+                <label className="block text-white mb-2 text-sm">Address Line 1 *</label>
                 <input
                   type="text"
                   value={formData.address.line1}
@@ -296,7 +296,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
               </div>
 
               <div>
-                <label className="block text-gray-300 mb-2 text-sm">Address Line 2</label>
+                <label className="block text-white mb-2 text-sm">Address Line 2</label>
                 <input
                   type="text"
                   value={formData.address.line2}
@@ -308,7 +308,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-300 mb-2 text-sm">City *</label>
+                  <label className="block text-white mb-2 text-sm">City *</label>
                   <input
                     type="text"
                     value={formData.address.city}
@@ -320,7 +320,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
                 </div>
 
                 <div>
-                  <label className="block text-gray-300 mb-2 text-sm">County/State</label>
+                  <label className="block text-white mb-2 text-sm">County/State</label>
                   <input
                     type="text"
                     value={formData.address.county}
@@ -333,7 +333,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-300 mb-2 text-sm">Postcode *</label>
+                  <label className="block text-white mb-2 text-sm">Postcode *</label>
                   <input
                     type="text"
                     value={formData.address.postcode}
@@ -345,7 +345,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
                 </div>
 
                 <div>
-                  <label className="block text-gray-300 mb-2 text-sm">Country</label>
+                  <label className="block text-white mb-2 text-sm">Country</label>
                   <input
                     type="text"
                     value={formData.address.country}
@@ -383,7 +383,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
             {/* Jurisdiction Selection */}
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">
+              <label className="block text-white mb-2 text-sm font-medium">
                 Select Jurisdiction *
               </label>
               <select
@@ -405,7 +405,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
             {/* Forwarding Frequency */}
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">
+              <label className="block text-white mb-2 text-sm font-medium">
                 Mail Forwarding Frequency *
               </label>
               <select
@@ -421,7 +421,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
             {/* Service Users */}
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">
+              <label className="block text-white mb-2 text-sm font-medium">
                 Who will use this service? *
               </label>
               <textarea
@@ -435,7 +435,7 @@ export default function MailForwardingForm({ onSubmit, onCancel, availableJurisd
 
             {/* Additional Info */}
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">
+              <label className="block text-white mb-2 text-sm font-medium">
                 Additional Information
               </label>
               <textarea

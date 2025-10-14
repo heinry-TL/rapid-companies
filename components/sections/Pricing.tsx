@@ -139,12 +139,11 @@ export default function Pricing() {
           {pricingPlans.map((plan, index) => (
             <div
               key={plan.id}
-              ref={(el) => {cardRefs.current[index] = el}}
-              className={`rounded-xl p-8 transition-all duration-300 relative ${
-                plan.popular
+              ref={(el) => { cardRefs.current[index] = el }}
+              className={`rounded-xl p-8 transition-all duration-300 relative ${plan.popular
                   ? "bg-gradient-to-b from-blue-900 to-gray-800 border-2 border-blue-500 transform hover:-translate-y-2"
                   : "bg-gray-900 border border-gray-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/10"
-              }`}
+                }`}
             >
               {plan.popular && (
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white text-xs font-bold px-4 py-1 rounded-full">
@@ -182,18 +181,17 @@ export default function Pricing() {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <span className="text-gray-300">{feature}</span>
+                    <span className="text-white">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               <Link
                 href={plan.link}
-                className={`w-full block text-center py-3 px-4 rounded-lg font-medium transition-colors ${
-                  plan.popular
+                className={`w-full block text-center py-3 px-4 rounded-lg font-medium transition-colors ${plan.popular
                     ? "bg-blue-500 hover:bg-blue-600 text-white"
                     : "bg-gray-700 hover:bg-gray-600 text-white"
-                }`}
+                  }`}
               >
                 {plan.cta}
               </Link>

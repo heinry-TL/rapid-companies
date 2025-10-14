@@ -405,7 +405,7 @@ function ServicesContent() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
                 Offshore Company Formation
               </h2>
-              <p className="text-gray-300 mb-6 text-lg">
+              <p className="text-white mb-6 text-lg">
                 Establish your offshore presence in the world&apos;s premier business jurisdictions. We offer incorporation services in over 15+ jurisdictions, each carefully selected for their business-friendly regulations and tax advantages.
               </p>
               <div className="space-y-4 mb-8">
@@ -449,7 +449,7 @@ function ServicesContent() {
             </div>
             <div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
               <h3 className="text-2xl font-bold text-white mb-6">Formation Package Includes:</h3>
-              <ul className="space-y-3 text-gray-300">
+              <ul className="space-y-3 text-white">
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -519,7 +519,7 @@ function ServicesContent() {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
                 Offshore Banking Services
               </h2>
-              <p className="text-gray-300 mb-6 text-lg">
+              <p className="text-white mb-6 text-lg">
                 Secure your financial future with multi-currency offshore bank accounts in the world&apos;s most stable banking jurisdictions. Our banking specialists facilitate account opening with top-tier international banks.
               </p>
               <div className="space-y-4 mb-8">
@@ -527,25 +527,25 @@ function ServicesContent() {
                   <svg className="w-6 h-6 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-gray-300">Multi-currency accounts (USD, EUR, GBP, CHF)</span>
+                  <span className="text-white">Multi-currency accounts (USD, EUR, GBP, CHF)</span>
                 </div>
                 <div className="flex items-center">
                   <svg className="w-6 h-6 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-gray-300">Online banking & debit cards</span>
+                  <span className="text-white">Online banking & debit cards</span>
                 </div>
                 <div className="flex items-center">
                   <svg className="w-6 h-6 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-gray-300">Investment & wealth management services</span>
+                  <span className="text-white">Investment & wealth management services</span>
                 </div>
                 <div className="flex items-center">
                   <svg className="w-6 h-6 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-gray-300">Trade finance & letters of credit</span>
+                  <span className="text-white">Trade finance & letters of credit</span>
                 </div>
               </div>
               <Link
@@ -572,7 +572,7 @@ function ServicesContent() {
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               Additional Professional Services
             </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">
+            <p className="text-white max-w-2xl mx-auto">
               Complete your offshore setup with our comprehensive range of supporting services.
             </p>
           </div>
@@ -588,20 +588,20 @@ function ServicesContent() {
             </div>
           ) : (
             <div className={`grid gap-8 ${professionalServices.length === 1
-                ? 'grid-cols-1 max-w-md mx-auto'
-                : professionalServices.length === 2
-                  ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
-                  : professionalServices.length === 3
-                    ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                    : professionalServices.length === 4
-                      ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4'
-                      : professionalServices.length === 5
+              ? 'grid-cols-1 max-w-md mx-auto'
+              : professionalServices.length === 2
+                ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+                : professionalServices.length === 3
+                  ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                  : professionalServices.length === 4
+                    ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4'
+                    : professionalServices.length === 5
+                      ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                      : professionalServices.length % 3 === 0
                         ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                        : professionalServices.length % 3 === 0
-                          ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                          : professionalServices.length % 4 === 0
-                            ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
-                            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                        : professionalServices.length % 4 === 0
+                          ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+                          : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
               }`}>
               {professionalServices.map((service) => (
                 <div
@@ -616,7 +616,7 @@ function ServicesContent() {
                   <h3 className="text-xl font-semibold text-white mb-3 line-clamp-2">{service.name}</h3>
                   <p className="text-gray-400 mb-5 line-clamp-3">{service.description}</p>
                   {service.features && service.features.length > 0 && (
-                    <ul className="text-sm text-gray-300 space-y-2 mb-6">
+                    <ul className="text-sm text-white space-y-2 mb-6">
                       {service.features.slice(0, 3).map((feature, index) => (
                         <li key={index} className="line-clamp-1">• {feature}</li>
                       ))}
@@ -727,7 +727,7 @@ function ServicesContent() {
                     {/* Description */}
                     <div className="mb-8">
                       <h4 className="text-lg font-semibold text-white mb-3">Overview</h4>
-                      <p className="text-gray-300 leading-relaxed">{selectedService.full_description || selectedService.description}</p>
+                      <p className="text-white leading-relaxed">{selectedService.full_description || selectedService.description}</p>
                     </div>
 
                     {/* Features and Benefits Grid */}
@@ -742,7 +742,7 @@ function ServicesContent() {
                                 <svg className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="text-gray-300">{feature}</span>
+                                <span className="text-white">{feature}</span>
                               </li>
                             ))}
                           </ul>
@@ -759,7 +759,7 @@ function ServicesContent() {
                                 <svg className="h-5 w-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                                 </svg>
-                                <span className="text-gray-300">{benefit}</span>
+                                <span className="text-white">{benefit}</span>
                               </li>
                             ))}
                           </ul>
@@ -823,7 +823,7 @@ function ServicesContent() {
                     {/* Contact Information View */}
                     <div className="mb-8">
                       <h4 className="text-lg font-semibold text-white mb-3">Get in Touch</h4>
-                      <p className="text-gray-300 leading-relaxed mb-6">
+                      <p className="text-white leading-relaxed mb-6">
                         Contact us directly to discuss your virtual office needs. Our team is ready to assist you.
                       </p>
 

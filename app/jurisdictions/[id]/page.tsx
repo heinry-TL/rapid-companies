@@ -151,7 +151,7 @@ export default function JurisdictionDetailPage() {
             )}
           </div>
 
-          <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
+          <p className="text-white max-w-3xl mx-auto text-lg leading-relaxed">
             {jurisdiction.description}
           </p>
         </div>
@@ -166,7 +166,7 @@ export default function JurisdictionDetailPage() {
                     <svg className="w-5 h-5 text-green-400 mt-1 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-gray-300">{feature}</span>
+                    <span className="text-white">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -174,7 +174,7 @@ export default function JurisdictionDetailPage() {
 
             <div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
               <h2 className="text-2xl font-bold text-white mb-6">Why Choose {jurisdiction.name}?</h2>
-              <div className="space-y-4 text-gray-300">
+              <div className="space-y-4 text-white">
                 {jurisdiction.processing_time && (
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-4 flex-shrink-0"></div>

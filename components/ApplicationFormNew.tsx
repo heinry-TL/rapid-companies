@@ -256,7 +256,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   First Name *
                 </label>
                 <input
@@ -274,7 +274,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Last Name *
                 </label>
                 <input
@@ -292,7 +292,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Email Address *
                 </label>
                 <input
@@ -313,9 +313,8 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
                       setEmailError('');
                     }
                   }}
-                  className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                    emailError ? 'border-red-500 focus:ring-red-500' : 'border-gray-600 focus:ring-blue-500'
-                  }`}
+                  className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${emailError ? 'border-red-500 focus:ring-red-500' : 'border-gray-600 focus:ring-blue-500'
+                    }`}
                   placeholder="your@email.com"
                 />
                 {emailError && (
@@ -324,7 +323,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Phone Number *
                 </label>
                 <input
@@ -375,7 +374,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Proposed Company Name *
                 </label>
                 <input
@@ -393,7 +392,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Alternative Name
                 </label>
                 <input
@@ -411,7 +410,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Authorized Capital ({application.jurisdiction.currency})
                 </label>
                 <input
@@ -429,7 +428,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Number of Shares
                 </label>
                 <input
@@ -448,7 +447,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Business Activity/Purpose *
               </label>
               <textarea
@@ -516,7 +515,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       First Name *
                     </label>
                     <input
@@ -529,7 +528,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Last Name *
                     </label>
                     <input
@@ -542,7 +541,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Nationality *
                     </label>
                     <input
@@ -555,7 +554,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Passport Number *
                     </label>
                     <input
@@ -614,7 +613,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       First Name *
                     </label>
                     <input
@@ -627,7 +626,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Last Name *
                     </label>
                     <input
@@ -640,7 +639,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Share Percentage *
                     </label>
                     <input
@@ -656,7 +655,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Nationality *
                     </label>
                     <input
@@ -697,7 +696,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
               <h4 className="text-lg font-medium text-white mb-4">Order Summary</h4>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-300">{application.jurisdiction.name} Company Formation</span>
+                  <span className="text-white">{application.jurisdiction.name} Company Formation</span>
                   <span className="text-white font-semibold">
                     {formatCurrency(application.jurisdiction.price, application.jurisdiction.currency)}
                   </span>
@@ -705,7 +704,7 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
 
                 {application.additionalServices.map((service) => (
                   <div key={service.id} className="flex justify-between">
-                    <span className="text-gray-300">{service.name}</span>
+                    <span className="text-white">{service.name}</span>
                     <span className="text-white">{formatCurrency(service.price, service.currency)}</span>
                   </div>
                 ))}
@@ -746,18 +745,16 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
           {steps.map((step) => (
             <div
               key={step.id}
-              className={`flex items-center ${
-                step.id < steps.length ? 'flex-1' : ''
-              }`}
+              className={`flex items-center ${step.id < steps.length ? 'flex-1' : ''
+                }`}
             >
               <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  step.id === currentStep
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${step.id === currentStep
                     ? 'border-blue-500 bg-blue-500 text-white'
                     : step.id < currentStep
-                    ? 'border-green-500 bg-green-500 text-white'
-                    : 'border-gray-600 bg-gray-800 text-gray-400'
-                }`}
+                      ? 'border-green-500 bg-green-500 text-white'
+                      : 'border-gray-600 bg-gray-800 text-gray-400'
+                  }`}
               >
                 {step.id < currentStep ? (
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -770,9 +767,8 @@ export default function ApplicationFormNew({ application }: ApplicationFormProps
 
               {step.id < steps.length && (
                 <div
-                  className={`flex-1 h-1 mx-4 ${
-                    step.id < currentStep ? 'bg-green-500' : 'bg-gray-600'
-                  }`}
+                  className={`flex-1 h-1 mx-4 ${step.id < currentStep ? 'bg-green-500' : 'bg-gray-600'
+                    }`}
                 />
               )}
             </div>

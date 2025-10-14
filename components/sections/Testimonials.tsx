@@ -144,7 +144,7 @@ export default function Testimonials() {
                     </div>
 
                     {/* Testimonial content */}
-                    <p className="text-gray-300 text-lg mb-6">
+                    <p className="text-white text-lg mb-6">
                       &quot;{testimonial.quote}&quot;
                     </p>
 
@@ -153,11 +153,10 @@ export default function Testimonials() {
                       {[...Array(5)].map((_, i) => (
                         <svg
                           key={i}
-                          className={`h-5 w-5 ${
-                            i < testimonial.rating
+                          className={`h-5 w-5 ${i < testimonial.rating
                               ? "text-yellow-400"
                               : "text-gray-600"
-                          }`}
+                            }`}
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -239,9 +238,8 @@ export default function Testimonials() {
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`h-2 rounded-full transition-all ${
-                  index === activeIndex ? "w-8 bg-blue-500" : "w-2 bg-gray-600"
-                }`}
+                className={`h-2 rounded-full transition-all ${index === activeIndex ? "w-8 bg-blue-500" : "w-2 bg-gray-600"
+                  }`}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
             ))}

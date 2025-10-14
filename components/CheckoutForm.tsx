@@ -119,7 +119,7 @@ export default function CheckoutForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Name Input */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="name" className="block text-sm font-medium text-white mb-2">
           Full Name
         </label>
         <input
@@ -135,7 +135,7 @@ export default function CheckoutForm({
 
       {/* Email Input */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
           Email Address
         </label>
         <input
@@ -151,7 +151,7 @@ export default function CheckoutForm({
 
       {/* Phone Input */}
       <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="phone" className="block text-sm font-medium text-white mb-2">
           Phone Number
         </label>
         <input
@@ -167,7 +167,7 @@ export default function CheckoutForm({
 
       {/* Billing Address */}
       <div>
-        <h3 className="text-sm font-medium text-gray-300 mb-2">Billing Address</h3>
+        <h3 className="text-sm font-medium text-white mb-2">Billing Address</h3>
         <AddressElement
           options={{
             mode: 'billing',
@@ -178,14 +178,14 @@ export default function CheckoutForm({
 
       {/* Payment Element */}
       <div>
-        <h3 className="text-sm font-medium text-gray-300 mb-2">Payment Information</h3>
+        <h3 className="text-sm font-medium text-white mb-2">Payment Information</h3>
         <PaymentElement id="payment-element" options={paymentElementOptions} />
       </div>
 
       {/* Order Summary */}
       <div className="bg-gray-800 rounded-lg p-4 border border-gray-600">
         <div className="flex justify-between items-center">
-          <span className="text-gray-300">Total Amount</span>
+          <span className="text-white">Total Amount</span>
           <span className="text-xl font-bold text-white">
             {new Intl.NumberFormat('en-US', {
               style: 'currency',
@@ -214,11 +214,10 @@ export default function CheckoutForm({
       <button
         type="submit"
         disabled={isLoading || !stripe || !elements}
-        className={`w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${
-          isLoading || !stripe || !elements
+        className={`w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${isLoading || !stripe || !elements
             ? 'bg-gray-600 cursor-not-allowed text-gray-400'
             : 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-[1.02] shadow-lg hover:shadow-xl'
-        }`}
+          }`}
       >
         {isLoading ? (
           <div className="flex items-center justify-center">

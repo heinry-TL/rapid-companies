@@ -107,16 +107,16 @@ export default function PortfolioPage() {
   const isApplicationComplete = (application: any): boolean => {
     // Check required contact details
     if (!application.contactDetails.firstName ||
-        !application.contactDetails.lastName ||
-        !application.contactDetails.email ||
-        !application.contactDetails.phone ||
-        !application.contactDetails.address.street) {
+      !application.contactDetails.lastName ||
+      !application.contactDetails.email ||
+      !application.contactDetails.phone ||
+      !application.contactDetails.address.street) {
       return false;
     }
 
     // Check required company details
     if (!application.companyDetails.proposedName ||
-        !application.companyDetails.businessActivity) {
+      !application.companyDetails.businessActivity) {
       return false;
     }
 
@@ -314,7 +314,7 @@ export default function PortfolioPage() {
   //                         />
   //                       </div>
   //                     </div>
-  //                     <p className="text-gray-300 text-sm mb-3">{service.description}</p>
+  //                     <p className="text-white text-sm mb-3">{service.description}</p>
   //                     <div className="flex justify-between items-end">
   //                       <div>
   //                         <p className="text-blue-400 font-bold text-lg">
@@ -346,7 +346,7 @@ export default function PortfolioPage() {
   //                 <div className="flex gap-3">
   //                   <button
   //                     onClick={() => setShowServicesModal(false)}
-  //                     className="px-6 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+  //                     className="px-6 py-2 border border-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
   //                   >
   //                     Cancel
   //                   </button>
@@ -377,7 +377,7 @@ export default function PortfolioPage() {
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Your Formation <span className="text-blue-400">Portfolio</span>
           </h1>
-          <p className="text-gray-300 max-w-3xl mx-auto text-lg">
+          <p className="text-white max-w-3xl mx-auto text-lg">
             Review your company formation applications and proceed to payment when ready.
           </p>
         </div>
@@ -554,7 +554,7 @@ export default function PortfolioPage() {
                     {application.additionalServices.map((service) => (
                       <div key={service.id} className="flex justify-between items-center pl-4">
                         <p className="text-gray-400 text-sm">{service.name}</p>
-                        <p className="text-gray-300 text-sm">
+                        <p className="text-white text-sm">
                           £{service.price.toLocaleString()}
                         </p>
                       </div>
@@ -667,11 +667,10 @@ export default function PortfolioPage() {
                     }
                   }}
                   disabled={!canProceedToCheckout()}
-                  className={`w-full font-semibold py-3 px-6 rounded-lg transition-colors duration-200 ${
-                    canProceedToCheckout()
+                  className={`w-full font-semibold py-3 px-6 rounded-lg transition-colors duration-200 ${canProceedToCheckout()
                       ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-gray-600 cursor-not-allowed text-gray-400'
-                  }`}
+                    }`}
                 >
                   {canProceedToCheckout() ? 'Proceed to Checkout' :
                     (state.applications.length === 0 && state.standaloneServices.length === 0 && !state.mailForwarding && !state.trustFormation)
@@ -681,7 +680,7 @@ export default function PortfolioPage() {
 
                 <button
                   onClick={() => router.push('/contact')}
-                  className="w-full border border-gray-600 text-gray-300 hover:bg-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                  className="w-full border border-gray-600 text-white hover:bg-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                 >
                   Get Expert Consultation
                 </button>
@@ -757,39 +756,38 @@ export default function PortfolioPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {additionalServices.map((service) => (
-                  <div
-                    key={service.id}
-                    className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                      selectedServices.includes(service.id)
-                        ? 'border-blue-500 bg-blue-900/20'
-                        : 'border-gray-600 hover:border-gray-500'
-                    }`}
-                    onClick={() => handleServiceToggle(service.id)}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-white font-semibold">{service.name}</h3>
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedServices.includes(service.id)}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleServiceToggle(service.id);
-                          }}
-                          className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-                        />
+                    <div
+                      key={service.id}
+                      className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${selectedServices.includes(service.id)
+                          ? 'border-blue-500 bg-blue-900/20'
+                          : 'border-gray-600 hover:border-gray-500'
+                        }`}
+                      onClick={() => handleServiceToggle(service.id)}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-white font-semibold">{service.name}</h3>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedServices.includes(service.id)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleServiceToggle(service.id);
+                            }}
+                            className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-white text-sm mb-3">{service.description}</p>
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <p className="text-blue-400 font-bold text-lg">
+                            £{service.basePrice.toLocaleString()}
+                          </p>
+                          <p className="text-gray-500 text-xs">{service.note}</p>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-gray-300 text-sm mb-3">{service.description}</p>
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <p className="text-blue-400 font-bold text-lg">
-                          £{service.basePrice.toLocaleString()}
-                        </p>
-                        <p className="text-gray-500 text-xs">{service.note}</p>
-                      </div>
-                    </div>
-                  </div>
                   ))}
                 </div>
               )}
@@ -813,7 +811,7 @@ export default function PortfolioPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowServicesModal(false)}
-                    className="px-6 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                    className="px-6 py-2 border border-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     Cancel
                   </button>

@@ -12,6 +12,10 @@ interface DatabaseStats {
   monthlyOrders: number;
   monthlyRevenue: number;
   totalJurisdictions: number;
+  totalTrustFormations: number;
+  monthlyTrustFormations: number;
+  totalMailForwarding: number;
+  monthlyMailForwarding: number;
 }
 
 interface DatabaseOrder {
@@ -103,11 +107,17 @@ export class DatabaseService {
     }
   }
 
-  async createOrderWithItems(orderData: any, applications: any[] = [], services: any[] = []): Promise<DatabaseOrder> {
+  async createOrderWithItems(
+    orderData: any,
+    applications: any[] = [],
+    services: any[] = [],
+    trustFormations: any[] = [],
+    mailForwardings: any[] = []
+  ): Promise<DatabaseOrder> {
     if (this.dbType === 'supabase') {
-      return this.createOrderWithItemsSupabase(orderData, applications, services);
+      return this.createOrderWithItemsSupabase(orderData, applications, services, trustFormations, mailForwardings);
     } else {
-      return this.createOrderWithItemsMySQL(orderData, applications, services);
+      return this.createOrderWithItemsMySQL(orderData, applications, services, trustFormations, mailForwardings);
     }
   }
 
@@ -157,6 +167,40 @@ export class DatabaseService {
       );
       const totalJurisdictions = jurisdictionsResult[0]?.total || 0;
 
+      // Get trust formation stats
+      let totalTrustFormations = 0;
+      let monthlyTrustFormations = 0;
+      try {
+        const [trustFormationsResult]: any = await db.execute(
+          'SELECT COUNT(*) as total FROM trust_formation_applications'
+        );
+        totalTrustFormations = trustFormationsResult[0]?.total || 0;
+
+        const [monthlyTrustFormationsResult]: any = await db.execute(
+          'SELECT COUNT(*) as total FROM trust_formation_applications WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())'
+        );
+        monthlyTrustFormations = monthlyTrustFormationsResult[0]?.total || 0;
+      } catch (trustError) {
+        console.log('Trust formation table not found in MySQL, using default values.');
+      }
+
+      // Get mail forwarding stats
+      let totalMailForwarding = 0;
+      let monthlyMailForwarding = 0;
+      try {
+        const [mailForwardingResult]: any = await db.execute(
+          'SELECT COUNT(*) as total FROM mail_forwarding_applications'
+        );
+        totalMailForwarding = mailForwardingResult[0]?.total || 0;
+
+        const [monthlyMailForwardingResult]: any = await db.execute(
+          'SELECT COUNT(*) as total FROM mail_forwarding_applications WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())'
+        );
+        monthlyMailForwarding = monthlyMailForwardingResult[0]?.total || 0;
+      } catch (mailError) {
+        console.log('Mail forwarding table not found in MySQL, using default values.');
+      }
+
       return {
         totalApplications,
         monthlyApplications,
@@ -166,6 +210,10 @@ export class DatabaseService {
         monthlyOrders: monthlyOrderStats.total_orders,
         monthlyRevenue: monthlyOrderStats.revenue,
         totalJurisdictions,
+        totalTrustFormations,
+        monthlyTrustFormations,
+        totalMailForwarding,
+        monthlyMailForwarding,
       };
     } catch (error) {
       console.error('Error fetching MySQL stats:', error);
@@ -238,6 +286,32 @@ export class DatabaseService {
       if (jurisdictionsError) throw jurisdictionsError;
       const totalJurisdictions = jurisdictions?.length || 0;
 
+      // Get trust formation stats
+      const { data: trustFormations, error: trustError } = await supabaseAdmin
+        .from('trust_formation_applications')
+        .select('*', { count: 'exact', head: true });
+
+      const totalTrustFormations = trustFormations?.length || 0;
+
+      const { data: monthlyTrustFormations, error: monthlyTrustError } = await supabaseAdmin
+        .from('trust_formation_applications')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`)
+        .lt('created_at', `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-01`);
+
+      // Get mail forwarding stats
+      const { data: mailForwarding, error: mailError } = await supabaseAdmin
+        .from('mail_forwarding_applications')
+        .select('*', { count: 'exact', head: true });
+
+      const totalMailForwarding = mailForwarding?.length || 0;
+
+      const { data: monthlyMailForwarding, error: monthlyMailError } = await supabaseAdmin
+        .from('mail_forwarding_applications')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`)
+        .lt('created_at', `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-01`);
+
       return {
         totalApplications,
         monthlyApplications: monthlyApplications?.length || 0,
@@ -247,6 +321,10 @@ export class DatabaseService {
         monthlyOrders: monthlyOrderStats.total_orders,
         monthlyRevenue: monthlyOrderStats.revenue,
         totalJurisdictions,
+        totalTrustFormations,
+        monthlyTrustFormations: monthlyTrustFormations?.length || 0,
+        totalMailForwarding,
+        monthlyMailForwarding: monthlyMailForwarding?.length || 0,
       };
     } catch (error) {
       console.error('Error fetching Supabase stats:', error);
@@ -589,7 +667,13 @@ export class DatabaseService {
     }
   }
 
-  private async createOrderWithItemsMySQL(orderData: any, applications: any[] = [], services: any[] = []): Promise<DatabaseOrder> {
+  private async createOrderWithItemsMySQL(
+    orderData: any,
+    applications: any[] = [],
+    services: any[] = [],
+    trustFormations: any[] = [],
+    mailForwardings: any[] = []
+  ): Promise<DatabaseOrder> {
     const db = await getConnection();
 
     try {
@@ -607,8 +691,12 @@ export class DatabaseService {
           services_count,
           order_items,
           stripe_metadata,
-          paid_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          paid_at,
+          trust_formation_count,
+          has_trust_formation,
+          mail_forwarding_count,
+          has_mail_forwarding
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
           payment_status = VALUES(payment_status),
           paid_at = VALUES(paid_at),
@@ -623,9 +711,13 @@ export class DatabaseService {
           orderData.payment_status,
           applications.length,
           services.length,
-          JSON.stringify({ applications, standalone_services: services }),
+          JSON.stringify({ applications, standalone_services: services, trust_formations: trustFormations, mail_forwardings: mailForwardings }),
           JSON.stringify(orderData.stripe_metadata || {}),
-          orderData.paid_at || null
+          orderData.paid_at || null,
+          trustFormations.length,
+          trustFormations.length > 0,
+          mailForwardings.length,
+          mailForwardings.length > 0
         ]
       );
 
@@ -687,6 +779,58 @@ export class DatabaseService {
         );
       }
 
+      // Insert individual order items for trust formations
+      for (const trust of trustFormations) {
+        await db.execute(
+          `INSERT INTO order_items (
+            order_id,
+            item_type,
+            item_name,
+            jurisdiction_name,
+            unit_price,
+            quantity,
+            total_price,
+            currency,
+            item_metadata
+          ) VALUES (?, 'trust_formation', ?, ?, ?, 1, ?, ?, ?)`,
+          [
+            orderData.order_id,
+            `${trust.jurisdiction} Trust Formation`,
+            trust.jurisdiction,
+            trust.price,
+            trust.price,
+            trust.currency || 'GBP',
+            JSON.stringify(trust)
+          ]
+        );
+      }
+
+      // Insert individual order items for mail forwarding
+      for (const mailForward of mailForwardings) {
+        await db.execute(
+          `INSERT INTO order_items (
+            order_id,
+            item_type,
+            item_name,
+            jurisdiction_name,
+            unit_price,
+            quantity,
+            total_price,
+            currency,
+            item_metadata
+          ) VALUES (?, 'mail_forwarding', ?, ?, ?, 1, ?, ?, ?)`,
+          [
+            orderData.order_id,
+            `${mailForward.jurisdiction} Mail Forwarding`,
+            mailForward.jurisdiction,
+            mailForward.price,
+            mailForward.price,
+            mailForward.currency || 'GBP',
+            JSON.stringify(mailForward)
+          ]
+        );
+      }
+
       // Get the created order
       const [createdOrder]: any = await db.execute(
         'SELECT * FROM orders WHERE order_id = ?',
@@ -699,7 +843,13 @@ export class DatabaseService {
     }
   }
 
-  private async createOrderWithItemsSupabase(orderData: any, applications: any[] = [], services: any[] = []): Promise<DatabaseOrder> {
+  private async createOrderWithItemsSupabase(
+    orderData: any,
+    applications: any[] = [],
+    services: any[] = [],
+    trustFormations: any[] = [],
+    mailForwardings: any[] = []
+  ): Promise<DatabaseOrder> {
     // Create the main order record with upsert
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
@@ -707,7 +857,11 @@ export class DatabaseService {
         ...orderData,
         applications_count: applications.length,
         services_count: services.length,
-        order_items: { applications, standalone_services: services },
+        trust_formation_count: trustFormations.length,
+        has_trust_formation: trustFormations.length > 0,
+        mail_forwarding_count: mailForwardings.length,
+        has_mail_forwarding: mailForwardings.length > 0,
+        order_items: { applications, standalone_services: services, trust_formations: trustFormations, mail_forwardings: mailForwardings },
         stripe_metadata: orderData.stripe_metadata || {},
       }, {
         onConflict: 'order_id'
@@ -753,8 +907,34 @@ export class DatabaseService {
       item_metadata: service
     }));
 
+    // Insert individual order items for trust formations
+    const trustFormationItems = trustFormations.map(trust => ({
+      order_id: orderData.order_id,
+      item_type: 'trust_formation' as const,
+      item_name: `${trust.jurisdiction} Trust Formation`,
+      jurisdiction_name: trust.jurisdiction,
+      unit_price: trust.price,
+      quantity: 1,
+      total_price: trust.price,
+      currency: trust.currency || 'GBP',
+      item_metadata: trust
+    }));
+
+    // Insert individual order items for mail forwarding
+    const mailForwardingItems = mailForwardings.map(mailForward => ({
+      order_id: orderData.order_id,
+      item_type: 'mail_forwarding' as const,
+      item_name: `${mailForward.jurisdiction} Mail Forwarding`,
+      jurisdiction_name: mailForward.jurisdiction,
+      unit_price: mailForward.price,
+      quantity: 1,
+      total_price: mailForward.price,
+      currency: mailForward.currency || 'GBP',
+      item_metadata: mailForward
+    }));
+
     // Insert all order items
-    const allItems = [...applicationItems, ...serviceItems];
+    const allItems = [...applicationItems, ...serviceItems, ...trustFormationItems, ...mailForwardingItems];
     if (allItems.length > 0) {
       // First, try to delete existing items for this order (in case of retry)
       await supabaseAdmin
@@ -786,6 +966,10 @@ export class DatabaseService {
       monthlyOrders: 0,
       monthlyRevenue: 0,
       totalJurisdictions: 0,
+      totalTrustFormations: 0,
+      monthlyTrustFormations: 0,
+      totalMailForwarding: 0,
+      monthlyMailForwarding: 0,
     };
   }
 }

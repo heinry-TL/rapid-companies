@@ -226,7 +226,7 @@ export default function TrustFormationForm({
 
       case 3: // Settlor
         if (!settlor.firstName || !settlor.lastName || !settlor.email ||
-            !settlor.address.line1 || !settlor.address.city) {
+          !settlor.address.line1 || !settlor.address.city) {
           alert('Please fill in all required settlor information');
           return false;
         }
@@ -354,19 +354,18 @@ export default function TrustFormationForm({
           {currentActiveSteps.map((s, index) => {
             const status: StepStatus =
               s.id < step ? 'completed' :
-              s.id === step ? 'current' :
-              'upcoming';
+                s.id === step ? 'current' :
+                  'upcoming';
 
             return (
               <div key={s.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center w-full">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
-                    status === 'completed'
+                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${status === 'completed'
                       ? 'bg-green-500 border-green-500'
                       : status === 'current'
                         ? 'bg-blue-600 border-blue-600'
                         : 'bg-gray-700 border-gray-600'
-                  }`}>
+                    }`}>
                     {status === 'completed' ? (
                       <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -401,8 +400,8 @@ export default function TrustFormationForm({
         <h3 className="text-2xl font-bold text-white mb-2">Trust Formation Application</h3>
         <p className="text-gray-400">
           {step === 0 ? 'Choose how you\'d like to proceed with your application' :
-           provideDetailsNow === false ? 'Provide your contact details and jurisdiction' :
-           'Complete all steps to submit your trust formation application'}
+            provideDetailsNow === false ? 'Provide your contact details and jurisdiction' :
+              'Complete all steps to submit your trust formation application'}
         </p>
       </div>
 
@@ -455,7 +454,7 @@ export default function TrustFormationForm({
                   </div>
                   <div className="flex-1">
                     <h5 className="text-lg font-bold mb-2">Provide Details Later</h5>
-                    <p className="text-sm text-gray-300 leading-relaxed">
+                    <p className="text-sm text-white leading-relaxed">
                       Pay now and provide trust details later. We'll contact you after payment to collect
                       the necessary information.
                     </p>
@@ -491,7 +490,7 @@ export default function TrustFormationForm({
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     First Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -504,7 +503,7 @@ export default function TrustFormationForm({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Last Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -519,7 +518,7 @@ export default function TrustFormationForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Email Address <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -533,7 +532,7 @@ export default function TrustFormationForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Phone Number <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -549,7 +548,7 @@ export default function TrustFormationForm({
               {/* Show jurisdiction selection on contact step if providing details later */}
               {!provideDetailsNow && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Select Jurisdiction <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -629,7 +628,7 @@ export default function TrustFormationForm({
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Trust Name <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -643,7 +642,7 @@ export default function TrustFormationForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Trust Type <span className="text-red-400">*</span>
                 </label>
                 <select
@@ -663,7 +662,7 @@ export default function TrustFormationForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Select Jurisdiction <span className="text-red-400">*</span>
                 </label>
                 <select
@@ -693,7 +692,7 @@ export default function TrustFormationForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Trust Purpose <span className="text-gray-500">(Optional)</span>
                 </label>
                 <textarea
@@ -747,7 +746,7 @@ export default function TrustFormationForm({
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Title <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -765,7 +764,7 @@ export default function TrustFormationForm({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     First Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -779,7 +778,7 @@ export default function TrustFormationForm({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Last Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -795,7 +794,7 @@ export default function TrustFormationForm({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Email <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -809,7 +808,7 @@ export default function TrustFormationForm({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Phone <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -825,7 +824,7 @@ export default function TrustFormationForm({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Date of Birth <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -838,7 +837,7 @@ export default function TrustFormationForm({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Nationality <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -856,7 +855,7 @@ export default function TrustFormationForm({
                 <h5 className="text-white font-medium mb-4">Address</h5>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Address Line 1 <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -870,7 +869,7 @@ export default function TrustFormationForm({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Address Line 2 <span className="text-gray-500">(Optional)</span>
                     </label>
                     <input
@@ -884,7 +883,7 @@ export default function TrustFormationForm({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-white mb-2">
                         City <span className="text-red-400">*</span>
                       </label>
                       <input
@@ -898,7 +897,7 @@ export default function TrustFormationForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-white mb-2">
                         Postal Code <span className="text-red-400">*</span>
                       </label>
                       <input
@@ -913,7 +912,7 @@ export default function TrustFormationForm({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Country <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -932,7 +931,7 @@ export default function TrustFormationForm({
                 <h5 className="text-white font-medium mb-4">Identification</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       ID Type <span className="text-red-400">*</span>
                     </label>
                     <select
@@ -949,7 +948,7 @@ export default function TrustFormationForm({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       ID Number <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -1025,7 +1024,7 @@ export default function TrustFormationForm({
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           First Name <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -1043,7 +1042,7 @@ export default function TrustFormationForm({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           Last Name <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -1063,7 +1062,7 @@ export default function TrustFormationForm({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           Email <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -1081,7 +1080,7 @@ export default function TrustFormationForm({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           Phone <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -1174,7 +1173,7 @@ export default function TrustFormationForm({
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           First Name <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -1192,7 +1191,7 @@ export default function TrustFormationForm({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           Last Name <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -1212,7 +1211,7 @@ export default function TrustFormationForm({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           Relationship <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -1230,7 +1229,7 @@ export default function TrustFormationForm({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="block text-sm font-medium text-white mb-2">
                           Benefit Type <span className="text-red-400">*</span>
                         </label>
                         <select
@@ -1251,7 +1250,7 @@ export default function TrustFormationForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-white mb-2">
                         Percentage Share <span className="text-red-400">*</span>
                       </label>
                       <div className="flex items-center gap-2">
@@ -1278,18 +1277,16 @@ export default function TrustFormationForm({
               ))}
 
               {/* Total percentage indicator */}
-              <div className={`p-4 rounded-lg border ${
-                beneficiaries.reduce((sum, b) => sum + b.percentage, 0) === 100
+              <div className={`p-4 rounded-lg border ${beneficiaries.reduce((sum, b) => sum + b.percentage, 0) === 100
                   ? 'bg-green-900/20 border-green-500/30'
                   : 'bg-yellow-900/20 border-yellow-500/30'
-              }`}>
+                }`}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-white">Total Percentage:</span>
-                  <span className={`text-lg font-bold ${
-                    beneficiaries.reduce((sum, b) => sum + b.percentage, 0) === 100
+                  <span className={`text-lg font-bold ${beneficiaries.reduce((sum, b) => sum + b.percentage, 0) === 100
                       ? 'text-green-400'
                       : 'text-yellow-400'
-                  }`}>
+                    }`}>
                     {beneficiaries.reduce((sum, b) => sum + b.percentage, 0).toFixed(2)}%
                   </span>
                 </div>
@@ -1391,7 +1388,7 @@ export default function TrustFormationForm({
             {/* Additional Notes */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Additional Notes <span className="text-gray-500">(Optional)</span>
                 </label>
                 <textarea
@@ -1404,7 +1401,7 @@ export default function TrustFormationForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Special Instructions <span className="text-gray-500">(Optional)</span>
                 </label>
                 <textarea

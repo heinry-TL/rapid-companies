@@ -70,10 +70,32 @@ export default async function DashboardStats() {
         </svg>
       ),
     },
+    {
+      title: 'Trust Formations',
+      value: stats.totalTrustFormations,
+      change: `${stats.monthlyTrustFormations} this month`,
+      changeType: stats.monthlyTrustFormations > 0 ? 'increase' : 'neutral',
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+    },
+    {
+      title: 'Mail Forwarding',
+      value: stats.totalMailForwarding,
+      change: `${stats.monthlyMailForwarding} this month`,
+      changeType: stats.monthlyMailForwarding > 0 ? 'increase' : 'neutral',
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {statCards.map((stat, index) => (
         <div key={index} className="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
           <div className="p-5">

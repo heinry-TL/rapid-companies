@@ -25,15 +25,15 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Admin form inputs styling */
+/* Form inputs styling - visible text on dark backgrounds */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="url"],
-textarea,
-select {
-  color: #111827 !important; /* gray-900 */
+input[type="tel"],
+textarea{
+  color: #ffffff !important; /* white text for visibility on dark backgrounds */
 }
 
 input[type="text"]::placeholder,
@@ -41,6 +41,7 @@ input[type="email"]::placeholder,
 input[type="password"]::placeholder,
 input[type="number"]::placeholder,
 input[type="url"]::placeholder,
+input[type="tel"]::placeholder,
 textarea::placeholder {
-  color: #9ca3af !important; /* gray-400 */
+  color: #c2bfbf !important; /* gray-400 for placeholder */
 }

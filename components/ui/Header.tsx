@@ -57,7 +57,7 @@ export default function Header() {
     <>
       {/* Top Contact Bar - Sticky */}
       <div className={`fixed top-0 left-0 right-0 text-sm z-50 transition-all duration-300 ${isScrolled
-        ? 'bg-gray-900/95 backdrop-blur-sm text-gray-300 border-b border-gray-800'
+        ? 'bg-gray-900/95 backdrop-blur-sm text-white border-b border-gray-800'
         : 'bg-white text-gray-800 border-b border-gray-200'
         }`}>
         <div className="container mx-auto px-4 py-2">
@@ -100,11 +100,10 @@ export default function Header() {
                   alt="Rapid Offshore Logo"
                   width={400}
                   height={120}
-                  className={`h-20 w-auto transition-all duration-300 ${
-                    !isScrolled && pathname === '/'
+                  className={`h-20 w-auto transition-all duration-300 ${!isScrolled && pathname === '/'
                       ? 'brightness-0 invert'
                       : ''
-                  }`}
+                    }`}
                 />
               </motion.div>
             </Link>
@@ -119,7 +118,7 @@ export default function Header() {
               {/* Portfolio Icon */}
               <Link
                 href="/portfolio"
-                className="relative flex items-center text-gray-300 hover:text-blue-400 transition-colors"
+                className="relative flex items-center text-white hover:text-blue-400 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -181,7 +180,7 @@ export default function Header() {
                 {/* Mobile Portfolio Link */}
                 <Link
                   href="/portfolio"
-                  className="flex items-center text-gray-300 hover:text-blue-400 transition-colors"
+                  className="flex items-center text-white hover:text-blue-400 transition-colors"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -211,7 +210,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className={`text-sm font-medium transition-colors hover:text-blue-400 ${isActive ? "text-blue-400" : "text-gray-300"
+      className={`text-sm font-medium transition-colors hover:text-blue-400 ${isActive ? "text-blue-400" : "text-white"
         }`}
     >
       {label}
@@ -227,7 +226,7 @@ function MobileNavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className={`text-base font-medium transition-colors hover:text-blue-400 ${isActive ? "text-blue-400" : "text-gray-300"
+      className={`text-base font-medium transition-colors hover:text-blue-400 ${isActive ? "text-blue-400" : "text-white"
         }`}
     >
       {label}

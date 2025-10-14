@@ -134,7 +134,7 @@ export default function ApplyPage() {
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
             Company Formation Application
           </h1>
-          <p className="text-gray-300 mb-4">
+          <p className="text-white mb-4">
             {jurisdiction.name} • Formation Fee: {jurisdiction.currency} {jurisdiction.formation_price.toLocaleString()}
           </p>
           <div className="flex justify-center items-center gap-4 text-sm text-gray-400">
