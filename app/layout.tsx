@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 // Define metadata for the website
 export const metadata: Metadata = {
-  title: "Offshore Company Formation Services",
+  title: "Rapid Companies",
   description:
     "Professional offshore company formation services for international business needs",
   icons: {
