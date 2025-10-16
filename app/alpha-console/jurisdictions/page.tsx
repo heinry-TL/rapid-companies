@@ -249,7 +249,7 @@ export default function JurisdictionsPage() {
                       onChange={handleAddChange}
                       className="form-radio h-4 w-4 text-blue-600"
                     />
-                    <span className="ml-2 text-sm text-gray-700">Yes (show +VAT)</span>
+                    <span className="ml-2 text-sm text-gray-700">Yes</span>
                   </label>
                   <label className="inline-flex items-center">
                     <input
