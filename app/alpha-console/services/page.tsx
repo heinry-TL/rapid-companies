@@ -357,18 +357,33 @@ export default function ServicesPage() {
             <form onSubmit={handleFormSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700">ID *</label>
-                <input name="id" value={form.id} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required disabled={!!editingService} />
+                <input name="id" value={form.id} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  required disabled={!!editingService} />
                 <p className="text-xs text-gray-500 mt-1">Unique identifier (e.g., "trusts", "nominees")</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name *</label>
-                <input name="name" value={form.name} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                <input name="name" value={form.name} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  required />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Category *</label>
-                <select name="category" value={form.category} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <select name="category" value={form.category} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  required>
                   <option value="">Select category</option>
                   <option value="trusts">Trusts</option>
                   <option value="nominees">Nominees</option>
@@ -381,64 +396,133 @@ export default function ServicesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Description *</label>
-                <textarea name="description" value={form.description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} required />
+                <textarea 
+                name="description" 
+                value={form.description} 
+                onChange={handleFormChange} 
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" 
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  rows={2} required />
                 <p className="text-xs text-gray-500 mt-1">Short description for the card</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Short Description</label>
-                <textarea name="short_description" value={form.short_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} />
+                <textarea 
+                name="short_description" 
+                value={form.short_description} 
+                onChange={handleFormChange} 
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                rows={2} />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Full Description</label>
-                <textarea name="full_description" value={form.full_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={3} />
+                <textarea name="full_description" value={form.full_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  rows={3} />
                 <p className="text-xs text-gray-500 mt-1">Detailed description for the modal</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Features</label>
-                <textarea name="features" value={form.features} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={4} placeholder="One feature per line" />
+                <textarea 
+                name="features" 
+                value={form.features} 
+                onChange={handleFormChange} 
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                rows={4} 
+                placeholder="One feature per line" 
+                />
                 <p className="text-xs text-gray-500 mt-1">Enter one feature per line</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Benefits</label>
-                <textarea name="benefits" value={form.benefits} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={4} placeholder="One benefit per line" />
+                <textarea name="benefits" value={form.benefits} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  rows={4} placeholder="One benefit per line" />
                 <p className="text-xs text-gray-500 mt-1">Enter one benefit per line</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Pricing</label>
-                  <input name="pricing" value={form.pricing} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., Starting from £2,500" />
+                  <input name="pricing" value={form.pricing} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    style={{
+                      color: '#111827',
+                      WebkitTextFillColor: '#111827',
+                    }} 
+                    placeholder="e.g., Starting from £2,500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Timeline</label>
-                  <input name="timeline" value={form.timeline} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., 2-4 weeks" />
+                  <input name="timeline" value={form.timeline} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    style={{
+                      color: '#111827',
+                      WebkitTextFillColor: '#111827',
+                    }} 
+                    placeholder="e.g., 2-4 weeks" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Link URL</label>
-                  <input name="link_url" value={form.link_url} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="/services#example" />
+                  <input name="link_url" value={form.link_url} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                  style={{
+                                      color: '#111827',
+                                      WebkitTextFillColor: '#111827',
+                                  }} 
+                                  placeholder="/services#example" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Link Text</label>
-                  <input name="link_text" value={form.link_text} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Learn More" />
+                  <input name="link_text" value={form.link_text} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+                    style={{
+                      color: '#111827',
+                      WebkitTextFillColor: '#111827',
+                    }} 
+                    placeholder="Learn More" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Display Order</label>
-                <input name="display_order" type="number" value={form.display_order} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                <input name="display_order" type="number" value={form.display_order} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  />
                 <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Icon SVG</label>
-                <textarea name="icon_svg" value={form.icon_svg} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm font-mono text-xs" rows={3} placeholder="<svg>...</svg>" />
+                <textarea name="icon_svg" value={form.icon_svg} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm font-mono text-xs" 
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  rows={3} placeholder="<svg>...</svg>" />
               </div>
 
               <div className="border-t pt-4">
@@ -447,11 +531,15 @@ export default function ServicesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Base Price</label>
-                    <input name="base_price" type="number" value={form.base_price} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                    <input name="base_price" type="number" value={form.base_price} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                      style={{
+                        color: '#111827',
+                        WebkitTextFillColor: '#111827',
+                      }} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Currency</label>
-                    <select name="currency" value={form.currency} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <select name="currency" value={form.currency} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900">
                       <option value="GBP">GBP</option>
                       <option value="USD">USD</option>
                       <option value="EUR">EUR</option>
@@ -461,7 +549,12 @@ export default function ServicesPage() {
 
                 <div className="mt-3">
                   <label className="block text-sm font-medium text-gray-700">Note</label>
-                  <textarea name="note" value={form.note} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} placeholder="Pricing notes or conditions" />
+                  <textarea name="note" value={form.note} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={2} placeholder="Pricing notes or conditions"
+                    style={{
+                      color: '#111827',
+                      WebkitTextFillColor: '#111827',
+                    }} 
+                    />
                 </div>
               </div>
 

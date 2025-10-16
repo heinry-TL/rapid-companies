@@ -497,6 +497,10 @@ export default function ProfessionalServicesPage() {
                     value={form.display_order}
                     onChange={handleFormChange}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
+                    style={{ 
+                      color: '#111827',
+                      WebkitTextFillColor: '#111827',
+                     }}
                     required
                   />
                 </div>
@@ -509,12 +513,22 @@ export default function ProfessionalServicesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Short Description</label>
-                <input name="short_description" value={form.short_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-7I00 rounded-md shadow-sm text-gray-900" placeholder="Brief one-line description" />
+                <input 
+                name="short_description" value={form.short_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" placeholder="Brief one-line description" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Full Description</label>
-                <textarea name="description" value={form.description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" rows={3} required />
+                <textarea name="description" 
+                value={form.description} 
+                onChange={handleFormChange} 
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }}  
+                rows={3} 
+                required />
               </div>
 
               <div>
@@ -651,10 +665,15 @@ export default function ProfessionalServicesPage() {
                   name="full_description"
                   value={form.full_description}
                   onChange={handleFormChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                   rows={4}
                   placeholder="Detailed description shown in the modal popup"
-                />
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                    // !important is not supported in React inline styles, but WebkitTextFillColor helps override some global rules
+                  }}
+                  />
               </div>
 
               {/* <div>

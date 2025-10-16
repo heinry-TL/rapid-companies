@@ -183,8 +183,8 @@ export default function JurisdictionsPage() {
                     )}
                   </td>
                   <td className="px-4 py-2 font-medium text-gray-900">{j.name}</td>
-                  <td className="px-4 py-2">{j.formation_price}</td>
-                  <td className="px-4 py-2">{j.currency}</td>
+                  <td className="px-4 py-2 text-gray-900">{j.formation_price}</td>
+                  <td className="px-4 py-2 text-gray-900">{j.currency}</td>
                   <td className="px-4 py-2">
                     <span className={`px-2 py-1 rounded text-xs font-semibold ${j.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>{j.status}</span>
                   </td>
@@ -217,10 +217,20 @@ export default function JurisdictionsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" value={addForm.description} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" rows={3} />
+                <textarea name="description" value={addForm.description} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" 
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  rows={3} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Formation Price</label>
+                <label className="block text-sm font-medium text-gray-900"
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  >Formation Price</label>
                 <input name="formation_price" type="number" value={addForm.formation_price} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
               </div>
               <div>
@@ -256,7 +266,12 @@ export default function JurisdictionsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Processing Time</label>
-                <input name="processing_time" value={addForm.processing_time} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" />
+                <input name="processing_time" value={addForm.processing_time} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" 
+                  style={{
+                    color: '#111827',
+                    WebkitTextFillColor: '#111827',
+                  }} 
+                  />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Features (comma separated)</label>
