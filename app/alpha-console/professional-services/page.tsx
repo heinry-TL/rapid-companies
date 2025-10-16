@@ -264,18 +264,42 @@ export default function ProfessionalServicesPage() {
     const cleanedFeatures = form.features.filter((f: string) => f.trim() !== '');
     const cleanedBenefits = form.benefits.filter((b: string) => b.trim() !== '');
 
+    // Trim all string fields to avoid trailing space issues
+    const cleanedForm = {
+      ...form,
+      id: form.id?.trim(),
+      name: form.name?.trim(),
+      description: form.description?.trim(),
+      short_description: form.short_description?.trim(),
+      full_description: form.full_description?.trim(),
+      category: form.category?.trim(),
+      icon_svg: form.icon_svg?.trim(),
+      pricing: form.pricing?.trim(),
+      timeline: form.timeline?.trim(),
+      link_url: form.link_url?.trim(),
+      link_text: form.link_text?.trim(),
+    };
+
+    // When editing, don't send the ID field (use URL param instead)
+    const submitData = {
+      ...cleanedForm,
+      features: cleanedFeatures,
+      benefits: cleanedBenefits,
+      display_order: Number(form.display_order),
+    };
+
+    // Remove ID from update payload - it's in the URL
+    if (editingService) {
+      delete submitData.id;
+    }
+
     try {
       const method = editingService ? 'PATCH' : 'POST';
       const url = editingService ? `/api/admin/professional-services/${editingService.id}` : '/api/admin/professional-services';
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          features: cleanedFeatures,
-          benefits: cleanedBenefits,
-          display_order: Number(form.display_order),
-        }),
+        body: JSON.stringify(submitData),
       });
       if (res.ok) {
         closeModal();
@@ -445,27 +469,34 @@ export default function ProfessionalServicesPage() {
               {editingService ? 'Edit Professional Service' : 'Add New Professional Service'}
             </h3>
             <form onSubmit={handleFormSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Service ID</label>
-                  <input
-                    name="id"
-                    value={form.id}
-                    onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                    required
-                    disabled={!!editingService}
-                    placeholder="e.g., trust-formation"
-                  />
+              {editingService && (
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+                  <p className="text-xs text-gray-500">Service ID: <span className="font-mono text-gray-700">{editingService.id}</span></p>
                 </div>
-                <div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {!editingService && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Service ID</label>
+                    <input
+                      name="id"
+                      value={form.id}
+                      onChange={handleFormChange}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
+                      required
+                      placeholder="e.g., trust-formation"
+                    />
+                  </div>
+                )}
+                <div className={!editingService ? '' : 'md:col-span-2'}>
                   <label className="block text-sm font-medium text-gray-700">Display Order</label>
                   <input
                     name="display_order"
                     type="number"
                     value={form.display_order}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
                     required
                   />
                 </div>
@@ -473,22 +504,22 @@ export default function ProfessionalServicesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Service Name</label>
-                <input name="name" value={form.name} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                <input name="name" value={form.name} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Short Description</label>
-                <input name="short_description" value={form.short_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Brief one-line description" />
+                <input name="short_description" value={form.short_description} onChange={handleFormChange} className="mt-1 block w-full border-gray-7I00 rounded-md shadow-sm text-gray-900" placeholder="Brief one-line description" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Full Description</label>
-                <textarea name="description" value={form.description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={3} required />
+                <textarea name="description" value={form.description} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" rows={3} required />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Category</label>
-                <select name="category" value={form.category} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                <select name="category" value={form.category} onChange={handleFormChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required>
                   <option value="">Select category</option>
                   <option value="trusts">Trusts</option>
                   <option value="nominees">Nominees</option>
@@ -509,7 +540,7 @@ export default function ProfessionalServicesPage() {
                     <input
                       value={feature}
                       onChange={(e) => handleFeatureChange(index, e.target.value)}
-                      className="flex-1 border-gray-300 rounded-md shadow-sm"
+                      className="flex-1 border-gray-300 rounded-md shadow-sm text-gray-900"
                       placeholder={`Feature ${index + 1}`}
                     />
                     {form.features.length > 1 && (
@@ -541,7 +572,7 @@ export default function ProfessionalServicesPage() {
                     <input
                       value={benefit}
                       onChange={(e) => handleBenefitChange(index, e.target.value)}
-                      className="flex-1 border-gray-300 rounded-md shadow-sm"
+                      className="flex-1 border-gray-300 rounded-md shadow-sm text-gray-900"
                       placeholder={`Benefit ${index + 1}`}
                     />
                     {form.benefits.length > 1 && (
@@ -573,7 +604,7 @@ export default function ProfessionalServicesPage() {
                     name="pricing"
                     value={form.pricing}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
                     placeholder="e.g., Starting from £2,500"
                   />
                 </div>
@@ -583,7 +614,7 @@ export default function ProfessionalServicesPage() {
                     name="timeline"
                     value={form.timeline}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
                     placeholder="e.g., 2-4 weeks"
                   />
                 </div>
@@ -596,7 +627,7 @@ export default function ProfessionalServicesPage() {
                     name="link_url"
                     value={form.link_url}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-blue-50"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-blue-50 text-gray-900"
                     placeholder="/services#example"
                   />
                   <p className="mt-1 text-xs text-blue-600">Auto-filled from category</p>
@@ -607,7 +638,7 @@ export default function ProfessionalServicesPage() {
                     name="link_text"
                     value={form.link_text}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-blue-50"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-blue-50 text-gray-900"
                     placeholder="Learn More"
                   />
                   <p className="mt-1 text-xs text-blue-600">Auto-filled from category</p>
@@ -620,7 +651,7 @@ export default function ProfessionalServicesPage() {
                   name="full_description"
                   value={form.full_description}
                   onChange={handleFormChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900"
                   rows={4}
                   placeholder="Detailed description shown in the modal popup"
                 />

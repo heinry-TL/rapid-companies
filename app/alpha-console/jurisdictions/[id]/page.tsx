@@ -91,27 +91,27 @@ export default function EditJurisdictionPage() {
             <form onSubmit={handleSave} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Name</label>
-                    <input name="name" value={form.name || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                    <input name="name" value={form.name || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Country Code</label>
-                    <input name="country_code" value={form.country_code || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                    <input name="country_code" value={form.country_code || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Flag URL</label>
-                    <input name="flag_url" value={form.flag_url || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                    <input name="flag_url" value={form.flag_url || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea name="description" value={form.description || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={3} />
+                    <textarea name="description" value={form.description || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" rows={3} />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Formation Price</label>
-                    <input name="formation_price" type="number" value={form.formation_price || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                    <input name="formation_price" type="number" value={form.formation_price || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Currency</label>
-                    <input name="currency" value={form.currency || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                    <input name="currency" value={form.currency || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">VAT Applicable</label>
@@ -121,7 +121,7 @@ export default function EditJurisdictionPage() {
                                 type="radio"
                                 name="vat_applicable"
                                 value="true"
-                                checked={form.vat_applicable === true || form.vat_applicable === "true"}
+                                checked={form.vat_applicable === true}
                                 onChange={(e) => setForm((prev) => ({ ...prev, vat_applicable: true }))}
                                 className="form-radio h-4 w-4 text-blue-600"
                             />
@@ -132,7 +132,7 @@ export default function EditJurisdictionPage() {
                                 type="radio"
                                 name="vat_applicable"
                                 value="false"
-                                checked={form.vat_applicable === false || form.vat_applicable === "false" || form.vat_applicable === undefined}
+                                checked={form.vat_applicable === false || form.vat_applicable === undefined}
                                 onChange={(e) => setForm((prev) => ({ ...prev, vat_applicable: false }))}
                                 className="form-radio h-4 w-4 text-blue-600"
                             />
@@ -142,15 +142,15 @@ export default function EditJurisdictionPage() {
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Processing Time</label>
-                    <input name="processing_time" value={form.processing_time || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                    <input name="processing_time" value={form.processing_time || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Features (comma separated)</label>
-                    <input name="features" value={form.features || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                    <input name="features" value={form.features || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Status</label>
-                    <select name="status" value={form.status || "active"} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <select name="status" value={form.status || "active"} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>

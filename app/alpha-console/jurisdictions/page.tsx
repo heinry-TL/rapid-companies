@@ -205,27 +205,27 @@ export default function JurisdictionsPage() {
             <form onSubmit={handleAddSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
-                <input name="name" value={addForm.name} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                <input name="name" value={addForm.name} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Country Code</label>
-                <input name="country_code" value={addForm.country_code} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                <input name="country_code" value={addForm.country_code} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Flag URL</label>
-                <input name="flag_url" value={addForm.flag_url} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                <input name="flag_url" value={addForm.flag_url} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" value={addForm.description} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" rows={3} />
+                <textarea name="description" value={addForm.description} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" rows={3} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Formation Price</label>
-                <input name="formation_price" type="number" value={addForm.formation_price} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                <input name="formation_price" type="number" value={addForm.formation_price} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Currency</label>
-                <input name="currency" value={addForm.currency} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                <input name="currency" value={addForm.currency} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">VAT Applicable</label>
@@ -256,15 +256,15 @@ export default function JurisdictionsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Processing Time</label>
-                <input name="processing_time" value={addForm.processing_time} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                <input name="processing_time" value={addForm.processing_time} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Features (comma separated)</label>
-                <input name="features" value={addForm.features} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                <input name="features" value={addForm.features} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Status</label>
-                <select name="status" value={addForm.status} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <select name="status" value={addForm.status} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900">
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>

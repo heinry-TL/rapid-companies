@@ -7,7 +7,8 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const { id } = resolvedParams;
+    // Trim the ID to handle trailing/leading spaces
+    const id = decodeURIComponent(resolvedParams.id).trim();
 
     const { data: service, error } = await supabaseAdmin
       .from('professional_services')
@@ -36,13 +37,13 @@ export async function GET(
     if (error) {
       if (error.code === 'PGRST116') {
         return NextResponse.json(
-          { error: 'Professional service not found' },
+          { error: `Professional service not found with ID: ${id}` },
           { status: 404 }
         );
       }
-      console.error('Supabase error:', error);
+      console.error('[GET] Supabase error:', error);
       return NextResponse.json(
-        { error: 'Failed to fetch professional service' },
+        { error: `Failed to fetch professional service: ${error.message}` },
         { status: 500 }
       );
     }
@@ -68,7 +69,8 @@ export async function PATCH(
 ) {
   try {
     const resolvedParams = await params;
-    const { id } = resolvedParams;
+    // Trim the ID to handle trailing/leading spaces
+    const id = decodeURIComponent(resolvedParams.id).trim();
     const updates = await request.json();
 
     // Build dynamic update object
@@ -133,16 +135,16 @@ export async function PATCH(
       .select();
 
     if (error) {
-      console.error('Supabase update error:', error);
+      console.error('[PATCH] Supabase update error:', error);
       return NextResponse.json(
-        { error: 'Failed to update professional service' },
+        { error: `Failed to update professional service: ${error.message}` },
         { status: 500 }
       );
     }
 
     if (!data || data.length === 0) {
       return NextResponse.json(
-        { error: 'Professional service not found' },
+        { error: `Professional service not found with ID: ${id}. Check server logs for similar services.` },
         { status: 404 }
       );
     }
@@ -163,8 +165,8 @@ export async function DELETE(
 ) {
   try {
     const resolvedParams = await params;
-    const { id } = resolvedParams;
-
+    // Trim the ID to handle trailing/leading spaces
+    const id = decodeURIComponent(resolvedParams.id).trim();
     const { data, error } = await supabaseAdmin
       .from('professional_services')
       .delete()
@@ -172,23 +174,23 @@ export async function DELETE(
       .select();
 
     if (error) {
-      console.error('Supabase delete error:', error);
+      console.error('[DELETE] Supabase delete error:', error);
       return NextResponse.json(
-        { error: 'Failed to delete professional service' },
+        { error: `Failed to delete professional service: ${error.message}` },
         { status: 500 }
       );
     }
 
     if (!data || data.length === 0) {
       return NextResponse.json(
-        { error: 'Professional service not found' },
+        { error: `Professional service not found with ID: ${id}` },
         { status: 404 }
       );
     }
-
+    
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Professional service deletion error:', error);
+    console.error('[DELETE] Professional service deletion error:', error);
     return NextResponse.json(
       { error: 'Failed to delete professional service' },
       { status: 500 }
