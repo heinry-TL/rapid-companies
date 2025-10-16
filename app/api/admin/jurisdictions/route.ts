@@ -14,6 +14,7 @@ export async function GET(_request: NextRequest) {
         description,
         formation_price,
         currency,
+        vat_applicable,
         processing_time,
         features,
         status,
@@ -70,10 +71,11 @@ export async function POST(request: NextRequest) {
       description,
       formation_price,
       currency,
+      vat_applicable = false,
       processing_time,
       features,
       status = 'active'
-    } = await request.json() as JurisdictionUpdateRequest & { name: string; country_code: string; formation_price: number; currency: string };
+    } = await request.json() as JurisdictionUpdateRequest & { name: string; country_code: string; formation_price: number; currency: string; vat_applicable?: boolean };
 
     if (!name || !country_code || !formation_price || !currency) {
       return NextResponse.json(
@@ -93,6 +95,7 @@ export async function POST(request: NextRequest) {
         description,
         formation_price,
         currency,
+        vat_applicable,
         processing_time,
         features: featuresArray,
         status
@@ -114,6 +117,7 @@ export async function POST(request: NextRequest) {
         description,
         formation_price,
         currency,
+        vat_applicable,
         processing_time,
         features: featuresArray,
         status

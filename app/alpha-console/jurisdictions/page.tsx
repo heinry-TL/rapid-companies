@@ -30,6 +30,7 @@ export default function JurisdictionsPage() {
     description: string;
     formation_price: string;
     currency: string;
+    vat_applicable: string;
     processing_time: string;
     features: string;
     status: string;
@@ -42,6 +43,7 @@ export default function JurisdictionsPage() {
     description: "",
     formation_price: "",
     currency: "",
+    vat_applicable: "false",
     processing_time: "",
     features: "",
     status: "active",
@@ -104,6 +106,7 @@ export default function JurisdictionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...addForm,
+          vat_applicable: addForm.vat_applicable === "true",
           features: addForm.features.split(",").map((f: string) => f.trim()).filter((f: string) => f.length > 0),
         }),
       });
@@ -116,6 +119,7 @@ export default function JurisdictionsPage() {
           description: "",
           formation_price: "",
           currency: "",
+          vat_applicable: "false",
           processing_time: "",
           features: "",
           status: "active",
@@ -222,6 +226,33 @@ export default function JurisdictionsPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Currency</label>
                 <input name="currency" value={addForm.currency} onChange={handleAddChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">VAT Applicable</label>
+                <div className="flex items-center space-x-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="vat_applicable"
+                      value="true"
+                      checked={addForm.vat_applicable === "true"}
+                      onChange={handleAddChange}
+                      className="form-radio h-4 w-4 text-blue-600"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Yes (show +VAT)</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="vat_applicable"
+                      value="false"
+                      checked={addForm.vat_applicable === "false"}
+                      onChange={handleAddChange}
+                      className="form-radio h-4 w-4 text-blue-600"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">No</span>
+                  </label>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Processing Time</label>

@@ -6,7 +6,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import Image from 'next/image';
-import { formatCurrency } from '@/lib/currency';
+import { formatCurrencyWithVAT } from '@/lib/currency';
 import Footer from '@/components/ui/Footer';
 
 if (typeof window !== 'undefined') {
@@ -21,6 +21,7 @@ interface Jurisdiction {
   description: string;
   formation_price: number;
   currency: string;
+  vat_applicable?: boolean;
   processing_time: string;
   features: string[];
   status: 'active' | 'inactive';
@@ -132,7 +133,7 @@ export default function JurisdictionDetailPage() {
           <div className="flex justify-center items-center gap-6 mb-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-400">
-                {formatCurrency(jurisdiction.formation_price, jurisdiction.currency)}
+                {formatCurrencyWithVAT(jurisdiction.formation_price, jurisdiction.currency, jurisdiction.vat_applicable)}
               </div>
               <div className="text-gray-400">Formation Cost</div>
             </div>
@@ -189,7 +190,7 @@ export default function JurisdictionDetailPage() {
                   <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-4 flex-shrink-0"></div>
                   <div>
                     <h3 className="font-semibold text-white">Competitive Pricing</h3>
-                    <p>Professional incorporation service starting at {formatCurrency(jurisdiction.formation_price, jurisdiction.currency)}</p>
+                    <p>Professional incorporation service starting at {formatCurrencyWithVAT(jurisdiction.formation_price, jurisdiction.currency, jurisdiction.vat_applicable)}</p>
                   </div>
                 </div>
 

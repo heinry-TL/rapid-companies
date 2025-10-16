@@ -27,6 +27,7 @@ export async function GET(
         description,
         formation_price,
         currency,
+        vat_applicable,
         processing_time,
         features,
         status,
@@ -84,7 +85,7 @@ export async function PATCH(
     const updates = await request.json() as JurisdictionUpdateRequest;
     const allowedFields = [
       'name', 'country_code', 'flag_url', 'description',
-      'formation_price', 'currency', 'processing_time', 'features', 'status'
+      'formation_price', 'currency', 'vat_applicable', 'processing_time', 'features', 'status'
     ];
 
     // Filter updates to only allowed fields
@@ -128,6 +129,7 @@ export async function PATCH(
         description,
         formation_price,
         currency,
+        vat_applicable,
         processing_time,
         features,
         status,

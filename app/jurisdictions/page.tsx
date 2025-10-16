@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { formatCurrency } from '@/lib/currency';
+import { formatCurrencyWithVAT } from '@/lib/currency';
 import Footer from '@/components/ui/Footer';
 
 interface Jurisdiction {
@@ -14,6 +14,7 @@ interface Jurisdiction {
   description: string;
   formation_price: number;
   currency: string;
+  vat_applicable?: boolean;
   processing_time: string;
   features: string[];
   status: 'active' | 'inactive';
@@ -113,7 +114,7 @@ export default function JurisdictionsPage() {
 
                 <div className="mb-4">
                   <div className="text-3xl font-bold text-blue-400 mb-1">
-                    {formatCurrency(jurisdiction.formation_price, jurisdiction.currency)}
+                    {formatCurrencyWithVAT(jurisdiction.formation_price, jurisdiction.currency, jurisdiction.vat_applicable)}
                   </div>
                   <div className="text-gray-500 text-sm">Company Formation</div>
                 </div>

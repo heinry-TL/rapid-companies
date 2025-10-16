@@ -72,7 +72,7 @@ export default function Hero() {
             </h1>
             <p ref={subtitleRef} className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
               Professional offshore company formation services with 20 years of experience
-              tailored to your international business requirements.
+              tailored to your international business and personal requirements.
             </p>
             <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

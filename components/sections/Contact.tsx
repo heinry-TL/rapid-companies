@@ -122,8 +122,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="text-lg font-medium text-white">Phone</h4>
-                    <p className="mt-1 text-gray-400">01904 925 200</p>
-                    <p className="text-gray-400">Mon-Fri, 9am-5:30pm (BST)</p>
+                    <p className="mt-1 text-gray-400">+44 1904 925200</p>
+                    <p className="text-gray-400">Mon-Fri, 8am-5:30pm (BST)</p>
                   </div>
                 </div>
 

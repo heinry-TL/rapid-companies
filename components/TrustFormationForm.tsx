@@ -653,9 +653,7 @@ export default function TrustFormationForm({
                 >
                   <option value="">Select trust type...</option>
                   <option value="Discretionary Trust">Discretionary Trust</option>
-                  <option value="Fixed Trust">Fixed Trust</option>
-                  <option value="Unit Trust">Unit Trust</option>
-                  <option value="Charitable Trust">Charitable Trust</option>
+                  <option value="Bare Trust">Bare Trust</option>
                   <option value="Purpose Trust">Purpose Trust</option>
                   <option value="Other">Other</option>
                 </select>

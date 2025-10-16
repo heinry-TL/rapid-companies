@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+import { title } from "process";
 
 // Register the ScrollTrigger plugin
 if (typeof window !== "undefined") {
@@ -14,29 +15,34 @@ if (typeof window !== "undefined") {
 const testimonials = [
   {
     id: 1,
-    name: "Michael Chen",
-    role: "CEO, TechVentures Global",
+    name: "Simon Mercer ",
+    title: "BVI Company + Bank Account",
     quote:
-      "Setting up our BVI company was seamless with Rapid Offshore. Their expertise and attention to detail made the entire process stress-free.",
-    avatar: "/images/testimonial-1.jpg",
+      "Rapid sorted our BVI company and bank setup super fast. Clear process, good communication, and everything worked exactly as promised. Highly recommended.",
     rating: 5,
   },
   {
     id: 2,
-    name: "Sarah Johnson",
-    role: "Founder, Wealth Strategies",
+    name: "Olivia Hartley ",
+    title: "Jersey Company Structure",
     quote:
-      "The team at Rapid Offshore provided exceptional guidance for our Cayman Islands structure. Their knowledge of international tax planning is unmatched.",
-    avatar: "/images/testimonial-2.jpg",
+      "Our Jersey company was set up quickly and properly. The structure fits our needs perfectly, and the team explained every step in plain English.",
     rating: 5,
   },
   {
     id: 3,
-    name: "Robert Kiyosaki",
-    role: "Real Estate Investor",
+    name: "Marcus Linton",
+    title: "BVI Company + Bank Account",
     quote:
-      "I&apos;ve worked with several offshore service providers, Rapid Offshore stands out for their professionalism and efficiency. Highly recommended!",
-    avatar: "/images/testimonial-3.jpg",
+      "The Horizon Overview was genuinely a game changer. It gave us a really clear view to expand internationally with confidence. Worth every penny.",
+    rating: 4,
+  },
+  {
+    id: 4,
+    name: "Anonymous Client",
+    title: "Belize Trust Formation",
+    quote:
+      "We used Rapid to create a Belize trust to protect some property that my family has acquired over the last few years. Straightforward advice (which cleared up some pretty useful questions), quick turnaround, and total peace of mind.",
     rating: 4,
   },
 ];
@@ -144,45 +150,19 @@ export default function Testimonials() {
                     </div>
 
                     {/* Testimonial content */}
-                    <p className="text-white text-lg mb-6">
+                    <p className="text-white text-xl font-semibold mb-2">
+                      {testimonial.title}
+                    </p>
+                    <p className="text-white font-medium mb-6 italic">
                       &quot;{testimonial.quote}&quot;
                     </p>
 
-                    {/* Rating stars */}
-                    <div className="flex mb-6">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-5 w-5 ${i < testimonial.rating
-                              ? "text-yellow-400"
-                              : "text-gray-600"
-                            }`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-
                     {/* Author info */}
                     <div className="flex items-center">
-                      <div className="h-12 w-12 rounded-full overflow-hidden mr-4 bg-gray-700">
-                        <Image
-                          src={testimonial.avatar}
-                          alt={testimonial.name}
-                          width={48}
-                          height={48}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
                       <div>
                         <h4 className="text-white font-medium">
-                          {testimonial.name}
+                          - {testimonial.name}
                         </h4>
-                        <p className="text-gray-400 text-sm">
-                          {testimonial.role}
-                        </p>
                       </div>
                     </div>
                   </div>

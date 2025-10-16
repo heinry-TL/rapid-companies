@@ -39,7 +39,7 @@ const pricingPlans = [
       "Everything in Basic",
       "Corporate bank account assistance",
       "Company seal",
-      "Apostille certification",
+      "Apostille certification (If necessary)",
       "Nominee director (1 year)",
       "Priority processing",
     ],

@@ -11,6 +11,7 @@ interface Jurisdiction {
     description: string;
     formation_price: number;
     currency: string;
+    vat_applicable?: boolean;
     processing_time: string;
     features: string[];
     status: string;
@@ -111,6 +112,33 @@ export default function EditJurisdictionPage() {
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Currency</label>
                     <input name="currency" value={form.currency || ""} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">VAT Applicable</label>
+                    <div className="flex items-center space-x-4">
+                        <label className="inline-flex items-center">
+                            <input
+                                type="radio"
+                                name="vat_applicable"
+                                value="true"
+                                checked={form.vat_applicable === true || form.vat_applicable === "true"}
+                                onChange={(e) => setForm((prev) => ({ ...prev, vat_applicable: true }))}
+                                className="form-radio h-4 w-4 text-blue-600"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">Yes (show +VAT)</span>
+                        </label>
+                        <label className="inline-flex items-center">
+                            <input
+                                type="radio"
+                                name="vat_applicable"
+                                value="false"
+                                checked={form.vat_applicable === false || form.vat_applicable === "false" || form.vat_applicable === undefined}
+                                onChange={(e) => setForm((prev) => ({ ...prev, vat_applicable: false }))}
+                                className="form-radio h-4 w-4 text-blue-600"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">No</span>
+                        </label>
+                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Processing Time</label>

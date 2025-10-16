@@ -692,9 +692,17 @@ function ServicesContent() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-white">{selectedService.name}</h3>
-                  <div className="flex items-center space-x-4 mt-1">
-                    <span className="text-blue-400 font-semibold"> £{selectedService.pricing}</span>
-                  </div>
+                    <div className="flex items-center space-x-4 mt-1">
+                    <span className="text-blue-400 font-semibold">
+                      {selectedService.pricing && /^\s*\d/.test(selectedService.pricing.trim())
+                      ? `£${selectedService.pricing}`
+                      : selectedService.pricing && /^£?\s*\d/.test(selectedService.pricing.trim())
+                        ? selectedService.pricing.trim().startsWith('£')
+                        ? selectedService.pricing
+                        : `£${selectedService.pricing}`
+                        : selectedService.pricing}
+                    </span>
+                    </div>
                 </div>
               </div>
               <button
@@ -783,7 +791,7 @@ function ServicesContent() {
                         >
                           Apply Now
                         </button>
-                      ) : selectedService.category === 'office' ? (
+                      ) : selectedService.category === 'office' || selectedService.name.toLowerCase().includes('horizon') || selectedService.name.toLowerCase().includes('review') ? (
                         <button
                           onClick={handleContactUsClick}
                           className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-6 rounded-lg font-medium transition-colors"
@@ -841,7 +849,7 @@ function ServicesContent() {
                           <div>
                             <p className="text-gray-400 text-sm">Email us at</p>
                             <p className="text-white font-semibold group-hover:text-blue-400 transition-colors">
-                              info@rapidcorporateservices.com
+                              info@rapidcompanies.com
                             </p>
                           </div>
                         </a>
@@ -859,7 +867,7 @@ function ServicesContent() {
                           <div>
                             <p className="text-gray-400 text-sm">Call us at</p>
                             <p className="text-white font-semibold group-hover:text-green-400 transition-colors">
-                              +44 1904 560089
+                              +44 1904 925200
                             </p>
                           </div>
                         </a>
